@@ -17,5 +17,3 @@ users = Table(
     Column('created_at', TIMESTAMP)
 )
 metadata.create_all(engine)
-# Uncomment the next line if you want SQLAlchemy to create the table if it doesn't exist
-# metadata.create_all(engine)

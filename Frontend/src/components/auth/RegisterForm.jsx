@@ -1,183 +1,185 @@
 // import { useState } from 'react';
 // import UserTypeSelector from "./UserTypeSelector";
 // import { useNavigate } from 'react-router-dom';
-
-// export default function RegisterForm({ onRegister }) {
+// export default function RegisterForm({  onRegister, onSwitchToLogin }) {
 //   const [name, setName] = useState('');
 //   const [email, setEmail] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [confirmPassword, setConfirmPassword] = useState('');
 //   const [message, setMessage] = useState({ text: '', type: '' });
-//   const [userType, setUserType] = useState("student");
-//   const navigate = useNavigate();
+//    const [userType, setUserType] = useState("student")
+//    const navigate=useNavigate()
 
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
-
+    
 //     if (password !== confirmPassword) {
 //       setMessage({ text: 'Passwords do not match.', type: 'error' });
 //       return;
 //     }
-
+    
 //     if (password.length < 6) {
 //       setMessage({ text: 'Password must be at least 6 characters.', type: 'error' });
 //       return;
 //     }
-
-//     const userData = { email, password, name };
-
+    
+//     const userData = { email, password, name,userType };
 //     const res = await fetch("http://127.0.0.1:8000/users/register/", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(userData),
-//     });
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify(userData)
+//   });
 
-//     const data = await res.json();
+//   const data = await res.json();
 
+
+
+    
 //     if (data.success) {
-//       navigate(userType === "admin" ? "/admin" : "/student", {
-//         state: { name },
-//       });
+//       setName('');
+//       setEmail('');
+//       setPassword('');
+//       setConfirmPassword('');
+//       navigate('/login')
 //     }
 //   };
 
 //   return (
-//     <div className="min-h-screen flex items-center justify-center
-//                 bg-gradient-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
-
-//       <div className="w-full max-w-md bg-white backdrop-blur-md rounded-2xl shadow-2xl p-8 space-y-6">
-
-
-//         {/* Header */}
-//         <div className="text-center">
-//           <h1 className="text-3xl font-bold text-indigo-700">
-//             College Club Management
-//           </h1>
-//           <p className="text-gray-500 mt-2">
-//             Create a new account
-//           </p>
+//     <>
+//      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+//       <div className="w-full max-w-md">
+//         <div className="text-center mb-10">
+//           <h1 className="text-4xl font-bold text-indigo-700 mb-2">College Club Management</h1>
+//           <p className="text-gray-600">Login or register to access the system</p>
 //         </div>
-
-//         {/* User Type */}
-//         <UserTypeSelector
-//           userType={userType}
-//           onUserTypeChange={setUserType}
-//         />
-
-//         {/* Form */}
-//         <form onSubmit={handleSubmit} className="space-y-5">
-
-//           {/* Full Name */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">
-//               Full Name
-//             </label>
-//             <input
-//               type="text"
-//               placeholder="Enter your full name"
-//               value={name}
-//               onChange={(e) => setName(e.target.value)}
-//               required
-//               className="w-full px-4 py-3 border border-gray-300 rounded-lg
-//                          focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-//             />
+        
+//         <div className="bg-white rounded-2xl shadow-xl overflow-hidden"></div>
+//     <UserTypeSelector
+//         userType={userType}
+//         onUserTypeChange={setUserType}
+//       />
+//     <form onSubmit={handleSubmit} className="space-y-4">
+//       <div>
+//         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="name">
+//           Full Name
+//         </label>
+//         <div className="relative">
+//           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//             <i className="fas fa-user text-gray-400" />
 //           </div>
-
-//           {/* Email */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">
-//               Email Address
-//             </label>
-//             <input
-//               type="email"
-//               placeholder={`${userType}@college.edu`}
-//               value={email}
-//               onChange={(e) => setEmail(e.target.value)}
-//               required
-//               className="w-full px-4 py-3 border border-gray-300 rounded-lg
-//                          focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-//             />
-//           </div>
-
-//           {/* Password */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">
-//               Password
-//             </label>
-//             <input
-//               type="password"
-//               placeholder="Minimum 6 characters"
-//               value={password}
-//               onChange={(e) => setPassword(e.target.value)}
-//               required
-//               className="w-full px-4 py-3 border border-gray-300 rounded-lg
-//                          focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-//             />
-//           </div>
-
-//           {/* Confirm Password */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700 mb-1">
-//               Confirm Password
-//             </label>
-//             <input
-//               type="password"
-//               placeholder="Re-enter your password"
-//               value={confirmPassword}
-//               onChange={(e) => setConfirmPassword(e.target.value)}
-//               required
-//               className="w-full px-4 py-3 border border-gray-300 rounded-lg
-//                          focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-//             />
-//           </div>
-
-//           {/* Message */}
-//           {message.text && (
-//             <div
-//               className={`text-sm text-center p-3 rounded-lg ${
-//                 message.type === 'success'
-//                   ? 'bg-green-100 text-green-700'
-//                   : 'bg-red-100 text-red-700'
-//               }`}
-//             >
-//               {message.text}
-//             </div>
-//           )}
-
-//           {/* Submit Button */}
-//           <button
-//             type="submit"
-//             className="w-full py-3 rounded-lg text-white font-semibold
-//              bg-indigo-600
-//              hover:bg-indigo-700
-//              transform hover:-translate-y-1
-//              transition duration-300 shadow-lg hover:shadow-xl
-//              text-center"
-//           >
-//             Register as {userType === 'admin' ? 'Admin' : 'Student'}
-//           </button>
-//         </form>
-
-//         {/* Footer */}
-//         <div className="text-center text-sm text-gray-600">
-//           Already have an account?
-//           <button
-//             onClick={() => navigate('/login')}
-//             className="ml-1 text-indigo-600 font-medium hover:text-indigo-800"
-//           >
-//             Login
-//           </button>
+//           <input
+//             id="name"
+//             type="text"
+//             className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+//             placeholder="Enter your full name"
+//             value={name}
+//             onChange={(e) => setName(e.target.value)}
+//             required
+//           />
 //         </div>
-
 //       </div>
+      
+//       <div>
+//         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="email">
+//           Email Address
+//         </label>
+//         <div className="relative">
+//           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//             <i className="fas fa-envelope text-gray-400" />
+//           </div>
+//           <input
+//             id="email"
+//             type="email"
+//             className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+//             placeholder={`${userType}@college.edu`}
+//             value={email}
+//             onChange={(e) => setEmail(e.target.value)}
+//             required
+//           />
+//         </div>
+//       </div>
+      
+//       <div>
+//         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="password">
+//           Password
+//         </label>
+//         <div className="relative">
+//           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//             <i className="fas fa-lock text-gray-400" />
+//           </div>
+//           <input
+//             id="password"
+//             type="password"
+//             className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+//             placeholder="Minimum 6 characters"
+//             value={password}
+//             onChange={(e) => setPassword(e.target.value)}
+//             required
+//           />
+//         </div>
+//       </div>
+      
+//       <div>
+//         <label className="block text-gray-700 text-sm font-medium mb-2" htmlFor="confirmPassword">
+//           Confirm Password
+//         </label>
+//         <div className="relative">
+//           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+//             <i className="fas fa-lock text-gray-400" />
+//           </div>
+//           <input
+//             id="confirmPassword"
+//             type="password"
+//             className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+//             placeholder="Re-enter your password"
+//             value={confirmPassword}
+//             onChange={(e) => setConfirmPassword(e.target.value)}
+//             required
+//           />
+//         </div>
+//       </div>
+      
+//       {message.text && (
+//         <div className={`p-3 rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+//           {message.text}
+//         </div>
+//       )}
+      
+//       <button
+//         type="submit"
+//         className="w-full py-3 mt-2 rounded-lg text-white font-semibold
+//                        bg-indigo-600 hover:bg-indigo-700
+//                        transform hover:-translate-y-1
+//                        transition duration-300 shadow-lg hover:shadow-xl
+// "
+//       >
+//         Register as {userType === 'admin' ? 'Admin' : 'Student'}
+//       </button>
+      
+//      <div className="text-center">
+//       <p className="text-gray-600">Already have an account?</p>
+//       <button
+//         type="button"
+//         className="ml-1 text-indigo-600 font-medium hover:text-indigo-800"
+//         onClick={() => navigate('/login')} 
+//       >
+//         Login
+//       </button>
 //     </div>
+//     </form>
+//     </div>
+//      </div>
+//     </>
 //   );
 // }
+
 import { useState } from 'react';
 import UserTypeSelector from "./UserTypeSelector";
 import { useNavigate } from 'react-router-dom';
 
-export default function RegisterForm({ onRegister }) {
+export default function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -188,163 +190,133 @@ export default function RegisterForm({ onRegister }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (password !== confirmPassword) {
       setMessage({ text: 'Passwords do not match.', type: 'error' });
       return;
     }
-
+    
     if (password.length < 6) {
       setMessage({ text: 'Password must be at least 6 characters.', type: 'error' });
       return;
     }
-
-    const userData = { email, password, name };
-
+    
+    const userData = { email, password, name, userType };
     const res = await fetch("http://127.0.0.1:8000/users/register/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(userData)
     });
 
     const data = await res.json();
-
+    
     if (data.success) {
-      navigate(userType === "admin" ? "/admin" : "/student", {
-        state: { name },
-      });
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      navigate('/login');
+    } else {
+      setMessage({ text: data.error || 'Registration failed', type: 'error' });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center
-                    bg-gradient-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
-
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6
-                      flex flex-col justify-between h-[90vh]">
-
+    <div className="min-h-screen flex items-center justify-center  bg-linear-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+        
         {/* Header */}
-        <div className="text-center mb-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-indigo-700 truncate">
-            College Club Management
-          </h1>
-          <p className="text-gray-500 mt-1 text-sm sm:text-base truncate">
-            Create a new account
-          </p>
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-indigo-700 mb-1">College Club Management</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Register to access the system</p>
         </div>
 
-        {/* User Type */}
-        <UserTypeSelector
-          userType={userType}
-          onUserTypeChange={setUserType}
-        />
+        {/* User Type Selector */}
+        <UserTypeSelector userType={userType} onUserTypeChange={setUserType} />
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-2 flex-1 flex flex-col justify-between">
-
-          <div className="space-y-2">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                placeholder={`${userType}@college.edu`}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                type="password"
-                placeholder="Minimum 6 characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                placeholder="Re-enter your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg
-                           focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
-              />
-            </div>
-
-            {/* Message */}
-            {message.text && (
-              <div
-                className={`text-sm text-center p-2 rounded-lg ${
-                  message.type === 'success'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                }`}
-              >
-                {message.text}
-              </div>
-            )}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Full Name */}
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="name">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
           </div>
 
-          {/* Submit Button */}
+          {/* Email */}
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              placeholder={`${userType}@college.edu`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="Minimum 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="confirmPassword">Confirm Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Re-enter your password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+          </div>
+
+          {/* Message */}
+          {message.text && (
+            <div className={`p-2 text-sm rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {message.text}
+            </div>
+          )}
+
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 mt-2 rounded-lg text-white font-semibold
-                       bg-indigo-600 hover:bg-indigo-700
-                       transform hover:-translate-y-1
-                       transition duration-300 shadow-lg hover:shadow-xl"
+            className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow"
           >
             Register as {userType === 'admin' ? 'Admin' : 'Student'}
           </button>
 
+          {/* Login Link */}
+          <div className="text-center text-gray-600 text-sm">
+            Already have an account?{' '}
+            <button type="button" className="text-indigo-600 font-medium hover:text-indigo-800" onClick={() => navigate('/login')}>
+              Login
+            </button>
+          </div>
+
         </form>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-gray-600 mt-2">
-          Already have an account?
-          <button
-            onClick={() => navigate('/login')}
-            className="ml-1 text-indigo-600 font-medium hover:text-indigo-800"
-          >
-            Login
-          </button>
-        </div>
-
       </div>
     </div>
   );

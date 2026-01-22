@@ -2,10 +2,11 @@ import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 
-def generate_jwt(email):
+def generate_jwt(email,role):
     payload = {
         "email": email,
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "role": role,
+        "exp": datetime.utcnow() + timedelta(minutes=60),
         "iat": datetime.utcnow(),
     }
 
