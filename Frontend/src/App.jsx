@@ -1,4 +1,5 @@
 import { Routes,Route } from 'react-router-dom'
+import './App.css';
 import RegisterForm from './components/auth/RegisterForm'
 import LoginForm from './components/auth/LoginForm'
 import AuthLayout from './components/auth/AuthLayout'
@@ -11,6 +12,8 @@ import PublicRoute from './components/auth/publicroute'
 import './App.css'
 import Hero from './components/home/hero'
 import Navbar from './components/home/navbar'
+import Club from './components/event-club/club'
+import About from './components/home/About'
 function App() {
   const isAuth = localStorage.getItem("token");
   return (
@@ -20,6 +23,8 @@ function App() {
         <Route element={<PublicRoute />}>
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />
+            <Route path="/clubs" element={<Club/>} />
+            <Route path="/about" element={<About />} />
             <Route path="/" element={
              <><Navbar></Navbar><Hero></Hero></>}/>
         </Route>
