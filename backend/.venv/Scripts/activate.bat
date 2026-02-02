@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\sandi\OneDrive\Desktop\new\club-management-system\backend\.venv
+set VIRTUAL_ENV=C:\Users\sandi\OneDrive\Desktop\Club-Event_Management_System\backend\.venv
 
 if not defined PROMPT set PROMPT=$P$G
 

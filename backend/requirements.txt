@@ -1,8 +1,11 @@
 asgiref==3.11.0
+bcrypt==5.0.0
 Django==6.0.1
 django-cors-headers==4.9.0
+djangorestframework==3.16.1
 greenlet==3.3.0
 MarkupSafe==3.0.3
+passlib==1.7.4
 psycopg2-binary==2.9.11
 PyJWT==2.10.1
 SQLAlchemy==2.0.45
