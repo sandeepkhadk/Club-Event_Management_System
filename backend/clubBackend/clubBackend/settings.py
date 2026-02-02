@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h1w#yz$3pfjuu$5$4cg+$%sb)-vfrclj!3#b$ovz6n!qp#nl20'
+# SECRET_KEY = 'django-insecure-h1w#yz$3pfjuu$5$4cg+$%sb)-vfrclj!3#b$ovz6n!qp#nl20'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -31,16 +31,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-   "corsheaders",
-  "Users",
- 
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "corsheaders",
+    "Users",
+    "clubs",
+    'rest_framework',
+
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -82,8 +85,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'system',
         'USER': 'postgres',
-        'PASSWORD': 'Sandeep@321',
-        'HOST': 'localhost',
+        'PASSWORD': 'Swastika',
+        'HOST': 'localhost', 
         'PORT': '5432',
     }
 }
@@ -137,3 +140,5 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 SECRET_KEY="deepsanjin"
+SQLALCHEMY_DATABASE_URL='postgresql+psycopg2://postgres:Swastika@localhost:5432/system'
+

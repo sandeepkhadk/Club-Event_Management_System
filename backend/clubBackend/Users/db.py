@@ -3,7 +3,7 @@ from sqlalchemy.sql import select
 from sqlalchemy.exc import NoResultFound
 
 # PostgreSQL connection
-engine = create_engine(  'postgresql+psycopg2://postgres:Sandeep%40321@localhost:5432/system')
+engine = create_engine('postgresql+psycopg2://postgres:Swastika@localhost:5432/system')
 
 metadata = MetaData()
 
@@ -16,4 +16,4 @@ users = Table(
     Column('password', String(255), nullable=False),
     Column('created_at', TIMESTAMP)
 )
-metadata.create_all(engine)
+# metadata.create_all(engine)
