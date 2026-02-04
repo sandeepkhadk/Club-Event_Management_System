@@ -1,27 +1,18 @@
 from django.shortcuts import render
 """
 Views for Club management API.
-Uses SQLAlchemy instead of Django ORM.
+Uses raw SQL through ClubService.
 """
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.http import Http404
-# from clubs.database import get_db
-# from clubs.services import ClubService
-# from clubs.serializers import ClubSerializer, ClubUpdateSerializer
-print("Import 1: database")
-from clubs.database import get_db
-print("Import 2: services")
 from clubs.services import ClubService
-print("Import 3: serializers")
 from clubs.serializers import ClubSerializer, ClubUpdateSerializer
-print("All imports successful!")
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Create your views here.
+
 class ClubListView(APIView):
     """
     API view for listing all clubs and creating new clubs.
@@ -33,13 +24,7 @@ class ClubListView(APIView):
     def get(self, request):
         """
         Retrieve all clubs with optional pagination and search.
-        
-        Query Parameters:
-            - skip: Number of records to skip (default: 0)
-            - limit: Maximum records to return (default: 100)
-            - search: Search term for filtering clubs
         """
-        db = get_db()
         try:
             # Get query parameters
             skip = int(request.query_params.get('skip', 0))
@@ -54,12 +39,12 @@ class ClubListView(APIView):
             
             # Get clubs
             if search:
-                clubs = ClubService.search_clubs(db, search)
+                clubs = ClubService.search_clubs(search)
             else:
-                clubs = ClubService.get_all_clubs(db, skip=skip, limit=limit)
+                clubs = ClubService.get_all_clubs(skip=skip, limit=limit)
             
             # Get total count
-            total_count = ClubService.get_clubs_count(db)
+            total_count = ClubService.get_clubs_count()
             
             # Serialize data
             serializer = ClubSerializer([club.to_dict() for club in clubs], many=True)
@@ -77,20 +62,11 @@ class ClubListView(APIView):
                 'success': False,
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
     
     def post(self, request):
         """
         Create a new club.
-        
-        Request Body:
-            - club_name (required): Name of the club
-            - description (required): Description of the club
-            - founded_date (optional): Founded date
-            - created_by (required): User ID of creator
         """
-        db = get_db()
         try:
             # Validate input data
             serializer = ClubSerializer(data=request.data)
@@ -101,7 +77,7 @@ class ClubListView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Create club
-            club = ClubService.create_club(db, serializer.validated_data)
+            club = ClubService.create_club(serializer.validated_data)
             
             # Serialize response
             response_serializer = ClubSerializer(club.to_dict())
@@ -123,27 +99,17 @@ class ClubListView(APIView):
                 'success': False,
                 'error': 'An error occurred while creating the club'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
 
 
 class ClubDetailView(APIView):
     """
     API view for retrieving, updating, and deleting a specific club.
-    
-    GET /api/clubs/{id}/ - Retrieve a club
-    PUT /api/clubs/{id}/ - Update a club
-    PATCH /api/clubs/{id}/ - Partially update a club
-    DELETE /api/clubs/{id}/ - Delete a club
     """
     
     def get(self, request, club_id):
-        """
-        Retrieve a single club by ID.
-        """
-        db = get_db()
+        """Retrieve a single club by ID."""
         try:
-            club = ClubService.get_club_by_id(db, club_id)
+            club = ClubService.get_club_by_id(club_id)
             
             if not club:
                 return Response({
@@ -164,29 +130,20 @@ class ClubDetailView(APIView):
                 'success': False,
                 'error': 'An error occurred while retrieving the club'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
     
     def put(self, request, club_id):
-        """
-        Fully update a club (all fields required).
-        """
+        """Fully update a club."""
         return self._update_club(request, club_id, partial=False)
     
     def patch(self, request, club_id):
-        """
-        Partially update a club (only provided fields updated).
-        """
+        """Partially update a club."""
         return self._update_club(request, club_id, partial=True)
     
     def _update_club(self, request, club_id, partial=False):
-        """
-        Internal method to handle club updates.
-        """
-        db = get_db()
+        """Internal method to handle club updates."""
         try:
             # Check if club exists
-            existing_club = ClubService.get_club_by_id(db, club_id)
+            existing_club = ClubService.get_club_by_id(club_id)
             if not existing_club:
                 return Response({
                     'success': False,
@@ -206,7 +163,7 @@ class ClubDetailView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Update club
-            updated_club = ClubService.update_club(db, club_id, serializer.validated_data)
+            updated_club = ClubService.update_club(club_id, serializer.validated_data)
             
             if not updated_club:
                 return Response({
@@ -234,16 +191,11 @@ class ClubDetailView(APIView):
                 'success': False,
                 'error': 'An error occurred while updating the club'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
     
     def delete(self, request, club_id):
-        """
-        Delete a club by ID.
-        """
-        db = get_db()
+        """Delete a club by ID."""
         try:
-            deleted = ClubService.delete_club(db, club_id)
+            deleted = ClubService.delete_club(club_id)
             
             if not deleted:
                 return Response({
@@ -262,24 +214,17 @@ class ClubDetailView(APIView):
                 'success': False,
                 'error': 'An error occurred while deleting the club'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
 
 
 class ClubsByCreatorView(APIView):
     """
     API view for retrieving all clubs created by a specific user.
-    
-    GET /api/clubs/creator/{user_id}/ - Get clubs by creator
     """
     
     def get(self, request, user_id):
-        """
-        Retrieve all clubs created by a specific user.
-        """
-        db = get_db()
+        """Retrieve all clubs created by a specific user."""
         try:
-            clubs = ClubService.get_clubs_by_creator(db, user_id)
+            clubs = ClubService.get_clubs_by_creator(user_id)
             
             serializer = ClubSerializer([club.to_dict() for club in clubs], many=True)
             
@@ -295,6 +240,3 @@ class ClubsByCreatorView(APIView):
                 'success': False,
                 'error': 'An error occurred while retrieving clubs'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        finally:
-            db.close()
-
