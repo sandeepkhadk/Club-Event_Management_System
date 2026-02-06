@@ -179,6 +179,8 @@ import { useState } from 'react';
 import UserTypeSelector from "./UserTypeSelector";
 import { useNavigate } from 'react-router-dom';
 
+
+
 export default function RegisterForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

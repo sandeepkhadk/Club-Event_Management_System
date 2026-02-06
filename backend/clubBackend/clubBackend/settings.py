@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "Users",
     "clubs",
     'rest_framework',
+    "Events",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -83,9 +84,9 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'system',
+        'NAME': 'mydb',
         'USER': 'postgres',
-        'PASSWORD': 'Swastika',
+        'PASSWORD': '080bct039@$$',
         'HOST': 'localhost', 
         'PORT': '5432',
     }
@@ -140,5 +141,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 SECRET_KEY="deepsanjin"
-SQLALCHEMY_DATABASE_URL='postgresql+psycopg2://postgres:Swastika@localhost:5432/system'
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql+psycopg2://postgres:080bct039%40%24%24@localhost:5432/mydb"
+)
+
 

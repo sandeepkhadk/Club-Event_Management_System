@@ -7,11 +7,13 @@
 //   return isAuth ? <Outlet /> : <Navigate to="/login" />;
 // }
 
-import { getUserRole } from "./jwtdecoder";
+
 import { Navigate, Outlet } from "react-router-dom";
+import { useUserRole } from "../../context/hooks/useUserRole";
 
 export default function RoleRoute({ allowedRoles }) {
-  const role = getUserRole();
+  const role = useUserRole();
+  
 
   if (!role) return <Navigate to="/login" replace />;
 

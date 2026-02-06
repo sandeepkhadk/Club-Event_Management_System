@@ -95,20 +95,9 @@ class Club(Base):
 
 # Placeholder for User model (for reference)
 # This should be in a separate users app
-class User(Base):
-    """
-    User model representing the users table.
-    This is a placeholder - you should create a proper users app.
-    """
-    __tablename__ = "users"
-    
-    user_id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String(100), unique=True, nullable=False)
-    email = Column(String(255), unique=True, nullable=False)
-    created_at = Column(DateTime, server_default=func.current_timestamp())
+
     
     # Relationship
     # created_clubs = relationship("Club", back_populates="creator")
     
-    def __repr__(self):
-        return f"<User(user_id={self.user_id}, username='{self.username}')>"
+   
