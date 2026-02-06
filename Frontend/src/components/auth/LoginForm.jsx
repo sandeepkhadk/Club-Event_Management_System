@@ -1,8 +1,11 @@
 import { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import UserTypeSelector from './UserTypeSelector';
+import { useAuthContext } from "../../context/provider/AuthContext";
+
 
 export default function LoginForm() {
+  const { login } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -10,31 +13,38 @@ export default function LoginForm() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const userData = { email, password, userType };
-    const res = await fetch("http://127.0.0.1:8000/users/login/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData)
+  e.preventDefault();
+
+  const userData = { email, password, userType };
+
+  const res = await fetch("http://127.0.0.1:8000/users/login/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(userData),
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    setMessage({
+      text: data.message || "Invalid email or password",
+      type: "error",
     });
+    return;
+  }
 
-    const data = await res.json();
+ 
+  login(data.user, data.token);
 
-    if (!data.success) {
-      setMessage({ text: data.message || "Invalid email or password", type: "error" });
-      return; 
-    }
+  setMessage({
+    text: data.message || "Login successful",
+    type: "success",
+  });
 
-    localStorage.setItem("token", data.token);
-
-    setMessage({ text: data.message || "Login successful", type: "success" });
-
-    if (data.success) {
-      setTimeout(() => {
-        navigate(userType === 'admin' ? '/admin' : '/student', { state: { role: userType } });
-      }, 1000);
-    }
-  };
+  setTimeout(() => {
+    navigate(userType === "admin" ? "/admin" : "/student");
+  }, 1000);
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center  bg-gradient-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">

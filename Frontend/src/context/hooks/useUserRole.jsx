@@ -1,12 +1,13 @@
 import { jwtDecode } from "jwt-decode";
+import { useAuthContext } from "../provider/AuthContext";
 
-export function getUserRole() {
-  const token = localStorage.getItem("token");
+export function useUserRole() {
+  const { token } = useAuthContext();
+
   if (!token) return null;
 
   try {
     const decoded = jwtDecode(token);
-    console.log(decoded.role)
     return decoded.role;
   } catch {
     return null;

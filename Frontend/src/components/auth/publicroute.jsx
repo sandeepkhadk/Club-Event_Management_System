@@ -1,15 +1,11 @@
 // PublicRoute.jsx
 import { Navigate, Outlet } from "react-router-dom";
-import { getUserRole } from "./jwtdecoder";
-
-function isAuthenticated() {
-  return !!localStorage.getItem("token");
-}
-
+import useIsAuthenticated from "../../context/hooks/useIsAuthenticated";
+import { useUserRole } from "../../context/hooks/useUserRole";
 export default function PublicRoute() {
-  const role = getUserRole();
+  const role = useUserRole();
 
-  if (isAuthenticated()) {
+  if (useIsAuthenticated()) {
     return (
       <Navigate
         to={role === "admin" ? "/admin" : "/student"}

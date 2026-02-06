@@ -1,6 +1,7 @@
 """
 Service layer for Club operations using raw SQL.
 Handles business logic and database operations.
+hi my name is santosh khadka . i am styding in thapathali campus also i am a backend developer and data scientist with the great experience of the ml and ai. i have also a great experience of finance. i do nto have any hobby.
 """
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError

@@ -22,3 +22,6 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+#node modules
+node_modules/

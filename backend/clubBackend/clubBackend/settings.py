@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "Users",
     "clubs",
     'rest_framework',
+    "Events",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -83,7 +84,7 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'system',
+        'NAME': 'mydb',
         'USER': 'postgres',
         'PASSWORD': 'Sandeep@321',
         'HOST': 'localhost', 

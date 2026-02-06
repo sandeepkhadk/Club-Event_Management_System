@@ -2,7 +2,6 @@ import { Routes,Route } from 'react-router-dom'
 import './App.css';
 import RegisterForm from './components/auth/RegisterForm'
 import LoginForm from './components/auth/LoginForm'
-import AuthLayout from './components/auth/AuthLayout'
 import Std_dash from './components/student/std_dash'
 import Admin_dash from './components/admin/admin_dash'
 import PrivateRoute from './components/auth/privateroutes'
@@ -15,7 +14,7 @@ import Navbar from './components/home/navbar'
 import Club from './components/event-club/club'
 import About from './components/home/About'
 function App() {
-  const isAuth = localStorage.getItem("token");
+ 
   return (
     <>
     
