@@ -1,12 +1,17 @@
 import React from 'react';
 import { ShieldCheck, ClipboardCheck, Users, Activity, Landmark, Search } from 'lucide-react';
+import Navbar from './navbar';
 
 const About = () => {
   return (
+    <>
+    <Navbar />
     <section className="py-20 bg-white">
+     
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Section Heading */}
+        
         <div className="text-center mb-16">
           <h2 className="text-indigo-600 font-bold uppercase tracking-widest text-sm mb-3">System Overview</h2>
           <h1 className="text-4xl md:text-5xl font-black text-gray-900 mb-6">
@@ -28,7 +33,7 @@ const About = () => {
                 <Landmark className="mr-3 text-indigo-600" size={24} /> General Preview
               </h3>
               <p className="text-slate-600 leading-relaxed">
-                This system acts as the digital record for all **verified college clubs**. It provides students 
+                This system acts as the digital record for all <b>verified college clubs</b>. It provides students 
                 with a transparent directory of official organizations and a centralized calendar of 
                 administration-approved events. Every activity logged here is vetted to ensure it aligns 
                 with institutional standards.
@@ -40,7 +45,7 @@ const About = () => {
                 <ClipboardCheck className="mr-3 text-indigo-600" size={24} /> Main Aim
               </h3>
               <p className="text-indigo-700 leading-relaxed">
-                Our primary aim is to ensure **accountability and structured engagement**. By centralizing 
+                Our primary aim is to ensure <b>accountability and structured engagement</b>. By centralizing 
                 club management, we help the administration verify that every event is safe, organized, 
                 and productive. We aim to provide students with a secure environment to develop leadership 
                 skills through recognized extracurricular activities.
@@ -110,7 +115,9 @@ const About = () => {
         </div>
       </div>
     </section>
+    </>
   );
+ 
 };
 
 export default About;
