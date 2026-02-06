@@ -1,5 +1,12 @@
 {
-  "dependencies": {
-    "lucide-react": "^0.563.0"
+  "name": "club-management-system",
+  "private": true,
+  "workspaces": [
+    "Frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w Frontend",
+    "preview": "npm run preview -w Frontend",
+    "build": "npm run build -w Frontend"
   }
 }

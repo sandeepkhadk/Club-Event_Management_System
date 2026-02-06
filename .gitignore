@@ -1,31 +1,24 @@
-# Virtual environments
+# Python Virtual Environments
+.venv/
 venv/
 env/
-.venv/
+backend/.venv/
 backend/venv/
 backend/vir/
 
-# Python cache
-__pycache__/
+# Python Bytecode & Cache
+**/__pycache__/
 *.py[cod]
+*$py.class
 
-# Environment variables
+# Environment Variables / Secrets
 .env
+.flaskenv
 
-# Django
-*.log
-db.sqlite3
-backend/clubBackend/db.sqlite3
-media/
-staticfiles/
-
-# Node
-frontend/node_modules/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
