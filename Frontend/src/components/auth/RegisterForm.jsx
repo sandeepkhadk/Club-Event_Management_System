@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import UserTypeSelector from "./UserTypeSelector";
 import { useNavigate } from 'react-router-dom';
-
+import Navbar from '../home/navbar';
 
 
 export default function RegisterForm() {
@@ -26,7 +26,7 @@ export default function RegisterForm() {
       return;
     }
     
-    const userData = { email, password, name, userType };
+    const userData = { email, password, name };
     const res = await fetch("http://127.0.0.1:8000/users/register/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,6 +47,8 @@ export default function RegisterForm() {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen flex items-center justify-center  bg-linear-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
         
@@ -128,7 +130,7 @@ export default function RegisterForm() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow"
+            className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow cursor-pointer"
           >
             Register as {userType === 'admin' ? 'Admin' : 'Student'}  
           </button>
@@ -144,5 +146,6 @@ export default function RegisterForm() {
         </form>
       </div>
     </div>
+  </>
   );
 }

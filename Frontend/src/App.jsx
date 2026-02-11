@@ -1,5 +1,5 @@
 import { Routes,Route } from 'react-router-dom'
-import './App.css';
+import './App.css'
 import RegisterForm from './components/auth/RegisterForm'
 import LoginForm from './components/auth/LoginForm'
 import Std_dash from './components/Member/member_dash'
@@ -8,11 +8,10 @@ import PrivateRoute from './components/auth/privateroutes'
 import Unauth from './components/auth/unauth'
 import NotFound from './components/auth/notfound'
 import PublicRoute from './components/auth/publicroute'
-import './App.css'
 import Hero from './components/home/hero'
 import Navbar from './components/home/navbar'
 import Club from './components/event-club/club'
-import EventPage from './components/event-club/event';    
+import EventPage from './components/event-club/event'
 import About from './components/home/About'
 function App() {
  

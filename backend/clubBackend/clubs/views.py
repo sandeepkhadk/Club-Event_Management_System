@@ -286,18 +286,21 @@ def create_club(request):
     finally:
         session.close()
 
-@jwt_required
+@csrf_exempt
 def get_clubs(request):
-    if request.user_payload.get("role") != "admin":
-        return JsonResponse({"error": "Admin only"}, status=403)
+    # if request.user_payload.get("role") != "admin":
+    #     return JsonResponse({"error": "Admin only"}, status=403)
 
     session = SessionLocal()
     try:
         clubs = session.execute(
             select(clubs_table).order_by(clubs_table.c.created_at.desc())
         ).mappings().all()
+        
+        # Convert RowMapping → dict
+        clubs_list = [dict(club) for club in clubs]
 
-        return JsonResponse({"clubs": list(clubs)}, status=200)
+        return JsonResponse({"clubs": clubs_list}, status=200)
     finally:
         session.close()
 

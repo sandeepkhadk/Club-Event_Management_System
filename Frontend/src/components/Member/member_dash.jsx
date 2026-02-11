@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Calendar, PlusCircle, UserCheck, LogOut } from 'lucide-react';
+import { useAuthContext } from "../../context/provider/AuthContext";
 
 const MemberDashboard = () => {
   const [activeTab, setActiveTab] = useState('events'); // default to events
@@ -10,10 +11,11 @@ const MemberDashboard = () => {
   const [proposedEvents, setProposedEvents] = useState([]);
   const [showProposeForm, setShowProposeForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ name: '', date: '' });
+  const { logout } = useAuthContext(); // get logout function from context
 
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    logout(); // Call the logout function from context
     navigate("/"); // redirect to login/home
   };
 

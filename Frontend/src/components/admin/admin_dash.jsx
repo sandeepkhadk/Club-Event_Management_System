@@ -1,6 +1,7 @@
 // export default AdminDashboard;
 import React, { useState } from 'react';
  import { useNavigate } from "react-router-dom";
+ import { useAuthContext } from "../../context/provider/AuthContext";
 import {
   Users,
   Calendar,
@@ -16,6 +17,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('members');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const { logout } = useAuthContext();
 
   // Mock Data for Members
   const [members, setMembers] = useState([
@@ -33,8 +35,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-  localStorage.removeItem("token");
-  navigate("/"); // no page reload
+  logout(); 
+  navigate("/"); // redirect to login/home
+  console.log("Logged out successfully");
   };
 
 

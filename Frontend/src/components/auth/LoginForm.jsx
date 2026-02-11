@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserTypeSelector from './UserTypeSelector';
 import { useAuthContext } from "../../context/provider/AuthContext";
-
+import Navbar from '../home/navbar';
 
 export default function LoginForm() {
   const { login } = useAuthContext();
@@ -47,6 +47,8 @@ export default function LoginForm() {
 };
 
   return (
+    <>
+    <Navbar/>
     <div className="min-h-screen flex items-center justify-center  bg-gradient-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
 
@@ -100,7 +102,7 @@ export default function LoginForm() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300"
+            className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300 cursor-pointer"
           >
             Login as {userType === 'admin' ? 'Admin' : 'Student'}
           </button>
@@ -120,5 +122,6 @@ export default function LoginForm() {
         </form>
       </div>
     </div>
+  </>
   );
 }

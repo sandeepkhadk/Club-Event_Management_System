@@ -14,6 +14,7 @@ import json
 
 
 @csrf_exempt
+
 def register_view(request):
     if request.method != "POST":
         return JsonResponse(
@@ -110,33 +111,26 @@ def login_view(request):
     session = SessionLocal()
     try:
         stmt = select(users).where(users.c.email == email)
-        result = session.execute(stmt).fetchone()
+        result = session.execute(stmt).mappings().fetchone()
 
-        if not result or not verify_password(password, result.password):
+        if not result or not verify_password(password, result["password"]):
             return JsonResponse(
                 {"success": False, "error": "Invalid email or password"},
                 status=401
             )
 
-        # generate JWT with email + role
-        token = generate_jwt(result.email, role)
+        token = generate_jwt(result["email"], role)
 
-    except Exception as e:
-        print("LOGIN ERROR:", e)
-        return JsonResponse(
-            {"success": False, "error": "Internal server error"},
-            status=500
-        )
-
-    return JsonResponse({
-        "success": True,
-        "message": "Login successful",
-        "token": token,
-        "role": role,
-        "name": result["name"]
-    })
+        return JsonResponse({
+            "success": True,
+            "message": "Login successful",
+            "token": token,
+            "role": role,
+            "name": result["name"]
+        })
 
     except SQLAlchemyError as e:
+        session.rollback()
         return JsonResponse(
             {"success": False, "error": str(e)},
             status=500
@@ -144,7 +138,6 @@ def login_view(request):
 
     finally:
         session.close()
-
 
 @jwt_required
 def profile_view(request):
