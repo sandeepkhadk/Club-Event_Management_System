@@ -1,0 +1,22 @@
+from django.urls import path
+
+
+
+from django.urls import path
+from Events.views import (
+    create_event,
+    get_club_events,
+    get_event,
+    delete_event,
+    join_event,
+    leave_event,
+)
+
+urlpatterns = [
+    path("create/", create_event, name="create-event"),
+    path("club/<int:club_id>/", get_club_events, name="club-events"),
+    path("<int:event_id>/", get_event, name="get-event"),
+    path("<int:event_id>/delete/", delete_event, name="delete-event"),
+    path("join/", join_event, name="join-event"),
+    path("leave/", leave_event, name="leave-event"),
+]

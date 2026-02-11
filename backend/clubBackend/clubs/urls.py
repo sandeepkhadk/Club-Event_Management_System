@@ -2,18 +2,32 @@
 URL patterns for clubs app.
 """
 from django.urls import path
-from clubs.views import ClubListView, ClubDetailView, ClubsByCreatorView
+# from clubs.views import ClubListView, ClubDetailView, ClubsByCreatorView
 
-app_name = 'clubs'
+# app_name = 'clubs'
+
+# urlpatterns = [
+#     # List and create clubs
+#     path('', ClubListView.as_view(), name='club-list'),
+    
+#     # Retrieve, update, delete specific club
+#     path('<int:club_id>/', ClubDetailView.as_view(), name='club-detail'),
+    
+#     # Get clubs by creator
+#     path('creator/<int:user_id>/', ClubsByCreatorView.as_view(), name='clubs-by-creator'),
+    
+# ]
+from django.urls import path
+from clubs.views import (
+    create_club,
+    get_clubs,
+    get_club,
+    delete_club,
+)
 
 urlpatterns = [
-    # List and create clubs
-    path('', ClubListView.as_view(), name='club-list'),
-    
-    # Retrieve, update, delete specific club
-    path('<int:club_id>/', ClubDetailView.as_view(), name='club-detail'),
-    
-    # Get clubs by creator
-    path('creator/<int:user_id>/', ClubsByCreatorView.as_view(), name='clubs-by-creator'),
-    
+    path("create/", create_club, name="create-club"),
+    path("", get_clubs, name="get-clubs"),
+    path("<int:club_id>/", get_club, name="get-club"),
+    path("<int:club_id>/delete/", delete_club, name="delete-club"),
 ]

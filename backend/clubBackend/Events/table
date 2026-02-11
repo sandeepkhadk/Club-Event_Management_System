@@ -1,0 +1,13 @@
+events_table = Table(
+    'events',
+    metadata,
+    Column('event_id', Integer, primary_key=True, autoincrement=True),
+    Column('club_id', Integer, ForeignKey('clubs.club_id', ondelete='CASCADE'), nullable=False),
+    Column('handler_id', Integer, ForeignKey('users.user_id'), nullable=False),
+    Column('title', String(200), nullable=False),
+    Column('description', Text),
+    Column('start_datetime', DateTime, nullable=False),
+    Column('end_datetime', DateTime, nullable=False),
+    Column('status', String(20)), 
+    Column('created_at', DateTime, server_default='CURRENT_TIMESTAMP'),
+)

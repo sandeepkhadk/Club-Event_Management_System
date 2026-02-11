@@ -5,20 +5,8 @@ from sqlalchemy import create_engine, text, MetaData, Table, Column, Integer, St
 from sqlalchemy.pool import QueuePool
 from contextlib import contextmanager
 
-# --- Table definitions for reflection (optional, for structure reference) ---
+# --- Table definitions for reflection (Metadata) ---
 metadata = MetaData()
-
-# Define table structure (for reference, not ORM)
-clubs_table = Table(
-    'clubs',
-    metadata,
-    Column('club_id', Integer, primary_key=True, autoincrement=True),
-    Column('club_name', String(100), unique=True, nullable=False),
-    Column('description', Text, nullable=False),
-    Column('founded_date', Date, nullable=True),
-    Column('created_by', Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False),
-    Column('created_at', DateTime, nullable=False, server_default='CURRENT_TIMESTAMP'),
-)
 
 users_table = Table(
     'users',
@@ -30,15 +18,38 @@ users_table = Table(
     Column('created_at', DateTime, server_default='CURRENT_TIMESTAMP'),
 )
 
-# --- Lazy engine creation (prevents crash at Django startup) ---
+clubs_table = Table(
+    'clubs',
+    metadata,
+    Column('club_id', Integer, primary_key=True, autoincrement=True),
+    Column('club_name', String(100), unique=True, nullable=False),
+    Column('description', Text, nullable=False),
+    Column('founded_date', Date, nullable=True),
+    Column('created_by', Integer, ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False),
+    Column('created_at', DateTime, nullable=False, server_default='CURRENT_TIMESTAMP'),
+)
+
+events_table = Table(
+    'events',
+    metadata,
+    Column('event_id', Integer, primary_key=True, autoincrement=True),
+    Column('club_id', Integer, ForeignKey('clubs.club_id', ondelete='CASCADE'), nullable=False),
+    Column('handler_id', Integer, ForeignKey('users.user_id'), nullable=False),
+    Column('title', String(200), nullable=False),
+    Column('description', Text),
+    Column('start_datetime', DateTime, nullable=False),
+    Column('end_datetime', DateTime, nullable=False),
+    Column('status', String(20)), 
+    Column('created_at', DateTime, server_default='CURRENT_TIMESTAMP'),
+)
+
+# --- Engine Configuration ---
 _engine = None
 
-
 def get_engine():
-    """Lazy initialization of engine."""
     global _engine
     if _engine is None:
-        from django.conf import settings  # Import here, not at top
+        from django.conf import settings
         _engine = create_engine(
             settings.SQLALCHEMY_DATABASE_URL,
             poolclass=QueuePool,
@@ -49,42 +60,22 @@ def get_engine():
         )
     return _engine
 
-
-def get_connection():
-    """
-    Get a raw database connection.
-    Remember to close it after use!
-    """
-    engine = get_engine()
-    return engine.connect()
-
-
-@contextmanager
-def get_db_connection():
-    """
-    Context-managed database connection for raw SQL.
-    Automatically handles commit/rollback and cleanup.
-    """
-    conn = get_connection()
-    trans = conn.begin()
-    try:
-        yield conn
-        trans.commit()
-    except Exception:
-        trans.rollback()
-        raise
-    finally:
-        conn.close()
-
+# --- Database Operations ---
 
 def init_db():
-    """
-    Create tables using raw SQL.
-    Run this once to set up the database.
-    """
+    """Create tables in correct order using raw SQL."""
     engine = get_engine()
     
-    # SQL to create clubs table
+    create_users_sql = text("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(150) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
     create_clubs_sql = text("""
         CREATE TABLE IF NOT EXISTS clubs (
             club_id SERIAL PRIMARY KEY,
@@ -96,43 +87,43 @@ def init_db():
             FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
         )
     """)
-    
-    # SQL to create users table (if not exists from Users app)
-    create_users_sql = text("""
-        CREATE TABLE IF NOT EXISTS users (
-            user_id SERIAL PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            email VARCHAR(150) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    create_events_sql = text("""
+        CREATE TABLE IF NOT EXISTS events (
+            event_id SERIAL PRIMARY KEY,
+            club_id INTEGER NOT NULL,
+            handler_id INTEGER NOT NULL,
+            title VARCHAR(200) NOT NULL,
+            description TEXT,
+            start_datetime TIMESTAMP NOT NULL,
+            end_datetime TIMESTAMP NOT NULL,
+            status VARCHAR(20) DEFAULT 'pending', 
+            created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (club_id) REFERENCES clubs(club_id) ON DELETE CASCADE,
+            FOREIGN KEY (handler_id) REFERENCES users(user_id)
         )
     """)
     
     with engine.connect() as conn:
         trans = conn.begin()
         try:
-            # Create users table first (foreign key dependency)
             conn.execute(create_users_sql)
-            # Then create clubs table
             conn.execute(create_clubs_sql)
+            conn.execute(create_events_sql)
             trans.commit()
-            print("✓ Tables created successfully")
+            print("✓ All tables created successfully")
         except Exception as e:
             trans.rollback()
             print(f"✗ Error creating tables: {e}")
             raise
 
-
 def drop_db():
-    """
-    Drop all tables using raw SQL (DANGEROUS - only for development).
-    """
+    """Drop tables in reverse order of dependency."""
     engine = get_engine()
-    
     drop_sql = text("""
+        DROP TABLE IF EXISTS events CASCADE;
         DROP TABLE IF EXISTS clubs CASCADE;
-        -- Don't drop users table if it's managed by Users app
-        -- DROP TABLE IF EXISTS users CASCADE;
+        -- DROP TABLE IF EXISTS users CASCADE; 
     """)
     
     with engine.connect() as conn:
@@ -146,46 +137,34 @@ def drop_db():
             print(f"✗ Error dropping tables: {e}")
             raise
 
+# --- Helper Methods ---
+
+@contextmanager
+def get_db_connection():
+    engine = get_engine()
+    conn = engine.connect()
+    trans = conn.begin()
+    try:
+        yield conn
+        trans.commit()
+    except Exception:
+        trans.rollback()
+        raise
+    finally:
+        conn.close()
 
 def execute_query(sql, params=None):
-    """
-    Execute a raw SQL query and return results.
-    
-    Args:
-        sql: SQL query string (use :param_name for parameters)
-        params: Dictionary of parameters
-        
-    Returns:
-        List of Row objects
-    """
     engine = get_engine()
     with engine.connect() as conn:
-        if params:
-            result = conn.execute(text(sql), params)
-        else:
-            result = conn.execute(text(sql))
+        result = conn.execute(text(sql), params or {})
         return result.fetchall()
 
-
 def execute_write(sql, params=None):
-    """
-    Execute a write operation (INSERT, UPDATE, DELETE).
-    
-    Args:
-        sql: SQL query string
-        params: Dictionary of parameters
-        
-    Returns:
-        Number of affected rows
-    """
     engine = get_engine()
     with engine.connect() as conn:
         trans = conn.begin()
         try:
-            if params:
-                result = conn.execute(text(sql), params)
-            else:
-                result = conn.execute(text(sql))
+            result = conn.execute(text(sql), params or {})
             trans.commit()
             return result.rowcount
         except Exception:
