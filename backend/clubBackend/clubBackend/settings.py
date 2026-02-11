@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'system',
         'USER': 'postgres',
-        'PASSWORD': 'Sandeep@321',
+        'PASSWORD': '080bct039@$$',
         'HOST': 'localhost', 
         'PORT': '5432',
     }
@@ -141,5 +141,6 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 SECRET_KEY="deepsanjin"
-SQLALCHEMY_DATABASE_URL='postgresql+psycopg2://postgres:Sandeep%40321@localhost:5432/system'
+SQLALCHEMY_DATABASE_URL='postgresql+psycopg2://postgres:080bct039%40%24%24@localhost:5432/mydb'
+
 
