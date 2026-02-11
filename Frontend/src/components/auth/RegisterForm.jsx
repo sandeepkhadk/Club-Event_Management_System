@@ -130,7 +130,7 @@ export default function RegisterForm() {
             type="submit"
             className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow"
           >
-            Register as {userType === 'Member'}
+            Register as {userType === 'admin' ? 'Admin' : 'Student'}  
           </button>
 
           {/* Login Link */}

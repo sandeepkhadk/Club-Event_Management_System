@@ -1,4 +1,6 @@
 # Users/views.py
+import email
+from unicodedata import name
 from unittest import result
 from django.http import JsonResponse
 from datetime import datetime
@@ -57,16 +59,17 @@ def register_view(request):
 
             hashed_password = hash_password(password)
 
+           # Use userType from request to set role
+            role = data.get("userType", "student")  # default to 'student' if not provided
+
             stmt = insert(users).values(
                 name=name,
                 email=email,
                 password=hashed_password,
                 created_at=datetime.now()
             )
-
             conn.execute(stmt)
             conn.commit()
-
         return JsonResponse(
             {"success": True, "message": "User registered successfully"},
             status=201
@@ -77,61 +80,68 @@ def register_view(request):
             {"success": False, "error": str(e)},
             status=500
         )
+        
 @csrf_exempt
+
 def login_view(request):
+    if request.method != "POST":
+        return JsonResponse(
+            {"success": False, "error": "Invalid request method"},
+            status=405
+        )
 
-    if request.method == "POST":
-        import json
+    try:
         data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"success": False, "error": "Invalid JSON"},
+            status=400
+        )
 
-        email = data.get("email")
-        password = data.get("password")
-        role=data.get("userType")
-        if not email or not password:
-            return JsonResponse(
-                {"success": False, "error": "Email and password required"},
-                status=400
-            )
+    email = data.get("email")
+    password = data.get("password")
+    role = data.get("userType") 
 
-        try:
-            with engine.connect() as conn:
-                stmt = select(users).where(users.c.email == email)
-                result = conn.execute(stmt).fetchone()
+    if not email or not password:
+        return JsonResponse(
+            {"success": False, "error": "Email and password required"},
+            status=400
+        )
 
-                if not result:
-                    return JsonResponse(
-                        {"success": False, "error": "Invalid email or password"},
-                        status=401
-                    )
+    try:
+        with engine.connect() as conn:
+            stmt = select(users).where(users.c.email == email)
+            result = conn.execute(stmt).mappings().fetchone()
 
-                # result.password → hashed password from DB
-                if not verify_password(password, result.password):
-                    return JsonResponse(
-                        {"success": False, "error": "Invalid email or password"},
-                        status=401
-                    )
+            if not result:
+                return JsonResponse(
+                    {"success": False, "error": "Invalid email or password"},
+                    status=401
+                )
 
-                # generate jwt with email + role
-                token = generate_jwt(result.email, role)
+            if not verify_password(password, result["password"]):
+                return JsonResponse(
+                    {"success": False, "error": "Invalid email or password"},
+                    status=401
+                )
 
-        except Exception as e:
-            return JsonResponse(
-                {"success": False, "error": str(e)},
-                status=500
-            )
+            token = generate_jwt(result["email"], role)
 
-        return JsonResponse({
-            "success": True,
-            "message": "Login successful",
-            "token": token,
-            "role": role,
-            "name": result.name
-        })
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return JsonResponse(
+            {"success": False, "error": "Internal server error"},
+            status=500
+        )
 
-    return JsonResponse(
-        {"success": False, "error": "Invalid request method"},
-        status=400
-    )
+    return JsonResponse({
+        "success": True,
+        "message": "Login successful",
+        "token": token,
+        "role": role,
+        "name": result["name"]
+    })
+
 @jwt_required
 def profile_view(request):
     user_payload = request.user_payload

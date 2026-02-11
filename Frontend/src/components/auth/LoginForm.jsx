@@ -34,7 +34,7 @@ export default function LoginForm() {
   }
 
  
-  login(data.user, data.token);
+  login(data.token);
 
   setMessage({
     text: data.message || "Login successful",

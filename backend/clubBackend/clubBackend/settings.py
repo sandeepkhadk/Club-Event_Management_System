@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydb',
+        'NAME': 'system',
         'USER': 'postgres',
         'PASSWORD': 'Sandeep@321',
         'HOST': 'localhost', 

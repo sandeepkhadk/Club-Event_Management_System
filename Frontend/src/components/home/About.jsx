@@ -6,7 +6,7 @@ const About = () => {
   return (
     <>
     <Navbar />
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-indigo-50">
      
       <div className="max-w-7xl mx-auto px-6">
         
