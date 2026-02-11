@@ -51,39 +51,8 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 
 ## 📁 Folder Structure
 
-Club-Event_Management_System/
-├── frontend/
-│ ├── node_modules/
-│ ├── src/
-│ │ ├── assets/ # Images, icons, static files
-│ │ ├── components/ # Reusable React components
-│ │ ├── context/ # React Context API provider
-│ │ ├── hooks/ # Custom hooks
-│ │ ├── provider/ # State or theme providers
-│ │ ├── App.css
-│ │ ├── App.jsx
-│ │ ├── index.css
-│ │ ├── index.jsx
-│ │ └── main.jsx # Entry point
-│ ├── package.json
-│ ├── vite.config.js
-│ ├── postcss.config.js
-│ └── eslint.config.js
-│
-├── backend/
-│ ├── clubBackend/
-│ │ ├── Events/ # Event-related models, views
-│ │ ├── Users/ # User models, authentication
-│ │ ├── clubBackend/ # App-specific logic
-│ │ ├── clubs/ # Club-related models, views
-│ │ ├── core/ # Core backend files
-│ │ ├── manage.py # Django management commands
-│ │ └── requirements.txt # Python dependencies
-│
-├── .gitignore
-├── README.md
-├── package-lock.json
-└── package.json
+<img width="220" height="459" alt="image" src="https://github.com/user-attachments/assets/3c8cd54c-cf36-43cd-aeff-8a37ef897a61" />
+
 
 
 ---
@@ -99,3 +68,55 @@ cd Club-Event_Management_System
 ### 2️⃣ Backend Setup (Django)
 
 I. Navigate to backend folder:
+
+```bash
+cd backend/clubBackend
+```
+
+II. Create a virtual environment:
+
+```bash
+python -m venv venv
+source venv/bin/activate     # Linux/Mac
+venv\Scripts\activate        # Windows
+```
+
+III. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+IV. Apply migrations:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+V. Start backend server:
+
+```bash
+python manage.py runserver
+```
+
+### 3️⃣ Frontend Setup (React + Vite + Tailwind CSS)
+
+I. Navigate to frontend folder:
+
+```bash
+cd ../../../frontend
+```
+
+II. Install dependencies:
+
+```bash
+npm install 
+```
+
+III. Start frontend development server:
+
+```bash
+npm run dev
+```
+
