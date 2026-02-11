@@ -43,7 +43,7 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 
 ## 💻 Tech Stack
 
-- **Frontend:** React, Vite, Tailwind CSS, JavaScript  
+- **Frontend:** React, Vite, Tailwind CSS
 - **Backend:** Django 
 - **Database:** PostgreSQL
 
