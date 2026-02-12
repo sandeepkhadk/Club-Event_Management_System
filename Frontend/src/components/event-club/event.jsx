@@ -1,9 +1,15 @@
-import React, { useState } from "react";
-import { Calendar, MapPin, User, Mail, Clock, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Calendar, MapPin, User, Mail, Clock, X, ChevronRight } from "lucide-react";
 import Navbar from "../home/navbar";
+import { useAuthContext } from "../../context/provider/AuthContext";
 
 const EventPage = () => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const { token } = useAuthContext();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,175 +17,171 @@ const EventPage = () => {
     club: "",
   });
 
-  const events = [
-    {
-      id: 1,
-      name: "Robotics Workshop",
-      club: "Robotics Club",
-      time: "Feb 15, 2026 | 2:00 PM - 5:00 PM",
-      place: "Engineering Lab 2, Main Building",
-      about:
-        "Hands-on robotics workshop. Learn building and programming robots. All students are welcome to join.",
-      contactName: "John Doe",
-      contactEmail: "john@campusconnect.com",
-      banner: "from-indigo-400 to-purple-500",
-    },
-    {
-      id: 2,
-      name: "Campus Art Fair",
-      club: "Fine Arts Club",
-      time: "Feb 20, 2026 | 10:00 AM - 4:00 PM",
-      place: "Auditorium Hall",
-      about:
-        "Showcase your artwork or enjoy the creative exhibits from students across campus. Free entry!",
-      contactName: "Emily Smith",
-      contactEmail: "emily@campusconnect.com",
-      banner: "from-pink-400 to-purple-500",
-    },
-    {
-      id: 3,
-      name: "Football Friendly Match",
-      club: "Football Varsity",
-      time: "Feb 18, 2026 | 3:00 PM - 6:00 PM",
-      place: "Sports Ground",
-      about:
-        "Friendly match between varsity teams. Spectators are welcome to cheer for their teams.",
-      contactName: "Michael Lee",
-      contactEmail: "michael@campusconnect.com",
-      banner: "from-green-400 to-teal-500",
-    },
-  ];
+  // ================= 1. FETCH EVENTS =================
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/events/");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const data = await res.json();
 
-  const handleSubmit = (e) => {
+        const gradients = [
+          "from-blue-500 to-indigo-500",
+          "from-purple-600 to-pink-500",
+          "from-rose-500 to-orange-400",
+          "from-emerald-500 to-teal-400"
+        ];
+
+        const formatted = data.events.map((e, index) => {
+          const eventDate = new Date(e.start_datetime);
+          return {
+            id: e.event_id,
+            name: e.title,
+            club: e.club_name || "Campus Club",
+            // For the badge
+            month: eventDate.toLocaleString('en-US', { month: 'short' }),
+            day: eventDate.getDate(),
+            // For the details
+            time: eventDate.toLocaleString([], { hour: '2-digit', minute: '2-digit' }),
+            fullDate: eventDate.toLocaleDateString([], { dateStyle: 'medium' }),
+            place: e.location || "Main Campus",
+            about: e.description || "No description provided.",
+            contactName: e.organizer_name || "Club Lead",
+            contactEmail: e.organizer_email || "admin@campus.edu",
+            banner: gradients[index % gradients.length],
+          };
+        });
+
+        setEvents(formatted);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  // ================= 2. JOIN HANDLER =================
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(
-      `Registered for ${selectedEvent.name}!\nName: ${formData.name}\nEmail: ${formData.email}`
-    );
-    setFormData({ name: "", email: "", contact: "", club: "" });
-    setSelectedEvent(null);
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...formData, event_id: selectedEvent.id })
+      });
+
+      if (!res.ok) throw new Error("Registration failed. Are you logged in?");
+
+      alert(`Success! You're on the list for ${selectedEvent.name}.`);
+      setFormData({ name: "", email: "", contact: "", club: "" });
+      setSelectedEvent(null);
+    } catch (err) {
+      alert(err.message);
+    }
   };
+
+  if (loading) return (
+    <div className="min-h-screen bg-indigo-50 flex items-center justify-center">
+      <div className="animate-bounce text-indigo-600 font-black text-2xl">Loading Events...</div>
+    </div>
+  );
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-indigo-50 font-sans text-slate-800">
-        {/* Header */}
-        <header className="bg-gradient-to-r from-rose-500 to-pink-500 text-white py-12 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold">Public Events</h1>
-          <p className="mt-2 text-sm sm:text-base">
-            Explore upcoming events organized by campus clubs.
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+        {/* Hero Header */}
+        <header className="bg-slate-900 pt-20 pb-32 px-4 text-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+             <div className="absolute top-10 left-10 w-64 h-64 bg-indigo-500 rounded-full blur-3xl"></div>
+             <div className="absolute bottom-10 right-10 w-64 h-64 bg-rose-500 rounded-full blur-3xl"></div>
+          </div>
+          <h1 className="text-4xl sm:text-6xl font-black text-white mb-4 relative z-10">
+            Campus <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-rose-400">Happenings</span>
+          </h1>
+          <p className="text-slate-400 max-w-lg mx-auto relative z-10">
+            Discover workshops, matches, and festivals organized by your fellow students.
           </p>
         </header>
 
-        {/* Event Grid */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="bg-white rounded-3xl shadow-md border border-gray-200 overflow-hidden
-                         hover:shadow-xl transition transform hover:-translate-y-1"
-            >
-              {/* Banner */}
-              <div
-                className={`h-28 bg-gradient-to-r ${event.banner} flex items-center justify-center text-white font-semibold text-lg`}
+        {/* Fancy Grid */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 -mt-20 pb-20 relative z-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {events.length > 0 ? (
+            events.map((event) => (
+              <div 
+                key={event.id} 
+                className="group bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-white hover:border-indigo-100 transition-all duration-500 hover:-translate-y-3"
               >
-                {event.club}
-              </div>
-
-              <div className="p-6 space-y-3">
-                <h2 className="text-lg font-bold text-slate-900">{event.name}</h2>
-
-                {/* Event Info */}
-                <div className="flex items-center gap-2 text-gray-600 text-sm">
-                  <Clock size={14} /> {event.time}
-                </div>
-                <div className="flex items-center gap-2 text-gray-600 text-sm">
-                  <MapPin size={14} /> {event.place}
-                </div>
-
-                {/* About */}
-                <p className="text-gray-500 text-sm line-clamp-4">{event.about}</p>
-
-                {/* Contact */}
-                <div className="flex items-center gap-4 text-gray-600 text-sm mt-2">
-                  <div className="flex items-center gap-1">
-                    <User size={14} /> {event.contactName}
+                {/* Banner Area */}
+                <div className={`h-44 bg-gradient-to-br ${event.banner} relative p-6`}>
+                  <div className="flex justify-between items-start">
+                    <div className="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full text-white text-[10px] font-bold uppercase tracking-widest">
+                      Live Event
+                    </div>
+                    {/* Date Badge */}
+                    <div className="bg-white rounded-2xl p-2 shadow-xl text-center min-w-[55px]">
+                      <p className="text-[10px] font-black text-indigo-600 uppercase leading-none">{event.month}</p>
+                      <p className="text-2xl font-black text-slate-800">{event.day}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Mail size={14} /> {event.contactEmail}
+                  <div className="absolute bottom-6 left-6">
+                     <p className="text-white/80 text-xs font-bold uppercase tracking-tighter mb-1">{event.club}</p>
+                     <h2 className="text-white text-2xl font-black leading-tight group-hover:scale-105 transition-transform origin-left italic">
+                       {event.name}
+                     </h2>
                   </div>
                 </div>
 
-                {/* Register Button */}
-                <button
-                  onClick={() => setSelectedEvent(event)}
-                  className="mt-3 w-full bg-gradient-to-r from-indigo-500 to-purple-500
-                             text-white py-2 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition"
-                >
-                  Register for Event
-                </button>
+                {/* Content Area */}
+                <div className="p-8 space-y-5">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-3 text-slate-500 text-sm font-semibold">
+                      <div className="p-2 bg-indigo-50 rounded-xl text-indigo-600">
+                        <Clock size={18} />
+                      </div>
+                      {event.fullDate} @ {event.time}
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-500 text-sm font-semibold">
+                      <div className="p-2 bg-rose-50 rounded-xl text-rose-600">
+                        <MapPin size={18} />
+                      </div>
+                      {event.place}
+                    </div>
+                  </div>
+
+                  <p className="text-slate-400 text-sm leading-relaxed line-clamp-2">
+                    {event.about}
+                  </p>
+
+                  <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-slate-400 font-bold uppercase">Organizer</span>
+                      <span className="text-xs font-black text-slate-700">{event.contactName}</span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedEvent(event)}
+                      className="flex items-center gap-2 bg-slate-900 text-white px-5 py-3 rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-all active:scale-95 shadow-lg shadow-slate-200 hover:shadow-indigo-200"
+                    >
+                      Join <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-full bg-white rounded-3xl p-20 text-center border-4 border-dashed border-slate-100">
+               <Calendar className="mx-auto text-slate-200 mb-4" size={64} />
+               <p className="text-slate-400 font-bold">No public events scheduled right now.</p>
             </div>
-          ))}
+          )}
         </main>
 
-        {/* Registration Modal */}
-        {selectedEvent && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-            <div className="bg-white rounded-3xl max-w-md w-full p-6 relative shadow-lg">
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-200 transition"
-              >
-                <X size={20} />
-              </button>
-
-              <h3 className="text-xl font-bold mb-4 text-center text-slate-900">
-                Register for {selectedEvent.name}
-              </h3>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Contact Number"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-                <input
-                  type="text"
-                  placeholder="Your Club (optional)"
-                  value={formData.club}
-                  onChange={(e) => setFormData({ ...formData, club: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-
-                <button
-                  type="submit"
-                  className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-2 rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-600 transition"
-                >
-                  Submit Registration
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
+       
       </div>
     </>
   );

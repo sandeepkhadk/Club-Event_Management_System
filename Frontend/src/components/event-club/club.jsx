@@ -1,178 +1,243 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../home/navbar";
-import { Search, Users, Calendar } from "lucide-react";
+import { Search, Users, Calendar, X, Filter, LayoutGrid, ArrowRight, UserCheck } from "lucide-react";
 import { useAuthContext } from "../../context/provider/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const Club = () => {
+  const navigate = useNavigate();
+  const { token } = useAuthContext();
   const [activeFilter, setActiveFilter] = useState("All");
   const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { token } = useAuthContext(); // get token from context
+  const [selectedClub, setSelectedClub] = useState(null);
+  const [joining, setJoining] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", reason: "" });
+
   const categories = ["All", "Departments", "Technology", "Music & Arts"];
 
-  // Fetch clubs from backend
- // Fetch clubs from backend
-useEffect(() => {
-  const fetchClubs = async () => {
-   
+  useEffect(() => {
+    if (!token) return;
+    const fetchUser = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/users/profile/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setFormData((prev) => ({
+            ...prev,
+            name: data.name || data.username || "",
+            email: data.email || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Profile fetch failed", err);
+      }
+    };
+    fetchUser();
+  }, [token]);
 
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const res = await fetch("http://127.0.0.1:8000/clubs/");
+        if (!res.ok) throw new Error("Failed to fetch clubs");
+        const data = await res.json();
+        setClubs(data.clubs.map(c => ({
+          id: c.club_id,
+          name: c.name,
+          desc: c.description || "",
+          members: c.members_count || 0,
+          events: c.events_count || 0,
+          category: c.category || "Community"
+        })));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchClubs();
+  }, []);
+
+  const handleJoinClub = async (e) => {
+    e.preventDefault();
+    setJoining(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/clubs/", {
-        method: "GET",
+      const res = await fetch(`http://127.0.0.1:8000/clubs/${selectedClub.id}/join/`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) {
-        if (res.status === 401) throw new Error("Unauthorized. Please login.");
-        throw new Error("Failed to fetch clubs");
-      }
-
-      const data = await res.json();
-      console.log("Raw club data:", data.clubs);
-      // Format data if needed
-      const formatted = data.clubs.map((c) => ({
-        id: c.club_id,
-        name: c.name,
-        desc: c.description || "",
-        created_at: c.created_at,
-        created_by: c.created_by,
-      }));
-
-      setClubs(formatted);
-      console.log("Fetched clubs:", formatted);
+      if (!res.ok) throw new Error("Failed to join. You might already be a member.");
+      alert("Application sent! Wait for admin approval.");
+      setSelectedClub(null);
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      alert(err.message);
     } finally {
-      setLoading(false);
+      setJoining(false);
     }
   };
 
-  fetchClubs();
-}, []);
+  const filteredClubs = activeFilter === "All" ? clubs : clubs.filter((c) => c.category === activeFilter);
 
-
-  const filteredClubs =
-    activeFilter === "All"
-      ? clubs
-      : clubs.filter((club) => club.category === activeFilter);
-
-  if (loading)
-    return (
-      <>
-        <Navbar />
-        <div className="text-center mt-20 text-indigo-600 font-semibold">
-          Loading clubs...
-        </div>
-      </>
-    );
-
-  if (error)
-    return (
-      <>
-        <Navbar />
-        <div className="text-center mt-20 text-red-600 font-semibold">
-          {error}
-        </div>
-      </>
-    );
+  if (loading) return (
+    <div className="min-h-screen bg-white">
+      <Navbar />
+      <div className="flex flex-col items-center justify-center mt-32 space-y-4">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-sky-600 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium">Loading Club Directory...</p>
+      </div>
+    </div>
+  );
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-indigo-50 text-slate-800">
-        {/* ================= HERO ================= */}
-        <header className="max-w-7xl mx-auto px-4 sm:px-6 py-14 text-center">
-          <h1 className="text-4xl sm:text-5xl font-extrabold mb-4">
-            Find Your <span className="text-indigo-600">Tribe</span>
-          </h1>
-          <p className="text-base sm:text-lg text-gray-500 mb-8 max-w-2xl mx-auto">
-            Discover clubs and communities across your campus.
-          </p>
-
-          <div className="max-w-xl mx-auto relative">
-            <Search className="absolute left-4 top-3.5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search clubs..."
-              className="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
+      {/* Changed background to slate-50 for a clean, diligent look */}
+      <div className="min-h-screen bg-slate-50 text-slate-800">
+        
+        {/* --- Header Section (White background to contrast with page bg) --- */}
+        <header className="bg-white border-b border-slate-200 pt-20 pb-12">
+          <div className="max-w-7xl mx-auto px-6">
+            <h1 className="text-3xl font-black text-slate-900 mb-2">Campus Organizations</h1>
+            <p className="text-slate-500 mb-8 font-medium">Find and join official student communities.</p>
+            
+            <div className="max-w-xl relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="Search clubs..." 
+                className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all" 
+              />
+            </div>
           </div>
         </header>
 
-        {/* ================= FILTERS ================= */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex gap-3 overflow-x-auto pb-6">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`px-4 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition ${
-                activeFilter === cat
-                  ? "bg-indigo-600 text-white shadow"
-                  : "bg-white border border-gray-200 text-gray-600 hover:border-indigo-400"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+        {/* --- Filter Bar --- */}
+        <div className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex gap-4 overflow-x-auto no-scrollbar">
+            {categories.map((cat) => (
+              <button 
+                key={cat} 
+                onClick={() => setActiveFilter(cat)} 
+                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${
+                  activeFilter === cat 
+                  ? "bg-slate-900 text-white shadow-md" 
+                  : "text-slate-500 hover:bg-slate-100"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* ================= CLUB GRID ================= */}
-        <main className="max-w-6xl mx-auto px-2 sm:px-4 grid grid-cols-1 sm:grid-cols-3 gap-2 pb-20">
+        {/* --- Main Grid --- */}
+        <main className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-32">
           {filteredClubs.map((club) => (
-            <div
-              key={club.id}
-              className="mx-auto w-full max-w-xs bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition transform hover:-translate-y-0.5"
+            <div 
+              key={club.id} 
+              className="group bg-white rounded-2xl border border-slate-200 p-6 hover:border-sky-400 transition-all duration-300 shadow-sm"
             >
-              {/* Taller banner */}
-              <div className={`h-32 ${club.banner}`} />
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3 bg-slate-50 rounded-xl text-slate-400 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
+                  <LayoutGrid size={24} />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-1 rounded">
+                  {club.category || "General"}
+                </span>
+              </div>
 
-              <div className="p-4 pt-0 -mt-6">
-                {/* Avatar */}
-                {/* <div
-                  className={`w-12 h-12 ${club.color} border-4 border-white rounded-xl flex items-center justify-center text-xl mb-3`}
-                >
-                  {club.icon}
-                </div> */}
+              <h3 className="text-xl font-bold text-slate-900 mb-3">{club.name}</h3>
+              <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-6">
+                {club.desc || "Official student organization focusing on community and collaboration."}
+              </p>
 
-                <h3 className="text-base font-semibold leading-snug mb-1">
-                  {club.name}
-                </h3>
-
-                <p className="text-xs text-gray-500 mb-3 line-clamp-4">
-                  {club.desc}
-                </p>
-
-                <div className="flex items-center justify-between border-t pt-2.5">
-                  <div className="flex gap-2 text-gray-400 text-[11px]">
-                    <span className="flex items-center gap-1">
-                      <Users size={12} /> {club.members}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} /> {club.events}
-                    </span>
-                  </div>
-
-                  <button className="text-indigo-600 text-xs font-semibold hover:text-indigo-800">
-                    View →
-                  </button>
+              <div className="flex items-center gap-6 mb-8 pt-6 border-t border-slate-50">
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="text-sky-600" />
+                  <span className="text-sm font-bold text-slate-700">{club.members}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar size={16} className="text-emerald-500" />
+                  <span className="text-sm font-bold text-slate-700">{club.events}</span>
                 </div>
               </div>
+
+              <button 
+                onClick={() => setSelectedClub(club)} 
+                className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-sky-600 transition-colors flex items-center justify-center gap-2"
+              >
+                Learn More <ArrowRight size={16} />
+              </button>
             </div>
           ))}
         </main>
 
-        {/* ================= FOOTER ================= */}
-        <footer className="bg-indigo-900 py-10 text-center text-white">
-          <h2 className="text-2xl font-bold mb-2">
-            Connect with your campus community
-          </h2>
-          <p className="text-indigo-200 px-4 text-sm">
-            Join clubs, attend events, and grow together.
-          </p>
-        </footer>
+        {/* --- Modal  --- */}
+        {selectedClub && (
+          <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-3xl p-8 w-full max-w-lg relative shadow-2xl overflow-hidden">
+              <button 
+                onClick={() => setSelectedClub(null)} 
+                className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+              
+              <div className="mb-8">
+                <h2 className="text-2xl font-black text-slate-900 mb-2">{selectedClub.name}</h2>
+                <div className="flex gap-2">
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold rounded uppercase">
+                    <UserCheck size={12} /> Official
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 p-6 rounded-xl mb-8 border border-slate-100">
+                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Club Description</h4>
+                <p className="text-slate-600 text-sm leading-relaxed">
+                  {selectedClub.desc || "Join this community to participate in official campus events and skill-sharing workshops."}
+                </p>
+              </div>
+
+              {token ? (
+                <form onSubmit={handleJoinClub} className="space-y-4">
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">Join Request</label>
+                  <textarea 
+                    required
+                    placeholder="Briefly explain why you'd like to join..."
+                    className="w-full border-slate-200 border-2 rounded-xl p-4 text-sm focus:border-sky-500 transition outline-none h-32 bg-slate-50/50 resize-none"
+                    value={formData.reason}
+                    onChange={(e) => setFormData({...formData, reason: e.target.value})}
+                  />
+                  <button 
+                    disabled={joining} 
+                    className="w-full py-4 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 transition-all disabled:opacity-50"
+                  >
+                    {joining ? "Processing..." : "Submit Join Request"}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center p-8 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                  <p className="text-slate-500 text-sm mb-6">Login required to apply for memberships.</p>
+                  <button 
+                    onClick={() => navigate("/login")} 
+                    className="px-10 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition shadow-lg"
+                  >
+                    Login to Join
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

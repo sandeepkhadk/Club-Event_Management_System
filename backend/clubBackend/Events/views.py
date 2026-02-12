@@ -29,7 +29,26 @@ def get_club_events(request, club_id):
             .order_by(events_table.c.start_datetime)
         ).mappings().all()
 
-        return JsonResponse({"events": list(events)}, status=200)
+        events_list = [dict(e) for e in events]  # <--- convert
+
+        return JsonResponse({"events": events_list}, status=200)
+    finally:
+        session.close()
+
+
+@csrf_exempt
+def get_all_events(request):
+    """Return all events as JSON-serializable objects"""
+    session = SessionLocal()
+    try:
+        events = session.execute(
+            select(events_table).order_by(events_table.c.start_datetime)
+        ).mappings().all()  # This returns RowMapping objects
+
+        # Convert RowMapping to dict
+        events_list = [dict(e) for e in events]
+
+        return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()
 
@@ -39,14 +58,18 @@ def get_event(request, event_id):
     try:
         event = session.execute(
             select(events_table).where(events_table.c.event_id == event_id)
-        ).mappings().first()
+        ).mappings().first()  # RowMapping
 
         if not event:
             return JsonResponse({"error": "Event not found"}, status=404)
 
-        return JsonResponse(event, status=200)
+        # Convert RowMapping to dict
+        event_dict = dict(event)
+
+        return JsonResponse(event_dict, status=200)
     finally:
         session.close()
+
 # @jwt_required
 @csrf_exempt
 def create_event(request):

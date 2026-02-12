@@ -18,6 +18,8 @@ from django.urls import path
     
 # ]
 from django.urls import path
+from Users.views import join_club_request
+
 from clubs.views import (
     create_club,
     get_clubs,
@@ -30,4 +32,5 @@ urlpatterns = [
     path("", get_clubs, name="get-clubs"),
     path("<int:club_id>/", get_club, name="get-club"),
     path("<int:club_id>/delete/", delete_club, name="delete-club"),
+    path("<int:club_id>/join/", join_club_request, name="join-club"),  
 ]

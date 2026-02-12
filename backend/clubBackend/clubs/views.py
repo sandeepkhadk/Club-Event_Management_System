@@ -246,6 +246,7 @@ from Users.tables import members
 from django.http import JsonResponse
 from core.db.base import SessionLocal
 from .tables import clubs_table
+from Users.tables import member_requests, members
 from sqlalchemy import select, insert
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -345,5 +346,39 @@ def delete_club(request, club_id):
             {"success": True, "message": "Club deleted successfully"},
             status=200
         )
+    finally:
+        session.close()
+
+def create_join_request(user_id, club_id):
+    session = SessionLocal()
+    try:
+        exists_request = session.execute(
+            select(member_requests).where(
+                member_requests.c.user_id == user_id,
+                member_requests.c.club_id == club_id,
+                member_requests.c.status == "pending"
+            )
+        ).first()
+
+        is_member = session.execute(
+            select(members).where(
+                members.c.user_id == user_id,
+                members.c.club_id == club_id
+            )
+        ).first()
+
+        if exists_request or is_member:
+            return False, "Already requested or member"
+
+        session.execute(
+            insert(member_requests).values(
+                user_id=user_id,
+                club_id=club_id,
+                role="member",
+                status="pending"
+            )
+        )
+        session.commit()
+        return True, "Request submitted"
     finally:
         session.close()

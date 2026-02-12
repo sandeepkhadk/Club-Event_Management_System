@@ -5,6 +5,7 @@ from django.urls import path
 from django.urls import path
 from Events.views import (
     create_event,
+    get_all_events,
     get_club_events,
     get_event,
     delete_event,
@@ -19,4 +20,5 @@ urlpatterns = [
     path("<int:event_id>/delete/", delete_event, name="delete-event"),
     path("join/", join_event, name="join-event"),
     path("leave/", leave_event, name="leave-event"),
+    path("", get_all_events, name="all-events"), 
 ]

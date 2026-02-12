@@ -9,6 +9,7 @@ from .tables import members
 from django.views.decorators.csrf import csrf_exempt
 from .utils import hash_password, verify_password, jwt_required
 from .jwt import generate_jwt
+from clubs.views import create_join_request
 import json
 
 
@@ -119,7 +120,7 @@ def login_view(request):
                 status=401
             )
 
-        token = generate_jwt(result["email"], role)
+        token = generate_jwt(result["email"],result['user_id'], role)
 
         return JsonResponse({
             "success": True,
@@ -166,57 +167,23 @@ def profile_view(request):
 
     finally:
         session.close()
+        
 
-# @jwt_required
-@csrf_exempt
-def join_club_request(request):
-    """
-    Any logged-in user can request to join a club.
-    Does NOT insert into members yet.
-    """
-    data = json.loads(request.body)
-    club_id = data.get("club_id")
-    user_id=data.get("user_id")
-    if not club_id:
-        return JsonResponse({"error": "club_id required"}, status=400)
-
-    session = SessionLocal()
-    try:
-        # Check if user already requested or is a member
-        # user_id = request.user_payload["user_id"]
-
-        exists_request = session.execute(
-            select(member_requests).where(
-                member_requests.c.user_id == user_id,
-                member_requests.c.club_id == club_id,
-                member_requests.c.status == "pending"
-            )
-        ).first()
-
-        is_member = session.execute(
-            select(members).where(
-                members.c.user_id == user_id,
-                members.c.club_id == club_id
-            )
-        ).first()
-
-        if exists_request or is_member:
-            return JsonResponse({"error": "Already requested or member"}, status=400)
-
-        # Insert request
-        stmt = insert(member_requests).values(
-            user_id=user_id,
-            club_id=club_id,
-            role="member",
-            status="pending"
-        )
-        session.execute(stmt)
-        session.commit()
-
-        return JsonResponse({"success": True, "message": "Request submitted"}, status=201)
-    finally:
-        session.close()
 @jwt_required
+@csrf_exempt
+def join_club_request(request, club_id):
+   
+    if request.method == "POST":
+        user_id = request.payload.get("user_id")
+        success, message = create_join_request(user_id, club_id)
+        status_code = 201 if success else 400
+        return JsonResponse({"success": success, "message": message}, status=status_code)
+    return JsonResponse(
+        {"success": False, "message": "Only POST requests allowed."},
+        status=405
+    )
+@jwt_required
+@csrf_exempt
 def pending_requests(request):
     """
     Admin can view pending join requests
