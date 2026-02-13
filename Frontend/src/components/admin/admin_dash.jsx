@@ -1,6 +1,7 @@
 // export default AdminDashboard;
 import React, { useState } from 'react';
  import { useNavigate } from "react-router-dom";
+ import { useAuthContext } from '../../context/provider/AuthContext';
 import {
   Users,
   Calendar,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 const AdminDashboard = () => {
+const { logout } = useAuthContext()
   const [activeTab, setActiveTab] = useState('members');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -33,7 +35,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-  localStorage.removeItem("token");
+ logout()
   navigate("/"); // no page reload
   };
 

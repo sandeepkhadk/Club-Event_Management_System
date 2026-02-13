@@ -8,7 +8,7 @@ users_table = Table(
     Column('name', String(100), nullable=False),
     Column('email', String(150), unique=True, nullable=False),
     Column('password', String(255), nullable=False),
-    Column('created_at', DateTime, server_default='CURRENT_TIMESTAMP'),
+    Column('created_at', DateTime, server_default=func.now()),
     extend_existing=True
 )
 members = Table(

@@ -80,71 +80,53 @@ def register_view(request):
         session.close()
 
 
-@csrf_exempt
 
+@csrf_exempt
 def login_view(request):
     if request.method != "POST":
-        return JsonResponse(
-            {"success": False, "error": "Invalid request method"},
-            status=400
-        )
+        return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
-        return JsonResponse(
-            {"success": False, "error": "Invalid JSON format"},
-            status=400
-        )
+        return JsonResponse({"success": False, "error": "Invalid JSON format"}, status=400)
 
     email = data.get("email")
     password = data.get("password")
     role = data.get("userType")
 
     if not email or not password:
-        return JsonResponse(
-            {"success": False, "error": "Email and password required"},
-            status=400
-        )
+        return JsonResponse({"success": False, "error": "Email and password required"}, status=400)
 
     session = SessionLocal()
     try:
         stmt = select(users).where(users.c.email == email)
-        result = session.execute(stmt).fetchone()
+        result = session.execute(stmt).mappings().first()
 
-        if not result or not verify_password(password, result.password):
-            return JsonResponse(
-                {"success": False, "error": "Invalid email or password"},
-                status=401
-            )
+        if not result or not verify_password(password, result["password"]):
+            return JsonResponse({"success": False, "error": "Invalid email or password"}, status=401)
 
         # generate JWT with email + role
-        token = generate_jwt(result.email, role)
+        token = generate_jwt(result["email"], role)
+
+        return JsonResponse({
+            "success": True,
+            "message": "Login successful",
+            "token": token,
+            "role": role,
+            "name": result["name"]
+        }, status=200)
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     except Exception as e:
         print("LOGIN ERROR:", e)
-        return JsonResponse(
-            {"success": False, "error": "Internal server error"},
-            status=500
-        )
-
-    return JsonResponse({
-        "success": True,
-        "message": "Login successful",
-        "token": token,
-        "role": role,
-        "name": result["name"]
-    })
-
-    except SQLAlchemyError as e:
-        return JsonResponse(
-            {"success": False, "error": str(e)},
-            status=500
-        )
+        return JsonResponse({"success": False, "error": "Internal server error"}, status=500)
 
     finally:
         session.close()
-
 
 @jwt_required
 def profile_view(request):
@@ -183,7 +165,7 @@ def join_club_request(request):
     """
     data = json.loads(request.body)
     club_id = data.get("club_id")
-    user_id=data.get("user_id")
+    user_id = request.user_payload.get("user_id")
     if not club_id:
         return JsonResponse({"error": "club_id required"}, status=400)
 
