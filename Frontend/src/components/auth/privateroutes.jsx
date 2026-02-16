@@ -12,7 +12,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useUserRole } from "../../context/hooks/useUserRole";
 import useIsAuthenticated from "../../context/hooks/useIsAuthenticated";
 
-export default function RoleRoute({ allowedRoles }) {
+export default function PrivateRoute() {
   const role = useUserRole();
   const isAuthenticated = useIsAuthenticated();
 
@@ -20,7 +20,7 @@ export default function RoleRoute({ allowedRoles }) {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   // 2️⃣ Logged in but role not allowed → redirect to unauthorized
-  if (!allowedRoles.includes(role)) {
+  if (!(role)) {
     return (
       <Navigate
         to="/unauthorized"
