@@ -246,13 +246,15 @@ from Users.tables import members
 from django.http import JsonResponse
 from core.db.base import SessionLocal
 from .tables import clubs_table
-from Users.tables import member_requests, members
-from sqlalchemy import select, insert
+from Users.tables import member_requests, members,users_table
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import select, insert,join
 from django.views.decorators.csrf import csrf_exempt
+
 import json
 
-# @jwt_required
 @csrf_exempt
+@jwt_required
 def create_club(request):
     # if request.user_payload.get("role") == "admin":
     #     return JsonResponse({"error": "Admin only"}, status=403)
@@ -262,7 +264,7 @@ def create_club(request):
     club_name = data.get("club_name")
     description = data.get("description")
     founded_date = data.get("founded_date")
-    created_by=data.get("created_by")
+    created_by = request.user_payload.get("user_id")
 
     if not club_name or not description:
         return JsonResponse({"error": "Missing fields"}, status=400)
@@ -289,32 +291,56 @@ def create_club(request):
 
 @csrf_exempt
 def get_clubs(request):
-    # if request.user_payload.get("role") != "admin":
-    #     return JsonResponse({"error": "Admin only"}, status=403)
-
     session = SessionLocal()
     try:
+        # 1️⃣ Fetch all clubs
         clubs = session.execute(
             select(clubs_table).order_by(clubs_table.c.created_at.desc())
         ).mappings().all()
-        
-        # Convert RowMapping → dict
-        clubs_list = [dict(club) for club in clubs]
+
+        # 2️⃣ Fetch all users to map IDs → names
+        users = session.execute(
+            select(users_table.c.user_id, users_table.c.name)
+        ).mappings().all()
+        user_map = {u['user_id']: u['name'] for u in users}
+
+        # 3️⃣ Fetch all members
+        club_members = session.execute(
+            select(members.c.club_id, members.c.user_id)
+        ).mappings().all()
+
+        # Map club_id → list of member names
+        members_map = {}
+        for m in club_members:
+            club_id = m['club_id']
+            user_id = m['user_id']
+            members_map.setdefault(club_id, []).append(user_map.get(user_id, "Unknown"))
+
+        # 4️⃣ Convert clubs → list of dict and attach created_by_name + members list
+        clubs_list = []
+        for club in clubs:
+            club_dict = dict(club)
+            created_by_id = club_dict.get("created_by")
+            club_dict["created_by_name"] = user_map.get(created_by_id, "Unknown")
+            club_dict["members_names"] = members_map.get(club_dict["club_id"], [])
+            clubs_list.append(club_dict)
 
         return JsonResponse({"clubs": clubs_list}, status=200)
+
     finally:
         session.close()
 
 @jwt_required
 def get_club(request, club_id):
-    if request.user_payload.get("role") != "admin":
-        return JsonResponse({"error": "Admin only"}, status=403)
+    # if request.user_payload.get("role") != "admin":
+    #     return JsonResponse({"error": "Admin only"}, status=403)
 
     session = SessionLocal()
     try:
         club = session.execute(
             select(clubs_table).where(clubs_table.c.club_id == club_id)
         ).mappings().first()
+
 
         if not club:
             return JsonResponse({"error": "Club not found"}, status=404)
@@ -380,5 +406,56 @@ def create_join_request(user_id, club_id):
         )
         session.commit()
         return True, "Request submitted"
+    finally:
+        session.close()
+@jwt_required
+def get_club_members(request, club_id):
+    """
+    Get all members and pending requests of a specific club in a single array
+    """
+    session = SessionLocal()
+    try:
+        # -------- Approved Members --------
+        member_stmt = (
+            select(
+                members.c.user_id,
+                users_table.c.name,
+                members.c.role,
+                members.c.club_id
+            )
+            .join(users_table, users_table.c.user_id == members.c.user_id)
+            .where(members.c.club_id == club_id)
+        )
+        member_results = session.execute(member_stmt).mappings().all()
+        # Add status manually
+        members_list = [{**dict(row), "status": "Approved"} for row in member_results]
+
+        # -------- Pending Requests --------
+        request_stmt = (
+            select(
+                member_requests.c.user_id,
+                users_table.c.name,
+                member_requests.c.club_id,
+                member_requests.c.status  # e.g., 'Pending'
+            )
+            .join(users_table, users_table.c.user_id == member_requests.c.user_id)
+            .where(member_requests.c.club_id == club_id)
+        )
+        request_results = session.execute(request_stmt).mappings().all()
+        requests_list = [dict(row) for row in request_results]
+
+        # -------- Combine both lists --------
+        combined_list = members_list + requests_list
+
+        return JsonResponse({
+            "members": combined_list
+        }, status=200)
+
+    except SQLAlchemyError as e:
+        return JsonResponse(
+            {"success": False, "error": str(e)},
+            status=500
+        )
+
     finally:
         session.close()

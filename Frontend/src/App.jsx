@@ -13,6 +13,7 @@ import Navbar from './components/home/navbar'
 import Club from './components/event-club/club'
 import EventPage from './components/event-club/event'
 import About from './components/home/About'
+import SuperAdminPage from './components/admin/superadmin'
 function App() {
  
   return (
@@ -35,13 +36,15 @@ function App() {
         <Route path='/unauthorized' element={<Unauth></Unauth>}></Route>
   
         <Route element={<PrivateRoute  allowedRoles={["admin"]} />}>
-          <Route path='/admin' element={<Admin_dash></Admin_dash>}></Route>
+          <Route path='/admin' element={<SuperAdminPage></SuperAdminPage>}></Route>
         </Route>
-        <Route element={<PrivateRoute  allowedRoles={["student"]} />}>
+        <Route element={<PrivateRoute allowedRoles={["member"]} />}>
+         <Route path="/student/:clubId/" element={<Admin_dash />} />
+         </Route>
+       
+      <Route element={<PrivateRoute  allowedRoles={["unmember"]} />}>
           <Route path='/student' element={<Std_dash></Std_dash>}></Route>
-        </Route>
-     
-     
+     </Route>
     </Routes>
 
   </>

@@ -3,19 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import UserTypeSelector from './UserTypeSelector';
 import { useAuthContext } from "../../context/provider/AuthContext";
 import Navbar from '../home/navbar';
+// import { useParams } from "react-router-dom";
+
+
 
 export default function LoginForm() {
+  // const club_id=useParams()
   const { login } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
-  const [userType, setUserType] = useState("student");
+  const [userType, setUserType] = useState("unmember");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
   e.preventDefault();
 
   const userData = { email, password, userType };
+  console.log(userData)
 
   const res = await fetch("http://127.0.0.1:8000/users/login/", {
     method: "POST",
@@ -41,8 +46,10 @@ export default function LoginForm() {
     type: "success",
   });
 
-  setTimeout(() => {
-    navigate(userType === "admin" ? "/admin" : "/student");
+    setTimeout(() => {
+    if (data.global_role === "admin") navigate("/admin");
+    else if (data.global_role === "member") navigate(`/student/${data.club_id}`);
+    else navigate("/student");
   }, 1000);
 };
 
@@ -104,7 +111,7 @@ export default function LoginForm() {
             type="submit"
             className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300 cursor-pointer"
           >
-            Login as {userType === 'admin' ? 'Admin' : 'Student'}
+            Login as {userType === 'admin' ? 'Admin' : 'members'}
           </button>
 
           {/* Register Link */}
