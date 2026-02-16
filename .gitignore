@@ -1,4 +1,6 @@
+# ----------------------
 # Python Virtual Environments
+# ----------------------
 .venv/
 venv/
 env/
@@ -6,25 +8,37 @@ backend/.venv/
 backend/venv/
 backend/vir/
 
-# setting.py 
-backend/clubBackend/clubBackend/settings.py
-
-# Python Bytecode & Cache
-**/__pycache__/
+# ----------------------
+# Python Cache
+# ----------------------
+__pycache__/
 *.py[cod]
 *$py.class
 
-# Environment Variables / Secrets
+# ----------------------
+# Django
+# ----------------------
+db.sqlite3
+
+# ----------------------
+# Environment Variables
+# ----------------------
 .env
 .flaskenv
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# ----------------------
+# Node
+# ----------------------
+node_modules/
 
+# ----------------------
 # IDEs
+# ----------------------
 .vscode/
 .idea/
 
-#node modules
-node_modules/
+# ----------------------
+# OS Files
+# ----------------------
+.DS_Store
+Thumbs.db
