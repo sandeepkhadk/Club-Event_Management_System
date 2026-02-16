@@ -14,13 +14,15 @@ import useIsAuthenticated from "../../context/hooks/useIsAuthenticated";
 
 export default function PrivateRoute() {
   const role = useUserRole();
+  console.log(role)
   const isAuthenticated = useIsAuthenticated();
 
-  // 1️⃣ Not logged in → redirect to login
+  
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  // 2️⃣ Logged in but role not allowed → redirect to unauthorized
-  if (!(role)) {
+
+  
+  if (!role) {
     return (
       <Navigate
         to="/unauthorized"
@@ -33,6 +35,6 @@ export default function PrivateRoute() {
     );
   }
 
-  // 3️⃣ Authorized → render nested routes
+
   return <Outlet />;
 }

@@ -10,7 +10,7 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
-  const [userType, setUserType] = useState("student");
+  const [userType, setUserType] = useState("unmember");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

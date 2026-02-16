@@ -7,7 +7,7 @@ from Events.views import (
     create_event,
     get_all_events,
     get_club_events,
-    get_event,
+    # get_event,
     delete_event,
     join_event,
     leave_event,
@@ -15,10 +15,10 @@ from Events.views import (
 
 urlpatterns = [
     path("create/", create_event, name="create-event"),
-    path("club/<int:club_id>/", get_club_events, name="club-events"),
-    path("<int:event_id>/", get_event, name="get-event"),
+    path("", get_club_events, name="club-events"),
+    # path("<int:event_id>/", get_event, name="get-event"),
     path("<int:event_id>/delete/", delete_event, name="delete-event"),
     path("join/", join_event, name="join-event"),
     path("leave/", leave_event, name="leave-event"),
-    path("", get_all_events, name="all-events"), 
+    path("all/", get_all_events, name="all-events"), 
 ]

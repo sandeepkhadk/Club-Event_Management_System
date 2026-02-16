@@ -8,7 +8,8 @@ export function useUserRole() {
 
   try {
     const decoded = jwtDecode(token);
-    return decoded.role;
+    
+    return decoded;
   } catch {
     return null;
   }
