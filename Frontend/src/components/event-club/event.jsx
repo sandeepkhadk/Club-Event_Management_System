@@ -17,13 +17,14 @@ const EventPage = () => {
     club: "",
   });
 
-  // ================= 1. FETCH EVENTS =================
+  
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/events/");
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
+        console.log(data)
 
         const gradients = [
           "from-blue-500 to-indigo-500",

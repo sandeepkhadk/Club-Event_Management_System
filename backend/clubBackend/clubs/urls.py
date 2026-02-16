@@ -17,7 +17,7 @@ from django.urls import path
 #     path('creator/<int:user_id>/', ClubsByCreatorView.as_view(), name='clubs-by-creator'),
     
 # ]
-from django.urls import path
+from django.urls import path,include
 from Users.views import join_club_request
 
 from clubs.views import (
@@ -25,6 +25,7 @@ from clubs.views import (
     get_clubs,
     get_club,
     delete_club,
+    get_club_members
 )
 
 urlpatterns = [
@@ -33,4 +34,6 @@ urlpatterns = [
     path("<int:club_id>/", get_club, name="get-club"),
     path("<int:club_id>/delete/", delete_club, name="delete-club"),
     path("<int:club_id>/join/", join_club_request, name="join-club"),  
+     path("<int:club_id>/members/", get_club_members),
+       path("<int:club_id>/events/", include("Events.urls")),
 ]
