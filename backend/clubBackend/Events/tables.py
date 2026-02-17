@@ -13,6 +13,10 @@ events_table = Table(
     Column('end_datetime', DateTime, nullable=False),
     Column('status', String(20)),
     Column('created_at', DateTime, server_default=text('CURRENT_TIMESTAMP')),  
+     Column('visibility', String(20), nullable=False, default='Public'),  
+     
+    Column('max_capacity', Integer, nullable=True),  
+    
     extend_existing=True
 )
 

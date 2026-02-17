@@ -111,6 +111,15 @@ def create_event(request):
     start_datetime = data.get("start_datetime")
     end_datetime = data.get("end_datetime")
     status = data.get("status", "Planned")
+    visibility=data.get("visibility")
+    max_capacity = data.get("max_capacity")
+
+    if max_capacity in ("", None):
+     max_capacity = None
+    else:
+     max_capacity = int(max_capacity)
+
+
 
     if not all([club_id, title, description, start_datetime, end_datetime]):
         return JsonResponse(
@@ -141,7 +150,9 @@ def create_event(request):
                 description=description,
                 start_datetime=start_datetime,
                 end_datetime=end_datetime,
-                status=status
+                status=status,
+                visibility=visibility,
+                max_capacity=max_capacity
             )
             .returning(
                 events_table.c.event_id,
@@ -168,8 +179,8 @@ def create_event(request):
             "handler_name": session.execute(
                 select(users.c.name).where(users.c.user_id == new_event.handler_id)
             ).scalar()
+           
         }
-
         return JsonResponse({"success": True, "event": response}, status=201)
 
     finally:

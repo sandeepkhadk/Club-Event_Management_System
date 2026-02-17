@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthContext } from "../../context/provider/AuthContext";
 
 export default function SuperAdminPage({ superAdminId }) {
-  const {token}=useAuthContext()
+  const {token,logout}=useAuthContext()
   console.log(token)
   const [clubs, setClubs] = useState([]);
   const [clubName, setClubName] = useState("");
@@ -143,6 +143,7 @@ export default function SuperAdminPage({ superAdminId }) {
             ))}
         </div>
       </div>
+      <button onClick={()=>logout()}>logout</button>
     </div>
   );
 }

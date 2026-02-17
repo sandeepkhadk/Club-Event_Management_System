@@ -18,7 +18,8 @@ export default function PublicRoute() {
   console.log("Role:", role);
 
  
-  if (role === "admin") return <Navigate to="/admin" replace />;
+  if (role === "superadmin") return <Navigate to="/admin" replace />;
+  
   if (role === "member" && clubId)
     return <Navigate to={`/student/${clubId}`} replace />;
   if (role === "unmember")
