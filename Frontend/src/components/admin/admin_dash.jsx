@@ -496,7 +496,7 @@ const handleJoinEvent = async (event) => {
 
     if (!res.ok) throw new Error("Failed to join event");
 
-    // ✅ Update local state to reflect join
+  
     setEvents(prevEvents =>
       prevEvents.map(e =>
         e.event_id === event.id

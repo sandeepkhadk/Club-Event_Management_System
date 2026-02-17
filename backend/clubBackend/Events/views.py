@@ -57,7 +57,8 @@ from rest_framework.permissions import AllowAny
 
 @csrf_exempt
 def get_all_events(request):
-    """Return all events with handler name and joined users"""
+    """Return all events with handler name and joined users.
+       For unmembers, only events with visibility='global' will be shown."""
     session = SessionLocal()
     try:
         # 1️⃣ Join events_table with users for handler name
@@ -71,14 +72,21 @@ def get_all_events(request):
                 events_table.c.status,
                 events_table.c.handler_id,
                 users.c.name.label("handler_name"),
-                events_table.c.club_id
+                events_table.c.club_id,
+                events_table.c.visibility,     # include visibility
+                events_table.c.max_capacity    # include max_capacity
             )
             .join(users, users.c.user_id == events_table.c.handler_id)
             .order_by(events_table.c.start_datetime)
         )
+
         events = session.execute(stmt).mappings().all()
         events_list = [dict(e) for e in events]
-        print(events_list)
+
+        # Optional: filter only global events for unmember users
+        show_only_global = request.GET.get("public", "false").lower() == "true"
+        if show_only_global:
+            events_list = [e for e in events_list if e.get("visibility") == "global"]
 
         # 2️⃣ Add joined users for each event
         for e in events_list:
@@ -91,6 +99,7 @@ def get_all_events(request):
         return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()
+
 from datetime import datetime
 
 @csrf_exempt
@@ -298,5 +307,101 @@ def leave_event(request):
         session.commit()
 
         return JsonResponse({"success": True, "message": "Left event"}, status=200)
+    finally:
+        session.close()
+@csrf_exempt
+def get_global_events(request):
+    """
+    Public endpoint: Return only events with visibility='global'.
+    No authentication required.
+    """
+    session = SessionLocal()
+    try:
+        # 1️⃣ Select events with visibility='global' and join with handler name
+        stmt = (
+            select(
+                events_table.c.event_id,
+                events_table.c.title,
+                events_table.c.description,
+                events_table.c.start_datetime,
+                events_table.c.end_datetime,
+                events_table.c.status,
+                events_table.c.handler_id,
+                users.c.name.label("handler_name"),
+                events_table.c.club_id,
+                events_table.c.visibility,
+                events_table.c.max_capacity
+            )
+            .join(users, users.c.user_id == events_table.c.handler_id)
+            .where(events_table.c.visibility == "global")
+            .order_by(events_table.c.start_datetime)
+        )
+
+        events = session.execute(stmt).mappings().all()
+        events_list = [dict(e) for e in events]
+
+        # 2️⃣ Add joined users for each event
+        for e in events_list:
+            joins = session.execute(
+                select(events_participants.c.user_id)
+                .where(events_participants.c.event_id == e["event_id"])
+            ).fetchall()
+            e["joined_users"] = [u[0] for u in joins]
+
+        return JsonResponse({"events": events_list}, status=200)
+
+    finally:
+        session.close()
+@csrf_exempt
+@jwt_required
+def get_feed_events(request):
+    """
+    Return a feed of events:
+    - All events of the user's club
+    - All events from other clubs with visibility='global'
+    """
+    user_id = request.user_payload.get("user_id")
+    club_id = request.user_payload.get("club_id")
+    session = SessionLocal()
+
+    try:
+        # 1️⃣ Select events with handler name
+        stmt = (
+            select(
+                events_table.c.event_id,
+                events_table.c.title,
+                events_table.c.description,
+                events_table.c.start_datetime,
+                events_table.c.end_datetime,
+                events_table.c.status,
+                events_table.c.handler_id,
+                users.c.name.label("handler_name"),
+                events_table.c.club_id,
+                events_table.c.visibility,
+                events_table.c.max_capacity
+            )
+            .join(users, users.c.user_id == events_table.c.handler_id)
+            .where(
+                (events_table.c.club_id == club_id) |
+                ((events_table.c.club_id != club_id) & (events_table.c.visibility == "global"))
+            )
+            .order_by(events_table.c.start_datetime)
+        )
+
+        events = session.execute(stmt).mappings().all()
+        events_list = [dict(e) for e in events]
+
+        # 2️⃣ Add joined users for each event
+        for e in events_list:
+            joins = session.execute(
+                select(events_participants.c.user_id)
+                .where(events_participants.c.event_id == e["event_id"])
+            ).fetchall()
+            e["joined_users"] = [u[0] for u in joins]
+
+            # Optional: add joined flag for current user
+            e["joined"] = user_id in e["joined_users"]
+
+        return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()

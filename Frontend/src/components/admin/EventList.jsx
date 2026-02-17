@@ -26,9 +26,7 @@ const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUs
       day: startDate?.getDate() || "",
       time: startDate.toLocaleString([], { hour: "2-digit", minute: "2-digit" }),
       fullDate: startDate.toLocaleDateString([], { dateStyle: "medium" }),
-      banner: gradients[index % gradients.length],
-      visibility:e.visibility,
-      max_capacity:e.max_capacity
+      banner: gradients[index % gradients.length]
     };
   });
 

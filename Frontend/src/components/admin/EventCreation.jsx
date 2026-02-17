@@ -71,7 +71,10 @@ const EventCreationForm = ({ onEventCreated, approvedHandlers = [] }) => {
       if (!response.ok) {
         setError(data.error || "Failed to create event");
       } else {
-        onEventCreated(data);
+       onEventCreated({
+  ...data,
+  joined_users: data.joined_users || [],  // ensure array exists
+});
 
         setFormData({
           title: "",

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, Calendar, Activity, Sparkles } from "lucide-react";
+import { LogOut, Users, Activity, Sparkles } from "lucide-react";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import EventList from "../admin/EventList";
 import { useUserRole } from "../../context/hooks/useUserRole";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const decoded=useUserRole()
-  const user_id=decoded.user_id
+  const decoded = useUserRole();
+  const user_id = decoded.user_id;
   const { token, logout } = useAuthContext();
 
   // --- State ---
@@ -16,18 +16,20 @@ const StudentDashboard = () => {
   const [events, setEvents] = useState([]);
   const [myApplications, setMyApplications] = useState([]);
   const [myProfile, setMyProfile] = useState(null);
+  const [myClubs, setMyClubs] = useState([]);
+  const [clubEvents, setClubEvents] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-
   // --- Fetch dashboard data ---
   const fetchDashboardData = useCallback(async () => {
-    if (!token) return;
+    if (!token || !user_id) return;
     setLoading(true);
+
     try {
       const [clubRes, eventRes, profileRes] = await Promise.all([
         fetch("http://127.0.0.1:8000/clubs/"),
-        fetch("http://127.0.0.1:8000/events/all/"),
+        fetch("http://127.0.0.1:8000/events/global/"),
         fetch("http://127.0.0.1:8000/users/profile/", {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -36,29 +38,51 @@ const StudentDashboard = () => {
       const clubData = await clubRes.json();
       const eventData = await eventRes.json();
       const profileData = await profileRes.json();
-      
 
       setClubs(clubData.clubs || []);
       setMyApplications(profileData.applications || []);
       setMyProfile(profileData);
 
-      // Map events to include "joined" status
-      console.log(profileData.user_id)
-      const mappedEvents = (eventData.events || []).map((e) => ({
-        ...e,
-        joined: e.joined_users?.includes(user_id) || false,
-      }));
-      console.log(mappedEvents)
-      setEvents(mappedEvents);
-      console.log(events)
+      // ✅ Safe approved clubs
+      const approvedClubs = profileData.approved_clubs || [];
+      setMyClubs(approvedClubs);
+
+      // ✅ Normalize events
+      const normalizedEvents = (eventData.events || []).map((e) => {
+        const eventId = e.id || e.event_id;
+        return {
+          id: eventId,
+          title: e.title,
+          description: e.description,
+          start_datetime: e.start_datetime,
+          end_datetime: e.end_datetime,
+          club_id: e.club_id || null,
+          joined_users: e.joined_users || [],
+          joined: (e.joined_users || []).includes(user_id),
+          status: e.status || "Active",
+          handler_id: e.handler_id || null,
+          handler_name: e.handler_name || null,
+          max_capacity: e.max_capacity || null,
+          visibility: e.visibility || "global",
+        };
+      });
+
+      setEvents(normalizedEvents);
+
+      // Map club-specific events
+      const clubEventsMap = {};
+      approvedClubs.forEach((club) => {
+        clubEventsMap[club.club_id] = normalizedEvents.filter(
+          (e) => e.club_id === club.club_id
+        );
+      });
+      setClubEvents(clubEventsMap);
     } catch (err) {
       console.error("Dashboard fetch error:", err);
     } finally {
       setLoading(false);
     }
-  }, [token]);
-
-  // console.log(events.map(e => e.event_id));
+  }, [token, user_id]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -80,7 +104,6 @@ const StudentDashboard = () => {
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
-
         }
       );
       const data = await response.json();
@@ -94,71 +117,69 @@ const StudentDashboard = () => {
     }
   };
 
-  // --- Event Register / Join ---
+  // --- Join Event ---
   const handleJoinEvent = async (event) => {
-    console.log(event)
-  try {
-    if (!token) throw new Error("You must be logged in to join an event.");
+    try {
+      if (!token) throw new Error("You must be logged in to join an event.");
 
-    const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ event_id: event.id }),
-    });
+      const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ event_id: event.id }),
+      });
 
-    if (!res.ok) throw new Error("Failed to join event");
+      if (!res.ok) throw new Error("Failed to join event");
 
-    // ✅ Update local state to reflect join
-    console.log(events)
-    setEvents(prevEvents =>
-      prevEvents.map(e =>
-        e.id=== event.id
-          ? { ...e, joined_users: [...(e.joined_users || []), myProfile.user_id] }
-          : e
-      )
-    );
+      // Update local state
+      setEvents((prevEvents) =>
+        prevEvents.map((e) =>
+          e.id === event.id
+            ? { ...e, joined_users: [...(e.joined_users || []), user_id], joined: true }
+            : e
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-};
+  // --- Leave Event ---
+  const handleLeaveEvent = async (event) => {
+    try {
+      if (!token) throw new Error("You must be logged in to leave an event.");
 
-const handleLeaveEvent = async (event) => {
-  console.log(event)
-  try {
-    if (!token) throw new Error("You must be logged in to leave an event.");
+      const res = await fetch(`http://127.0.0.1:8000/events/leave/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ event_id: event.id }),
+      });
 
-    const res = await fetch(`http://127.0.0.1:8000/events/leave/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-     
-      body: JSON.stringify({ event_id: event.id}),
-    });
+      if (!res.ok) throw new Error("Failed to leave event");
 
-    if (!res.ok) throw new Error("Failed to leave event");
-
-    // ✅ Update local state to reflect leave
-    setEvents(prevEvents =>
-      prevEvents.map(e =>
-        e.id === event.id
-          ? { ...e, joined_users: (e.joined_users || []).filter(uid => uid !== myProfile.user_id) }
-          : e
-      )
-    );
-
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
-};
-
+      // Update local state
+      setEvents((prevEvents) =>
+        prevEvents.map((e) =>
+          e.id === event.id
+            ? {
+                ...e,
+                joined_users: (e.joined_users || []).filter((uid) => uid !== user_id),
+                joined: false,
+              }
+            : e
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   // --- Loading state ---
   if (loading) {
@@ -245,7 +266,7 @@ const handleLeaveEvent = async (event) => {
             events={events}
             onJoin={handleJoinEvent}
             onLeave={handleLeaveEvent}
-            currentUserId={user_id} 
+            currentUserId={user_id}
             club_role={null} // students are never admins
             onDelete={null} // hide delete button
           />
