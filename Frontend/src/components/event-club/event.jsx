@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Calendar, MapPin, User, Mail, Clock, X, ChevronRight } from "lucide-react";
 import Navbar from "../home/navbar";
 import { useAuthContext } from "../../context/provider/AuthContext";
+import { useLocation } from "react-router-dom"; 
+
 
 const EventPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const location = useLocation();
   const { token } = useAuthContext();
+  const showNavbar = location.pathname === '/events' || location.pathname.startsWith('/events/');
+  
 
   const [formData, setFormData] = useState({
     name: "",
@@ -88,14 +93,15 @@ const EventPage = () => {
 
   if (loading) return (
     <div className="min-h-screen bg-indigo-50 flex items-center justify-center">
+       {showNavbar && <Navbar />}
       <div className="animate-bounce text-indigo-600 font-black text-2xl">Loading Events...</div>
     </div>
   );
 
   return (
-    <>
-      <Navbar />
+    
       <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+        {showNavbar && <Navbar />}
         {/* Hero Header */}
         <header className="bg-slate-900 pt-20 pb-32 px-4 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -184,7 +190,7 @@ const EventPage = () => {
 
        
       </div>
-    </>
+   
   );
 };
 

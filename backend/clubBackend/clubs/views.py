@@ -248,46 +248,97 @@ from core.db.base import SessionLocal
 from .tables import clubs_table
 from Users.tables import member_requests, members,users_table
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select, insert,join
+from sqlalchemy import select, insert,join,text
 from django.views.decorators.csrf import csrf_exempt
 
 import json
-
 @csrf_exempt
 @jwt_required
 def create_club(request):
-    # if request.user_payload.get("role") == "admin":
-    #     return JsonResponse({"error": "Admin only"}, status=403)
+    if request.user_payload.get("global_role") != "superadmin":
+        return JsonResponse({"error": "Super Admin only"}, status=403)
 
-    data = json.loads(request.body)
-
-    club_name = data.get("club_name")
-    description = data.get("description")
-    founded_date = data.get("founded_date")
-    created_by = request.user_payload.get("user_id")
-
-    if not club_name or not description:
-        return JsonResponse({"error": "Missing fields"}, status=400)
-
-    session = SessionLocal()
     try:
-        session.execute(
-            insert(clubs_table).values(
-                club_name=club_name,
-                description=description,
-                founded_date=founded_date,
-                # created_by=request.user_payload["user_id"]
-                created_by=created_by
-            )
-        )
-        session.commit()
+        data = json.loads(request.body)
+        club_name = data.get("club_name")
+        admin_email = data.get("admin_email")
+        description = data.get("description") or None
+        founded_date = data.get("founded_date") or None
+        created_by = request.user_payload.get("user_id")
 
-        return JsonResponse(
-            {"success": True, "message": "Club created successfully"},
-            status=201
-        )
-    finally:
-        session.close()
+        if not club_name or not admin_email:
+            return JsonResponse({"error": "Club name and admin email required"}, status=400)
+
+        session = SessionLocal()
+        try:
+            # 1. Check user exists first
+            user_check = session.execute(
+                text("SELECT user_id FROM users WHERE email = :email"),
+                {"email": admin_email}
+            ).first()
+            
+            if not user_check:
+                return JsonResponse({"error": f"User '{admin_email}' not found"}, status=404)
+            
+            admin_user_id = user_check[0]
+            print(f"Found admin user_id: {admin_user_id}")  # DEBUG
+
+            # 2. Insert club
+            session.execute(
+                text("""
+                    INSERT INTO clubs (club_name, description, founded_date, created_by) 
+                    VALUES (:club_name, :desc, :founded_date, :created_by)
+                """),
+                {
+                    "club_name": club_name,
+                    "desc": description,
+                    "founded_date": founded_date,
+                    "created_by": created_by
+                }
+            )
+
+            # 3. Get new club_id (DATABASE AGONOSTIC)
+            new_club_id_result = session.execute(
+                text("""
+                    SELECT club_id FROM clubs 
+                    WHERE club_name = :club_name AND created_by = :created_by 
+                    ORDER BY club_id DESC LIMIT 1
+                """),
+                {"club_name": club_name, "created_by": created_by}
+            ).first()
+            
+            if not new_club_id_result:
+                return JsonResponse({"error": "Failed to create club"}, status=500)
+            
+            new_club_id = new_club_id_result[0]
+            print(f"New club_id: {new_club_id}")  # DEBUG
+
+            # 4. Assign admin
+            session.execute(
+                text("""
+                    INSERT INTO members (club_id, user_id, role) 
+                    VALUES (:club_id, :user_id, 'admin')
+                """),
+                {"club_id": new_club_id, "user_id": admin_user_id}
+            )
+
+            session.commit()
+            print(f"✅ Club {new_club_id} created with admin {admin_user_id}")
+            
+            return JsonResponse({
+                "success": True, 
+                "message": f"Club '{club_name}' created with admin assigned!"
+            }, status=201)
+        
+        finally:
+            session.close()
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        print(f"CREATE ERROR: {str(e)}")
+        print(f"Data: {data}")
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
 @csrf_exempt
 def get_clubs(request):
@@ -330,29 +381,60 @@ def get_clubs(request):
     finally:
         session.close()
 
+# @jwt_required
+# def get_club(request, club_id):
+#     # if request.user_payload.get("role") != "admin":
+#     #     return JsonResponse({"error": "Admin only"}, status=403)
+
+#     session = SessionLocal()
+#     try:
+#         club = session.execute(
+#             select(clubs_table).where(clubs_table.c.club_id == club_id)
+#         ).mappings().first()
+
+
+#         if not club:
+#             return JsonResponse({"error": "Club not found"}, status=404)
+
+#         return JsonResponse(club, status=200)
+#     finally:
+#         session.close()
+        
 @jwt_required
 def get_club(request, club_id):
-    # if request.user_payload.get("role") != "admin":
-    #     return JsonResponse({"error": "Admin only"}, status=403)
-
     session = SessionLocal()
     try:
-        club = session.execute(
-            select(clubs_table).where(clubs_table.c.club_id == club_id)
-        ).mappings().first()
-
-
+        # 1️⃣ Get club info
+        club_sql = """
+            SELECT c.*, u.name as created_by_name 
+            FROM clubs c 
+            LEFT JOIN users u ON c.created_by = u.user_id 
+            WHERE c.club_id = :club_id
+        """
+        club = session.execute(text(club_sql), {"club_id": club_id}).mappings().first()
+        
         if not club:
             return JsonResponse({"error": "Club not found"}, status=404)
 
-        return JsonResponse(club, status=200)
+        return JsonResponse(dict(club), status=200)
+
+    except Exception as e:
+        print(f"🚨 CLUB RAW SQL ERROR: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
 
+        
+@csrf_exempt 
 @jwt_required
 def delete_club(request, club_id):
-    if request.user_payload.get("role") != "admin":
-        return JsonResponse({"error": "Admin only"}, status=403)
+    # Only SUPERADMIN can delete clubs
+    print("🔍 USER PAYLOAD:", request.user_payload)  # ADD THIS LINE
+    print("🔍 GLOBAL ROLE:", request.user_payload.get("global_role"))  # ADD THIS
+    
+    if request.user_payload.get("global_role") != "superadmin":
+        print("⛔ Access denied: User is not superadmin")  # ADD THIS   
+        return JsonResponse({"error": "Super Admin only"}, status=403)
 
     session = SessionLocal()
     try:
@@ -374,6 +456,7 @@ def delete_club(request, club_id):
         )
     finally:
         session.close()
+
 
 def create_join_request(user_id, club_id):
     session = SessionLocal()
@@ -408,54 +491,183 @@ def create_join_request(user_id, club_id):
         return True, "Request submitted"
     finally:
         session.close()
+# @jwt_required
+# def get_club_members(request, club_id):
+#     """
+#     Get all members and pending requests of a specific club in a single array
+#     """
+#     session = SessionLocal()
+#     try:
+#         # -------- Approved Members --------
+#         member_stmt = (
+#             select(
+#                 members.c.user_id,
+#                 users_table.c.name,
+#                 members.c.role,
+#                 members.c.club_id
+#             )
+#             .join(users_table, users_table.c.user_id == members.c.user_id)
+#             .where(members.c.club_id == club_id)
+#         )
+#         member_results = session.execute(member_stmt).mappings().all()
+#         # Add status manually
+#         members_list = [{**dict(row), "status": "Approved"} for row in member_results]
+
+#         # -------- Pending Requests --------
+#         request_stmt = (
+#             select(
+#                 member_requests.c.user_id,
+#                 users_table.c.name,
+#                 member_requests.c.club_id,
+#                 member_requests.c.status  # e.g., 'Pending'
+#             )
+#             .join(users_table, users_table.c.user_id == member_requests.c.user_id)
+#             .where(member_requests.c.club_id == club_id)
+#         )
+#         request_results = session.execute(request_stmt).mappings().all()
+#         requests_list = [dict(row) for row in request_results]
+
+#         # -------- Combine both lists --------
+#         combined_list = members_list + requests_list
+
+#         return JsonResponse({
+#             "members": combined_list
+#         }, status=200)
+
+#     except SQLAlchemyError as e:
+#         return JsonResponse(
+#             {"success": False, "error": str(e)},
+#             status=500
+#         )
+
+#     finally:
+#         session.close()
+@csrf_exempt
 @jwt_required
 def get_club_members(request, club_id):
-    """
-    Get all members and pending requests of a specific club in a single array
-    """
     session = SessionLocal()
     try:
-        # -------- Approved Members --------
-        member_stmt = (
-            select(
-                members.c.user_id,
-                users_table.c.name,
-                members.c.role,
-                members.c.club_id
-            )
-            .join(users_table, users_table.c.user_id == members.c.user_id)
-            .where(members.c.club_id == club_id)
-        )
-        member_results = session.execute(member_stmt).mappings().all()
-        # Add status manually
-        members_list = [{**dict(row), "status": "Approved"} for row in member_results]
+        # 1️⃣ APPROVED MEMBERS - RAW SQL
+        members_sql = """
+            SELECT DISTINCT m.user_id, u.name, m.role, m.club_id, 'Approved' as status
+            FROM members m
+            LEFT JOIN users u ON m.user_id = u.user_id 
+            WHERE m.club_id = :club_id
+        """
+        member_results = session.execute(text(members_sql), {"club_id": club_id}).mappings().all()
 
-        # -------- Pending Requests --------
-        request_stmt = (
-            select(
-                member_requests.c.user_id,
-                users_table.c.name,
-                member_requests.c.club_id,
-                member_requests.c.status  # e.g., 'Pending'
-            )
-            .join(users_table, users_table.c.user_id == member_requests.c.user_id)
-            .where(member_requests.c.club_id == club_id)
-        )
-        request_results = session.execute(request_stmt).mappings().all()
-        requests_list = [dict(row) for row in request_results]
+        # 2️⃣ PENDING REQUESTS - RAW SQL  
+        requests_sql = """
+            SELECT DISTINCT r.user_id, u.name, r.club_id, r.status, 'Pending' as status
+            FROM member_requests r
+            LEFT JOIN users u ON r.user_id = u.user_id 
+            WHERE r.club_id = :club_id AND r.status = 'pending'
+        """
+        request_results = session.execute(text(requests_sql), {"club_id": club_id}).mappings().all()
 
-        # -------- Combine both lists --------
-        combined_list = members_list + requests_list
+        # 3️⃣ COMBINE RESULTS
+        all_members = []
+        for row in member_results + request_results:
+            all_members.append(dict(row))
 
-        return JsonResponse({
-            "members": combined_list
-        }, status=200)
+        return JsonResponse({"members": all_members}, status=200)
 
-    except SQLAlchemyError as e:
-        return JsonResponse(
-            {"success": False, "error": str(e)},
-            status=500
-        )
-
+    except Exception as e:
+        print(f"🚨 MEMBERS RAW SQL ERROR: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
+
+@csrf_exempt
+@jwt_required
+def update_club(request, club_id):
+    # Only SUPERADMIN can update
+    if request.user_payload.get("global_role") != "superadmin":
+        return JsonResponse({"error": "Super Admin only"}, status=403)
+
+    try:
+        data = json.loads(request.body)
+        club_name = data.get("club_name")
+        description = data.get("description") 
+        founded_date = data.get("founded_date")
+        admin_email = data.get("admin_email")
+
+        if not club_name:
+            return JsonResponse({"error": "Club name required"}, status=400)
+
+        session = SessionLocal()
+        try:
+            # 1. Check club exists (RAW SQL)
+            club_result = session.execute(
+                text("SELECT club_id FROM clubs WHERE club_id = :club_id"),
+                {"club_id": club_id}
+            ).first()
+
+            if not club_result:
+                return JsonResponse({"error": "Club not found"}, status=404)
+
+            # 2. Update club basic info (RAW SQL)
+            session.execute(
+                text("""
+                    UPDATE clubs 
+                    SET club_name = :club_name, 
+                        description = :description, 
+                        founded_date = :founded_date
+                    WHERE club_id = :club_id
+                """),
+                {
+                    "club_name": club_name,
+                    "description": description,
+                    "founded_date": founded_date,
+                    "club_id": club_id
+                }
+            )
+
+            # 3. Update admin (members table) - RAW SQL
+            if admin_email:
+                # Get user_id from email
+                user_result = session.execute(
+                    text("SELECT user_id FROM users WHERE email = :email LIMIT 1"),
+                    {"email": admin_email}
+                ).first()
+                
+                if user_result:
+                    user_id = user_result[0]
+                    
+                    # Remove old admin
+                    session.execute(
+                        text("""
+                            DELETE FROM members 
+                            WHERE club_id = :club_id AND role = 'admin'
+                        """),
+                        {"club_id": club_id}
+                    )
+                    
+                    # Add new admin
+                    session.execute(
+                        text("""
+                            INSERT INTO members (club_id, user_id, role) 
+                            VALUES (:club_id, :user_id, 'admin')
+                        """),
+                        {
+                            "club_id": club_id,
+                            "user_id": user_id
+                        }
+                    )
+                else:
+                    return JsonResponse({"error": "User not found"}, status=404)
+
+            session.commit()
+            return JsonResponse({
+                "success": True, 
+                "message": "Club updated successfully including admin!"
+            })
+
+        finally:
+            session.close()
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    except Exception as e:
+        print(f"UPDATE ERROR: {str(e)}")
+        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)

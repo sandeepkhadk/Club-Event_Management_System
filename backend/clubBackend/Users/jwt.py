@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
 
-def generate_jwt(email, user_id, global_role, club_id=None, club_role=None):
+def generate_jwt(email, user_id, global_role, club_id=None, club_role=None,):
     """
     Generate JWT including global role and single club role.
     """
@@ -14,6 +14,7 @@ def generate_jwt(email, user_id, global_role, club_id=None, club_role=None):
         "club_role": club_role, 
         "exp": datetime.utcnow() + timedelta(minutes=60),
         "iat": datetime.utcnow(),
+        
     }
 
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")

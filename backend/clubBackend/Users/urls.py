@@ -1,13 +1,13 @@
 from django.urls import path
-from .views import register_view, login_view,profile_view
+from .views import register_view, login_view,profile_view, users_list_view 
 from Users.views import (
     join_club_request,
     approve_request,
     reject_request,
     pending_requests,
     get_club_members,assign_role,
-    remove_member
-
+    remove_member,
+    user_clubs
 )
 
 
@@ -17,11 +17,13 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path("join-club/<int:club_id>/", join_club_request, name="join-club"),
     path("requests/", pending_requests, name="pending-requests"),
-   path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
+    path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
     path("requests/reject/<int:user_id>/", reject_request, name="reject-request"),
     path("clubs/<int:club_id>/members/", get_club_members),
     path('assign-role/',assign_role),
-    # urls.py
+    path('list/', users_list_view, name='users_list'),
+  
+    path('clubs/', user_clubs, name='user_clubs'),
     path('<int:user_id>/remove/', remove_member, name='remove-member')
 
 

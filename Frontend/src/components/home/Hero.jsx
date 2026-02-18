@@ -26,12 +26,7 @@ const Hero = () => {
         </div>
       </section>
 
-      {/* Copyright Section */}
-      <footer className="bg-slate-900 text-gray-300 text-center py-4">
-        <p className="text-sm">
-          © {new Date().getFullYear()} Event & Club Management System. All rights reserved.
-        </p>
-      </footer>
+      
     </>
   )
 }

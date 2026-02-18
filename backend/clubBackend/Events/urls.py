@@ -11,6 +11,8 @@ from Events.views import (
     delete_event,
     join_event,
     leave_event,
+    get_feed_events,
+    get_global_events
 )
 
 urlpatterns = [
@@ -21,4 +23,6 @@ urlpatterns = [
     path("join/", join_event, name="join-event"),
     path("leave/", leave_event, name="leave-event"),
     path("all/", get_all_events, name="all-events"), 
+    path("global/",get_global_events,name="global event"),
+    path("visibility/",get_feed_events,name="visible")
 ]

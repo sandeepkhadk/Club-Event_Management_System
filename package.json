@@ -8,5 +8,10 @@
     "dev": "npm run dev -w Frontend",
     "preview": "npm run preview -w Frontend",
     "build": "npm run build -w Frontend"
+  },
+  "dependencies": {
+    "framer-motion": "^12.34.0",
+    "jwt-decode": "^4.0.0",
+    "react-router-dom": "^7.13.0"
   }
 }
