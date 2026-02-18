@@ -318,15 +318,16 @@ def reject_request(request):
         return JsonResponse({"success": True, "message": f"Request {request_id} rejected"}, status=200)
     finally:
         session.close()
+
+@csrf_exempt
 @jwt_required
 def get_club_members(request, club_id):
     """
-    Get members of a specific club
+    Fetch all members of a specific club
     """
-
     session = SessionLocal()
     try:
-        # Join members table with users table
+        # Join members table with users table, no status check
         stmt = (
             select(
                 members.c.user_id,
@@ -338,17 +339,15 @@ def get_club_members(request, club_id):
             .where(members.c.club_id == club_id)
         )
 
-        results = session.execute(stmt).mappings().all()
+        results = session.execute(stmt).mappings().all()  # list of RowMapping
 
-        return JsonResponse({
-            "members": list(results)
-        }, status=200)
+        # Convert to plain dicts
+        members_list = [dict(row) for row in results]
+
+        return JsonResponse({"members": members_list}, status=200)
 
     except SQLAlchemyError as e:
-        return JsonResponse(
-            {"success": False, "error": str(e)},
-            status=500
-        )
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     finally:
         session.close()
