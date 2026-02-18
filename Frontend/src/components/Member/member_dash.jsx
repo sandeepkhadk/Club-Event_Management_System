@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Users, Calendar, Activity, Sparkles, Home, Plus } from "lucide-react";
+import { LogOut, Users, Calendar, Activity,  GraduationCap, Home, Plus } from "lucide-react";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import EventList from "../admin/EventList";
 import { useUserRole } from "../../context/hooks/useUserRole";
@@ -25,18 +25,14 @@ const StudentDashboard = () => {
   // ✅ ADDED: Club status helper
   const getClubStatus = (clubId) => {
   const application = myApplications.find(
-  app => Number(app.club_id) === Number(clubId)
-);
-
+    app => Number(app.club_id) === Number(clubId)
+  );
 
   if (!application) return "available";
-
   const status = application.status?.toLowerCase();
-
   if (status === "approved") return "approved";
   if (status === "rejected") return "rejected";
   if (status === "pending") return "pending";
-
   return "available";
 };
 
@@ -51,30 +47,33 @@ const fetchDashboardData = useCallback(async () => {
       fetch("http://127.0.0.1:8000/events/global/"),
       fetch("http://127.0.0.1:8000/users/profile/", {
         headers: { Authorization: `Bearer ${token}` },
+
       }),
     ]);
-
+    
     const clubData = await clubRes.json();
     const eventData = await eventRes.json();
     const profileData = await profileRes.json();
-
+    
     // ✅ Set clubs
     setClubs(clubData.clubs || []);
 
     // ✅ Set profile
     setMyProfile(profileData);
 
-    // ✅ Normalize club requests (Application Tracker)
-    const clubRequests = (profileData.applications || []).map(app => {
-      const club = clubData.clubs.find(c => c.club_id === app.club_id);
-      return {
-        ...app,
-        club_name: club?.name || "Unknown Club",
-        status: app.status
-          ? app.status.charAt(0).toUpperCase() + app.status.slice(1).toLowerCase()
-          : "Pending",
-      };
+    
+    const clubMap = {};
+    (clubData.clubs || []).forEach(club => {
+      clubMap[Number(club.club_id)] = club.club_name; // ✅ Use club_name
     });
+
+    const clubRequests = (profileData.applications || []).map(app => ({
+      ...app,
+      club_name: app.club_name || clubMap[Number(app.club_id)] || "Unknown Club",
+      status: app.status
+        ? app.status.charAt(0).toUpperCase() + app.status.slice(1).toLowerCase()
+        : "Pending",
+    }));
 
     setMyApplications(clubRequests);
 
@@ -170,7 +169,7 @@ const fetchDashboardData = useCallback(async () => {
     // 🔥 Immediately update UI with Pending request
     const newApplication = {
       club_id: club.club_id,
-      club_name: club.name, // ✅ ALWAYS correct name
+      club_name: club.club.name, //ALWAYS correct name
       status: "Pending",
       created_at: new Date().toISOString(),
     };
@@ -209,7 +208,7 @@ const handleJoinEvent = async (event) => {
       throw new Error(errorData.message || "Failed to join event");
     }
 
-    // ✅ Update frontend state correctly
+    //  Update frontend state correctly
     setEvents(prevEvents =>
       prevEvents.map(e => {
         if (e.id !== eventId && e.event_id !== eventId) return e;
@@ -306,7 +305,7 @@ const handleLeaveEvent = async (event) => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center p-8">
         <div className="text-center max-w-md mx-auto space-y-6">
           <div className="w-24 h-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl flex items-center justify-center mx-auto animate-pulse">
-            <Sparkles className="w-12 h-12 text-white drop-shadow-lg" />
+             <GraduationCap className="w-12 h-12 text-white drop-shadow-lg" />
           </div>
           <h2 className="text-4xl font-black bg-gradient-to-r from-slate-600 to-slate-800 bg-clip-text text-transparent tracking-tight">
             Syncing Dashboard
@@ -326,7 +325,7 @@ const joinedEvents = events.filter(
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4 group">
             <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg group-hover:scale-105 transition-all">
-              <Sparkles className="w-6 h-6 text-white" />
+              <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div className="space-y-1">
               <h1 className="text-2xl font-black bg-gradient-to-r from-slate-900 to-indigo-900 bg-clip-text text-transparent">
@@ -483,7 +482,7 @@ const joinedEvents = events.filter(
                       </div>
                       <div className="min-w-0 flex-1 pt-2">
                         <h3 className="text-3xl font-black text-slate-900 group-hover:text-indigo-600 mb-2">
-                          {club.name}
+                          {club.club_name}
                         </h3>
                         <p className="text-slate-500 text-lg">{club.description || "Your club home base"}</p>
                       </div>
@@ -572,7 +571,7 @@ const joinedEvents = events.filter(
                   </div>
                   
                   <h3 className="text-2xl font-black text-slate-900 mb-4 text-center group-hover:text-indigo-600 transition-colors leading-tight">
-                    {club.name}
+                    {club.club_name}
                   </h3>
                   
                   <p className="text-slate-500 text-lg mb-10 text-center leading-relaxed line-clamp-3 px-4">
@@ -582,48 +581,48 @@ const joinedEvents = events.filter(
                   {/* 🔥 ENHANCED DYNAMIC BUTTON */}
               
                     <div className="space-y-3">
-  {status === 'approved' ? (
-    <div className="w-full p-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl animate-pulse">
-      <div className="w-3 h-3 bg-white rounded-full animate-ping" />
-      Active Member
-    </div>
+                  {status === 'approved' ? (
+                    <div className="w-full p-5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl animate-pulse">
+                      <div className="w-3 h-3 bg-white rounded-full animate-ping" />
+                      Active Member
+                    </div>
 
-  ) : status === 'pending' ? (
-    <div className="w-full p-5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-900 rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl opacity-90">
-      <div className="w-3 h-3 bg-amber-900 rounded-full animate-ping" />
-      Request Pending
-      {pendingApp && (
-        <span className="text-xs bg-white/30 px-2 py-1 rounded-xl ml-2">
-          {new Date(pendingApp.created_at).toLocaleDateString()}
-        </span>
-      )}
-    </div>
+                  ) : status === 'pending' ? (
+                    <div className="w-full p-5 bg-gradient-to-r from-amber-400 to-amber-500 text-amber-900 rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl opacity-90">
+                      <div className="w-3 h-3 bg-amber-900 rounded-full animate-ping" />
+                      Request Pending
+                      {pendingApp && (
+                        <span className="text-xs bg-white/30 px-2 py-1 rounded-xl ml-2">
+                          {new Date(pendingApp.created_at).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
 
-  ) : status === 'rejected' ? (
-    <div className="w-full p-5 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl">
-      ❌ Request Rejected
-    </div>
+                  ) : status === 'rejected' ? (
+                    <div className="w-full p-5 bg-gradient-to-r from-rose-500 to-rose-600 text-white rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl">
+                      ❌ Request Rejected
+                    </div>
 
-  ) : (
-    <button
-      onClick={() => handleClubJoin(club.club_id)}
-      disabled={submitting}
-      className="w-full p-6 bg-gradient-to-r from-slate-100 via-indigo-50 to-purple-50 text-slate-900 rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 border-2 border-slate-200/50 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:from-indigo-500 hover:to-purple-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 group/button disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {submitting ? (
-        <>
-          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          Processing...
-        </>
-      ) : (
-        <>
-          <Users className="w-6 h-6 group-hover/button:-translate-y-0.5 transition-transform" />
-          Apply to Join
-        </>
-      )}
-    </button>
-  )}
-</div>
+                  ) : (
+                    <button
+                      onClick={() => handleClubJoin(club.club_id)}
+                      disabled={submitting}
+                      className="w-full p-6 bg-gradient-to-r from-slate-100 via-indigo-50 to-purple-50 text-slate-900 rounded-3xl font-black text-lg uppercase tracking-widest flex items-center justify-center gap-3 border-2 border-slate-200/50 hover:border-indigo-300 hover:shadow-2xl hover:shadow-indigo-500/10 hover:from-indigo-500 hover:to-purple-600 hover:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all duration-300 group/button disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submitting ? (
+                        <>
+                          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Users className="w-6 h-6 group-hover/button:-translate-y-0.5 transition-transform" />
+                          Apply to Join
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
 
                 </div>
               </article>
