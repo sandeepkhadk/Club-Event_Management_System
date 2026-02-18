@@ -433,7 +433,7 @@ const MemberManagement = ({ members, token, fetchMembers, clubId }) => {
 
   const rejectMember = async (userId) => {
     try {
-      await fetch(`http://127.0.0.1:8000/members/${userId}/reject/`, {
+      await fetch(`http://127.0.0.1:8000/users/reject/${userId}/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

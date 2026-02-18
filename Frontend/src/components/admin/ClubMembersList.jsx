@@ -4,15 +4,18 @@ import { useAuthContext } from "../../context/provider/AuthContext";
 import { useClubContext } from "../../context/provider/ClubContext"; // Assuming you have this
 import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
 
-const ClubMembersList = () => {
+
+const ClubMembersList = ({clubId}) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { token } = useAuthContext();
-  const { clubId } = useClubContext(); // Get current club ID
+   // Get current club ID
 
   useEffect(() => {
     const fetchMembers = async () => {
+      console.log(token)
+      console.log(clubId)
       if (!token || !clubId) {
         setLoading(false);
         return;
@@ -20,7 +23,7 @@ const ClubMembersList = () => {
 
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/clubs/${clubId}/members/`, {
+        const res = await fetch(`http://127.0.0.1:8000/users/${clubId}/members/`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -129,13 +132,7 @@ const ClubMembersList = () => {
               </div>
 
               {/* Status Badge */}
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                member.status?.toLowerCase() === 'approved'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/50'
-                  : 'bg-amber-500/20 text-amber-300 border border-amber-400/50'
-              }`}>
-                {member.status || 'Unknown'}
-              </span>
+           
             </div>
           ))
         ) : (
@@ -149,5 +146,4 @@ const ClubMembersList = () => {
     </div>
   );
 };
-
-export default ClubMembersList;
+export default ClubMembersList

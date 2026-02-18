@@ -290,7 +290,7 @@ const handleDeleteEvent = async (event) => {
           </div>
         )}
         {activeTab === 'club-members' && (
-          <ClubMembersList clubId={clubId} />
+          <ClubMembersList clubId={clubId}  />
         )}
 
         {activeTab === 'manage-events' && (

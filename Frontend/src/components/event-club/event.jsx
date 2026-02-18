@@ -26,7 +26,7 @@ const EventPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/events/");
+        const res = await fetch("http://127.0.0.1:8000/events/global/");
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
         console.log(data)

@@ -156,71 +156,6 @@ def login_view(request):
     finally:
         session.close()
 
-@jwt_required
-def profile_view(request):
-    user_payload = request.user_payload
-
-    email = user_payload.get("email")
-    club_id = user_payload.get("club_id")
-    role = user_payload.get("role")
-    club_role = user_payload.get("club_role")
-
-    if not email:
-        return JsonResponse({"error": "Invalid token"}, status=401)
-
-    session = SessionLocal()
-
-    try:
-        # ✅ Correct SQLAlchemy syntax
-        user_query = text("""
-            SELECT name, email
-            FROM users
-            WHERE email = :email
-        """)
-
-        user_result = session.execute(
-            user_query,
-            {"email": email}
-        ).fetchone()
-
-        if not user_result:
-            return JsonResponse({"error": "User not found"}, status=404)
-
-        club_name = None
-
-        if club_id:
-            club_query = text("""
-                SELECT club_name
-                FROM clubs
-                WHERE club_id = :club_id
-            """)
-
-            club_result = session.execute(
-                club_query,
-                {"club_id": club_id}
-            ).fetchone()
-
-            if club_result:
-                club_name = club_result[0]
-
-        return JsonResponse({
-            "name": user_result[0],
-            "email": user_result[1],
-            "role": role,
-            "club_id": club_id,
-            "club_name": club_name,
-            "club_role": club_role
-        })
-
-    except Exception as e:
-        print("PROFILE ERROR:", str(e))  # 👈 print real error
-        return JsonResponse(
-            {"error": str(e)},
-            status=500
-        )
-
-    finally:
-        session.close()
 
 @csrf_exempt
 @jwt_required
@@ -307,15 +242,10 @@ def approve_request(request, request_id):
     finally:
         session.close()
 
-
 @csrf_exempt
 @jwt_required
+def reject_request(request, user_id):
 
-def reject_request(request):
-    """
-    Admin rejects a join request by ID.
-    Only updates status to 'rejected'
-    """
     if request.user_payload.get("role") != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
 
@@ -333,37 +263,40 @@ def reject_request(request):
 
     session = SessionLocal()
     try:
-        # Check if the request exists and is pending
+        # Check if request exists
         stmt = select(member_requests).where(
-            member_requests.c.id == request_id,
-            member_requests.c.status == "pending"
+            member_requests.c.id == request_id
         )
         req = session.execute(stmt).mappings().first()
 
         if not req:
-            return JsonResponse({"error": "Invalid or already handled request"}, status=404)
+            return JsonResponse({"error": "Request not found"}, status=404)
 
-        # Update the request status to 'rejected'
-        upd = (
-            update(member_requests)
-            .where(member_requests.c.id == request_id)
-            .values(status="rejected")
+        # 🔥 DELETE instead of update
+        delete_stmt = delete(member_requests).where(
+            member_requests.c.id == request_id
         )
-        session.execute(upd)
+
+        session.execute(delete_stmt)
         session.commit()
 
-        return JsonResponse({"success": True, "message": f"Request {request_id} rejected"}, status=200)
+        return JsonResponse(
+            {"success": True, "message": f"Request {request_id} removed"},
+            status=200
+        )
+
     finally:
         session.close()
+
+@csrf_exempt
 @jwt_required
 def get_club_members(request, club_id):
     """
-    Get members of a specific club
+    Fetch all members of a specific club
     """
-
     session = SessionLocal()
     try:
-        # Join members table with users table
+        # Join members table with users table, no status check
         stmt = (
             select(
                 members.c.user_id,
@@ -375,17 +308,15 @@ def get_club_members(request, club_id):
             .where(members.c.club_id == club_id)
         )
 
-        results = session.execute(stmt).mappings().all()
+        results = session.execute(stmt).mappings().all()  # list of RowMapping
 
-        return JsonResponse({
-            "members": list(results)
-        }, status=200)
+        # Convert to plain dicts
+        members_list = [dict(row) for row in results]
+
+        return JsonResponse({"members": members_list}, status=200)
 
     except SQLAlchemyError as e:
-        return JsonResponse(
-            {"success": False, "error": str(e)},
-            status=500
-        )
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     finally:
         session.close()
@@ -574,6 +505,73 @@ def users_list_view(request):
     finally:
         if 'session' in locals():
             session.close()
+@jwt_required
+def profile_view(request):
+    user_payload = request.user_payload
+    
+    email = user_payload.get("email")
+    user_id = user_payload.get("user_id")
+    club_id = user_payload.get("club_id")  # 🔥 From JWT
+    role = user_payload.get("role")
+    club_role = user_payload.get("club_role")
+
+    if not email:
+        return JsonResponse({"error": "Invalid token"}, status=401)
+
+    session = SessionLocal()
+    
+    try:
+        # 1. Get user basic info
+        user_query = text("""
+            SELECT name, email FROM users WHERE email = :email
+        """)
+        user_result = session.execute(user_query, {"email": email}).fetchone()
+        
+        if not user_result:
+            return JsonResponse({"error": "User not found"}, status=404)
+
+        # 2. 🔥 GET CLUB NAME FROM club_id
+        club_name = None
+        if club_id:
+            club_query = text("""
+                SELECT club_name FROM clubs WHERE club_id = :club_id
+            """)
+            club_result = session.execute(club_query, {"club_id": club_id}).fetchone()
+            club_name = club_result[0] if club_result else None  # ✅ Now defined!
+
+        # 3. Get applications
+        applications_query = text("""
+            SELECT mr.club_id, mr.status, c.club_name as club_name
+            FROM member_requests mr
+            LEFT JOIN clubs c ON mr.club_id = c.club_id
+            WHERE mr.user_id = :user_id
+        """)
+        applications_result = session.execute(applications_query, {"user_id": user_id}).fetchall()
+
+        applications = [
+            {
+                "club_id": row[0],
+                "status": row[1],
+                "club_name": row[2]  # ✅ Richer data
+            }
+            for row in applications_result
+        ]
+
+        return JsonResponse({
+            "name": user_result[0],
+            "email": user_result[1],
+            "role": role,
+            "club_id": club_id,
+            "club_name": club_name,  # ✅ NOW WORKS!
+            "club_role": club_role,
+            "applications": applications
+        })
+
+    except Exception as e:
+        print("PROFILE ERROR:", str(e))
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
 
 
 @jwt_required

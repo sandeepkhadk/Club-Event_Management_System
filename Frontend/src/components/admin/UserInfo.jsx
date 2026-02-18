@@ -76,7 +76,7 @@ const UserInfo = () => {
               </div>
               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 truncate">
                 <Building2 className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-                <span className="group-hover:text-indigo-300 transition-colors">{userInfo.club_name || 'Club'}</span>
+                <span className="group-hover:text-indigo-300 transition-colors">{userInfo.club_name }</span>
               </div>
               <div className="flex items-center gap-1 text-xs font-bold bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-2 py-px rounded-lg backdrop-blur-sm border border-yellow-500/30">
                 <Crown className="w-3 h-3 text-yellow-300" />

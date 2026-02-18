@@ -7,7 +7,8 @@ from Users.views import (
     pending_requests,
     get_club_members,assign_role,
     remove_member,
-    user_clubs
+    user_clubs,
+    
 )
 
 
@@ -18,8 +19,8 @@ urlpatterns = [
     path("join-club/<int:club_id>/", join_club_request, name="join-club"),
     path("requests/", pending_requests, name="pending-requests"),
     path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
-    path("requests/reject/<int:user_id>/", reject_request, name="reject-request"),
-    path("clubs/<int:club_id>/members/", get_club_members),
+    path("reject/<int:user_id>/", reject_request, name="reject-request"),
+    path("<int:club_id>/members/", get_club_members),
     path('assign-role/',assign_role),
     path('list/', users_list_view, name='users_list'),
   
