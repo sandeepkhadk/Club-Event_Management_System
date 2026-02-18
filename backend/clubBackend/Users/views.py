@@ -273,6 +273,7 @@ def approve_request(request, request_id):
 
 @csrf_exempt
 @jwt_required
+<<<<<<< Updated upstream
 
 def reject_request(request):
     """
@@ -280,44 +281,72 @@ def reject_request(request):
     Only updates status to 'rejected'
     """
     if request.user_payload.get("role") != "admin":
+=======
+def reject_request(request, request_id):
+
+    if request.user_payload.get("club_role") != "admin":
+>>>>>>> Stashed changes
         return JsonResponse({"error": "Admin only"}, status=403)
 
     if request.method != "POST":
         return JsonResponse({"error": "POST request required"}, status=400)
 
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-    request_id = data.get("request_id")
-    if not request_id:
-        return JsonResponse({"error": "request_id required"}, status=400)
-
     session = SessionLocal()
     try:
         # Check if the request exists and is pending
         stmt = select(member_requests).where(
+<<<<<<< Updated upstream
             member_requests.c.id == request_id,
             member_requests.c.status == "pending"
+=======
+            member_requests.c.user_id == request_id
+>>>>>>> Stashed changes
         )
         req = session.execute(stmt).mappings().first()
 
         if not req:
             return JsonResponse({"error": "Invalid or already handled request"}, status=404)
 
+<<<<<<< Updated upstream
         # Update the request status to 'rejected'
         upd = (
             update(member_requests)
             .where(member_requests.c.id == request_id)
             .values(status="rejected")
+=======
+        # Delete request
+        delete_stmt = delete(member_requests).where(
+            member_requests.c.user_id == request_id
+>>>>>>> Stashed changes
         )
         session.execute(upd)
         session.commit()
 
+<<<<<<< Updated upstream
         return JsonResponse({"success": True, "message": f"Request {request_id} rejected"}, status=200)
     finally:
         session.close()
+=======
+        return JsonResponse(
+            {"success": True, "message": f"Request {request_id} rejected"},
+            status=200
+        )
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+    finally:
+        session.close()
+
+        return JsonResponse(
+            {"success": True, "message": f"Request {request_id} removed"},
+            status=200
+        )
+
+    
+
+@csrf_exempt
+>>>>>>> Stashed changes
 @jwt_required
 def get_club_members(request, club_id):
     """

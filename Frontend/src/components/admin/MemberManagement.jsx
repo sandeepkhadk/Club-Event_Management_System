@@ -1,17 +1,25 @@
 import React, { useState } from 'react';
+<<<<<<< Updated upstream
 import { Shield, Trash2 } from 'lucide-react';
+=======
+import { CheckCircle2, XCircle } from 'lucide-react';
+>>>>>>> Stashed changes
 
 const MemberManagement = ({ members, token, fetchMembers }) => {
   const [roleSelections, setRoleSelections] = useState({});
 
-  // Decode user_id from token
+  // Decode current user ID from token
   const userId = token
     ? JSON.parse(atob(token.split('.')[1])).user_id
     : null;
 
-  // Filter out current user
-  const visibleMembers = members.filter(member => member.user_id !== userId);
+  // Filter only pending requests and exclude current user
+  const pendingMembers = members.filter(
+    member =>
+      member.status?.toLowerCase() === 'pending' && member.user_id !== userId
+  );
 
+<<<<<<< Updated upstream
   const handleRoleChange = (userId, role) => {
     setRoleSelections({ ...roleSelections, [userId]: role });
   };
@@ -39,29 +47,47 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
     const role = roleSelections[requestId];
     console.log(role)
     if (!role) return;
+=======
+  const handleRoleChange = (memberId, role) => {
+    setRoleSelections({ ...roleSelections, [memberId]: role });
+  };
+
+  const approveMember = async (memberId) => {
+    const role = roleSelections[memberId];
+    if (!role) return alert('Select a role first!');
+>>>>>>> Stashed changes
 
     try {
-      await fetch(`http://127.0.0.1:8000/users/requests/approve/${requestId}/`, {
-        method: "POST",
+      await fetch(`http://127.0.0.1:8000/users/requests/approve/${memberId}/`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
         },
         body: JSON.stringify({ role }),
       });
       fetchMembers();
+<<<<<<< Updated upstream
+=======
+      setRoleSelections(prev => ({ ...prev, [memberId]: '' }));
+>>>>>>> Stashed changes
     } catch (err) {
       console.error(err);
     }
   };
 
-  const rejectMember = async (userId) => {
+  const rejectMember = async (memberId) => {
     try {
+<<<<<<< Updated upstream
       await fetch(`http://127.0.0.1:8000/members/${userId}/reject/`, {
         method: "POST",
+=======
+      await fetch(`http://127.0.0.1:8000/users/reject/${memberId}/`, {
+        method: 'POST',
+>>>>>>> Stashed changes
         headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
         },
       });
       fetchMembers();
@@ -70,6 +96,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
     }
   };
 
+<<<<<<< Updated upstream
   const removeMember = async (userId) => {
     try {
       await fetch(`http://127.0.0.1:8000/users/${userId}/remove/`, {
@@ -117,12 +144,40 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
                   value={roleSelections[member.user_id] || ""}
                   onChange={(e) => handleRoleChange(member.user_id, e.target.value)}
                   className="border rounded p-2 w-full"
+=======
+  return (
+    <div className="space-y-6">
+      <h2 className="text-3xl font-bold mb-4">Pending Member Requests</h2>
+
+      {pendingMembers.length === 0 ? (
+        <p className="text-gray-500">No pending requests.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {pendingMembers.map(member => (
+            <div
+              key={member.user_id}
+              className="bg-white rounded-xl shadow p-5 flex flex-col space-y-4"
+            >
+              <div>
+                <h3 className="font-bold text-lg">{member.name}</h3>
+                <p className="text-sm text-gray-600">{member.email}</p>
+              </div>
+
+              <div>
+                <select
+                  value={roleSelections[member.user_id] || ''}
+                  onChange={(e) =>
+                    handleRoleChange(member.user_id, e.target.value)
+                  }
+                  className="w-full border rounded p-2"
+>>>>>>> Stashed changes
                 >
                   <option value="">Select Role</option>
                   <option value="member">Member</option>
                   <option value="moderator">Moderator</option>
                   <option value="admin">Admin</option>
                 </select>
+<<<<<<< Updated upstream
 
                 <div className="flex justify-between space-x-2">
                   <button
@@ -176,6 +231,30 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
         ))}
       </div>
     </section>
+=======
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => approveMember(member.user_id)}
+                  disabled={!roleSelections[member.user_id]}
+                  className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 /> Approve
+                </button>
+                <button
+                  onClick={() => rejectMember(member.user_id)}
+                  className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700 flex items-center justify-center gap-2"
+                >
+                  <XCircle /> Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+>>>>>>> Stashed changes
   );
 };
 

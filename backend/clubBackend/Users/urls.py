@@ -18,9 +18,15 @@ urlpatterns = [
     path('profile/', profile_view, name='profile'),
     path("join-club/<int:club_id>/", join_club_request, name="join-club"),
     path("requests/", pending_requests, name="pending-requests"),
+<<<<<<< Updated upstream
    path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
     path("requests/reject/<int:user_id>/", reject_request, name="reject-request"),
     path("clubs/<int:club_id>/members/", get_club_members),
+=======
+    path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
+    path("reject/<int:request_id>/", reject_request, name="reject-request"),
+    path("<int:club_id>/members/", get_club_members),
+>>>>>>> Stashed changes
     path('assign-role/',assign_role),
     # urls.py
     path('<int:user_id>/remove/', remove_member, name='remove-member'),
