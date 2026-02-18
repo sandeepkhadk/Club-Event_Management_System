@@ -6,7 +6,8 @@ from Users.views import (
     reject_request,
     pending_requests,
     get_club_members,assign_role,
-    remove_member
+    remove_member,
+    request_password_reset,reset_password
 
 )
 
@@ -22,7 +23,13 @@ urlpatterns = [
     path("clubs/<int:club_id>/members/", get_club_members),
     path('assign-role/',assign_role),
     # urls.py
-    path('<int:user_id>/remove/', remove_member, name='remove-member')
+    path('<int:user_id>/remove/', remove_member, name='remove-member'),
+        # Send reset email
+    path("request-reset/", request_password_reset, name="request-reset"),
+
+    # Reset password using token
+    path("reset-password/", reset_password, name="reset-password"),
+
 
 
 ]

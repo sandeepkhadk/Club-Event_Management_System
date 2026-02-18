@@ -459,3 +459,36 @@ def get_club_members(request, club_id):
 
     finally:
         session.close()
+
+
+
+@jwt_required
+def get_approved_club_members(request, club_id):
+    """
+    Get only approved members of a specific club (exclude pending requests)
+    """
+    session = SessionLocal()
+    try:
+        stmt = (
+            select(
+                members.c.user_id,
+                users_table.c.name,
+                members.c.role,
+                members.c.club_id
+            )
+            .join(users_table, users_table.c.user_id == members.c.user_id)
+            .where(members.c.club_id == club_id)
+        )
+
+        results = session.execute(stmt).mappings().all()
+
+        # Add status manually
+        members_list = [{**dict(row), "status": "Approved"} for row in results]
+
+        return JsonResponse({"members": members_list}, status=200)
+
+    except SQLAlchemyError as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+    finally:
+        session.close()

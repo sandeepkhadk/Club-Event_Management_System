@@ -494,3 +494,97 @@ def remove_member(request, user_id):
 
     finally:
         session.close()
+# users/views.py
+
+import jwt
+from datetime import datetime, timedelta
+from django.conf import settings
+from django.core.mail import send_mail
+
+@csrf_exempt
+def request_password_reset(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+    except:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    session = SessionLocal()
+    try:
+        user = session.execute(
+            select(users).where(users.c.email == email)
+        ).mappings().first()
+
+        if not user:
+            return JsonResponse({"error": "Email not registered"}, status=404)
+
+        # Create reset JWT (15 min expiry)
+        payload = {
+            "user_id": user["user_id"],
+            "email": email,
+            "exp": datetime.utcnow() + timedelta(minutes=15),
+            "type": "reset"
+        }
+
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+
+        reset_link = f"http://localhost:3000/reset-password/{token}"
+
+        send_mail(
+            "Reset Password",
+            f"Click link:\n{reset_link}",
+            "noreply@gmail.com",
+            [email]
+        )
+
+        return JsonResponse({"success": True, "message": "Reset link sent"})
+
+    finally:
+        session.close()
+@csrf_exempt
+def reset_password(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        token = data.get("token")
+        new_password = data.get("password")
+    except:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not token or not new_password:
+        return JsonResponse({"error": "Token & password required"}, status=400)
+
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+
+        if payload.get("type") != "reset":
+            return JsonResponse({"error": "Invalid token"}, status=400)
+
+        user_id = payload["user_id"]
+
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "Token expired"}, status=400)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "Invalid token"}, status=400)
+
+    session = SessionLocal()
+    try:
+        hashed = hash_password(new_password)
+
+        session.execute(
+            update(users)
+            .where(users.c.user_id == user_id)
+            .values(password=hashed)
+        )
+        session.commit()
+
+        return JsonResponse({"success": True, "message": "Password reset successful"})
+
+    finally:
+        session.close()
+

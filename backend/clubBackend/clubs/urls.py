@@ -25,7 +25,8 @@ from clubs.views import (
     get_clubs,
     get_club,
     delete_club,
-    get_club_members
+    get_club_members,
+    get_approved_club_members
 )
 
 urlpatterns = [
@@ -36,4 +37,5 @@ urlpatterns = [
     path("<int:club_id>/join/", join_club_request, name="join-club"),  
      path("<int:club_id>/members/", get_club_members),
        path("<int:club_id>/events/", include("Events.urls")),
+       path("<int:club_id>/approved-members/",get_approved_club_members,name="approved")
 ]
