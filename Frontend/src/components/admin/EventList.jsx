@@ -53,12 +53,9 @@ const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUs
       day: startDate.getDate(),
       time: startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       fullDate: startDate.toLocaleDateString([], { dateStyle: "medium" }),
-<<<<<<< Updated upstream
-      banner: gradients[index % gradients.length]
-=======
+     
       banner: gradients[index % gradients.length],
       isCompleted,
->>>>>>> Stashed changes
     };
   });
 
