@@ -241,10 +241,11 @@ def approve_request(request, request_id):
 
     finally:
         session.close()
-
 @csrf_exempt
 @jwt_required
 def reject_request(request, request_id):
+
+    print("Reject ID:", request_id)
 
     if request.user_payload.get("club_role") != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
@@ -253,17 +254,17 @@ def reject_request(request, request_id):
         return JsonResponse({"error": "POST request required"}, status=400)
 
     session = SessionLocal()
+
     try:
-        # Check if request exists
         stmt = select(member_requests).where(
             member_requests.c.user_id == request_id
         )
+
         req = session.execute(stmt).mappings().first()
 
         if not req:
             return JsonResponse({"error": "Request not found"}, status=404)
 
-        # Delete request
         delete_stmt = delete(member_requests).where(
             member_requests.c.user_id == request_id
         )
@@ -277,16 +278,11 @@ def reject_request(request, request_id):
         )
 
     except Exception as e:
+        print("ERROR:", e)
         return JsonResponse({"error": str(e)}, status=500)
 
     finally:
         session.close()
-
-        return JsonResponse(
-            {"success": True, "message": f"Request {request_id} removed"},
-            status=200
-        )
-        
 @csrf_exempt
 @jwt_required
 def get_club_members(request, club_id):
