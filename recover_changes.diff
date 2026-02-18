@@ -1,0 +1,148 @@
+diff --git a/Frontend/src/components/admin/AdminDashboard.jsx b/Frontend/src/components/admin/AdminDashboard.jsx
+index 9ba8d966..4d04381e 100644
+--- a/Frontend/src/components/admin/AdminDashboard.jsx
++++ b/Frontend/src/components/admin/AdminDashboard.jsx
+@@ -290,7 +290,7 @@ const handleDeleteEvent = async (event) => {
+           </div>
+         )}
+         {activeTab === 'club-members' && (
+-          <ClubMembersList clubId={clubId} />
++          <ClubMembersList clubId={clubId}  />
+         )}
+ 
+         {activeTab === 'manage-events' && (
+diff --git a/Frontend/src/components/admin/ClubMembersList.jsx b/Frontend/src/components/admin/ClubMembersList.jsx
+index d5920932..913cd043 100644
+--- a/Frontend/src/components/admin/ClubMembersList.jsx
++++ b/Frontend/src/components/admin/ClubMembersList.jsx
+@@ -4,15 +4,18 @@ import { useAuthContext } from "../../context/provider/AuthContext";
+ import { useClubContext } from "../../context/provider/ClubContext"; // Assuming you have this
+ import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
+ 
+-const ClubMembersList = () => {
++
++const ClubMembersList = ({clubId}) => {
+   const [members, setMembers] = useState([]);
+   const [loading, setLoading] = useState(true);
+   const [error, setError] = useState(null);
+   const { token } = useAuthContext();
+-  const { clubId } = useClubContext(); // Get current club ID
++   // Get current club ID
+ 
+   useEffect(() => {
+     const fetchMembers = async () => {
++      console.log(token)
++      console.log(clubId)
+       if (!token || !clubId) {
+         setLoading(false);
+         return;
+@@ -20,7 +23,7 @@ const ClubMembersList = () => {
+ 
+       try {
+         setLoading(true);
+-        const res = await fetch(`http://127.0.0.1:8000/clubs/${clubId}/members/`, {
++        const res = await fetch(`http://127.0.0.1:8000/users/${clubId}/members/`, {
+           method: 'GET',
+           headers: {
+             'Authorization': `Bearer ${token}`,
+@@ -129,13 +132,7 @@ const ClubMembersList = () => {
+               </div>
+ 
+               {/* Status Badge */}
+-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+-                member.status?.toLowerCase() === 'approved'
+-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/50'
+-                  : 'bg-amber-500/20 text-amber-300 border border-amber-400/50'
+-              }`}>
+-                {member.status || 'Unknown'}
+-              </span>
++           
+             </div>
+           ))
+         ) : (
+diff --git a/backend/clubBackend/Users/urls.py b/backend/clubBackend/Users/urls.py
+index 149176a9..b3943507 100644
+--- a/backend/clubBackend/Users/urls.py
++++ b/backend/clubBackend/Users/urls.py
+@@ -19,7 +19,7 @@ urlpatterns = [
+     path("requests/", pending_requests, name="pending-requests"),
+     path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
+     path("requests/reject/<int:user_id>/", reject_request, name="reject-request"),
+-    path("clubs/<int:club_id>/members/", get_club_members),
++   path("<int:club_id>/members/", get_club_members, name="club-members"),
+     path('assign-role/',assign_role),
+     path('list/', users_list_view, name='users_list'),
+   
+diff --git a/backend/clubBackend/Users/views.py b/backend/clubBackend/Users/views.py
+index a0ca5227..38a84085 100644
+--- a/backend/clubBackend/Users/views.py
++++ b/backend/clubBackend/Users/views.py
+@@ -355,15 +355,16 @@ def reject_request(request):
+         return JsonResponse({"success": True, "message": f"Request {request_id} rejected"}, status=200)
+     finally:
+         session.close()
++
++@csrf_exempt
+ @jwt_required
+ def get_club_members(request, club_id):
+     """
+-    Get members of a specific club
++    Fetch all members of a specific club
+     """
+-
+     session = SessionLocal()
+     try:
+-        # Join members table with users table
++        # Join members table with users table, no status check
+         stmt = (
+             select(
+                 members.c.user_id,
+@@ -375,17 +376,15 @@ def get_club_members(request, club_id):
+             .where(members.c.club_id == club_id)
+         )
+ 
+-        results = session.execute(stmt).mappings().all()
++        results = session.execute(stmt).mappings().all()  # list of RowMapping
+ 
+-        return JsonResponse({
+-            "members": list(results)
+-        }, status=200)
++        # Convert to plain dicts
++        members_list = [dict(row) for row in results]
++
++        return JsonResponse({"members": members_list}, status=200)
+ 
+     except SQLAlchemyError as e:
+-        return JsonResponse(
+-            {"success": False, "error": str(e)},
+-            status=500
+-        )
++        return JsonResponse({"success": False, "error": str(e)}, status=500)
+ 
+     finally:
+         session.close()
+diff --git a/backend/clubBackend/clubBackend/settings.py b/backend/clubBackend/clubBackend/settings.py
+index b13e5133..67557b40 100644
+--- a/backend/clubBackend/clubBackend/settings.py
++++ b/backend/clubBackend/clubBackend/settings.py
+@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
+ DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.postgresql',
+-        'NAME': 'system',
++        'NAME': 'mydb',
+         'USER': 'postgres',
+-        'PASSWORD': 'Sandeep@321',
++        'PASSWORD': '080bct039@$$',
+         'HOST': 'localhost', 
+         'PORT': '5432',
+     }
+@@ -141,6 +141,7 @@ CSRF_TRUSTED_ORIGINS = [
+     "http://localhost:5173",
+ ]
+ SECRET_KEY="deepsanjin"
+-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:Sandeep%40321@localhost:5432/system"
++SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:080bct039%40%24%24@localhost:5432/mydb"
++
+ 
+ 
