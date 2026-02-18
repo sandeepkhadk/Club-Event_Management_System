@@ -13,6 +13,8 @@ import Navbar from './components/home/navbar'
 import Club from './components/event-club/club'
 import EventPage from './components/event-club/event'
 import About from './components/home/About'
+import ResetPassword from './components/auth/resetPassword'
+import ForgotPassword from "./components/auth/resetPassword"
 import SuperAdminPage from './components/admin/superadmin'
 function App() {
  
@@ -22,6 +24,8 @@ function App() {
     <Routes>
         <Route element={<PublicRoute />}>
             <Route path="/login" element={<LoginForm />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />   
             <Route path="/register" element={<RegisterForm />} />
             <Route path="/clubs" element={<Club/>} />
             <Route path="/events" element={<EventPage/>} />

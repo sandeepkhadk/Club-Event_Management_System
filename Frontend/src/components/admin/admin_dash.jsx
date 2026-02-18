@@ -424,6 +424,7 @@
 // export default AdminDashboard;
 
 import React, { useState, useEffect } from 'react';
+import ApprovedMembers from './approvedmembers';
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useUserRole } from '../../context/hooks/useUserRole';
@@ -602,15 +603,53 @@ const handleDeleteEvent = async (event) => {
       <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0">
         <div className="p-6 text-2xl font-bold border-b border-slate-800">ClubAdmin</div>
         <nav className="flex-1 p-4 space-y-2">
-          <button onClick={() => setActiveTab('members')} className={`flex items-center w-full p-3 rounded-lg ${activeTab === 'members' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}>
-            <Users className="mr-3 size-5" /> Member Requests
-          </button>
-          <button onClick={() => setActiveTab('events')} className={`flex items-center w-full p-3 rounded-lg ${activeTab === 'events' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}>
-            <PlusCircle className="mr-3 size-5" /> Create Event
-          </button>
-          <button onClick={() => { setActiveTab('manage-events'); fetchEvents(); }} className={`flex items-center w-full p-3 rounded-lg ${activeTab === 'manage-events' ? 'bg-blue-600' : 'hover:bg-slate-800'}`}>
-            <Calendar className="mr-3 size-5" /> Event Management
-          </button>
+  
+{club_role === "admin" && (
+  <button
+    onClick={() => setActiveTab('members')}
+    className={`flex items-center w-full p-3 rounded-lg ${
+      activeTab === 'members' ? 'bg-blue-600' : 'hover:bg-slate-800'
+    }`}
+  >
+    <Users className="mr-3 size-5" /> Member Requests
+  </button>
+)}
+
+
+{club_role === "admin" && (
+  <button
+    onClick={() => setActiveTab('events')}
+    className={`flex items-center w-full p-3 rounded-lg ${
+      activeTab === 'events' ? 'bg-blue-600' : 'hover:bg-slate-800'
+    }`}
+  >
+    <PlusCircle className="mr-3 size-5" /> Create Event
+  </button>
+)}
+
+
+{club_role !=="admin" && (
+  <button
+    onClick={() => { setActiveTab('members'); fetchMembers(); }} // fetchMembers is your function to load members
+    className={`flex items-center w-full p-3 rounded-lg ${
+      activeTab === 'members' ? 'bg-blue-600' : 'hover:bg-slate-800'
+    }`}
+  >
+    <Users className="mr-3 size-5" /> Member Requests
+  </button>
+)}
+
+
+  <button
+    onClick={() => { setActiveTab('manage-events'); fetchEvents(); }}
+    className={`flex items-center w-full p-3 rounded-lg ${
+      activeTab === 'manage-events' ? 'bg-blue-600' : 'hover:bg-slate-800'
+    }`}
+  >
+    <Calendar className="mr-3 size-5" /> Event Management
+  </button>
+
+
         </nav>
         <div className="p-4 border-t border-slate-800">
           <button onClick={handleLogout} className="flex items-center w-full p-3 rounded-lg text-red-400 hover:bg-slate-800">
@@ -621,7 +660,10 @@ const handleDeleteEvent = async (event) => {
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto p-8">
-        {activeTab === 'members' &&
+        {activeTab === "members" &&  club_role !=="admin" &&(
+  <ApprovedMembers clubId={decoded.club_id} token={token} />
+)}
+        {activeTab === 'members' && 
           <MemberManagement members={members} setMembers={setMembers} token={token} fetchMembers={fetchMembers} />
         }
         {activeTab === 'events' &&

@@ -16,10 +16,13 @@ export default function LoginForm() {
   const [userType, setUserType] = useState("unmember");
   const [loading, setLoading] = useState(true);
 
+  // Redirect if already logged in
   useEffect(() => {
-    if (loading) setLoading(false);
-    if (!decoded) return;
+    if (loading) setLoading(false); // Done initializing
 
+    if (!decoded) return; // Not logged in
+
+    // Already logged in → redirect
     if (decoded.global_role === "admin") navigate("/admin");
     else if (decoded.global_role === "member") navigate(`/student/${decoded.club_id}`);
     else navigate("/student");
@@ -41,37 +44,30 @@ export default function LoginForm() {
       return;
     }
 
-    login(data.token);
+    login(data.token);  // just login → redirect happens automatically in useEffect
+
     setMessage({ text: data.message || "Login successful", type: "success" });
   };
 
-  if (loading) return null;
+  if (loading) return null; // prevent flashes on logout / refresh
 
   return (
     <>
       <Navbar/>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#3b3b7a] via-[#5a5fa3] to-[#9169a1] px-4">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-          
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-indigo-700 mb-1">
-              College Club Management
-            </h1>
-            <p className="text-gray-600 text-sm sm:text-base">
-              Login to access your dashboard
-            </p>
+            <h1 className="text-3xl font-bold text-indigo-700 mb-1">College Club Management</h1>
+            <p className="text-gray-600 text-sm sm:text-base">Login to access your dashboard</p>
           </div>
 
           <UserTypeSelector userType={userType} onUserTypeChange={setUserType} />
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* EMAIL */}
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Email Address
-              </label>
+              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="email">Email Address</label>
               <input
+                id="email"
                 type="email"
                 placeholder={`${userType}@college.edu`}
                 value={email}
@@ -81,12 +77,10 @@ export default function LoginForm() {
               />
             </div>
 
-            {/* PASSWORD */}
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">
-                Password
-              </label>
+              <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="password">Password</label>
               <input
+                id="password"
                 type="password"
                 placeholder="Enter your password"
                 value={password}
@@ -96,29 +90,12 @@ export default function LoginForm() {
               />
             </div>
 
-            {/* ⭐ ONLY ADDITION */}
-            <div className="text-right -mt-2">
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
-              >
-                Forgot Password?
-              </button>
-            </div>
-
-            {/* MESSAGE */}
             {message.text && (
-              <div className={`p-2 text-sm rounded-md ${
-                message.type === 'success'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-700'
-              }`}>
+              <div className={`p-2 text-sm rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 {message.text}
               </div>
             )}
 
-            {/* LOGIN BUTTON */}
             <button
               type="submit"
               className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300 cursor-pointer"
@@ -126,9 +103,8 @@ export default function LoginForm() {
               Login as {userType === 'admin' ? 'Admin' : 'members'}
             </button>
 
-            {/* REGISTER */}
             <div className="text-center text-gray-600 text-sm mt-2">
-              Don't have an account?{" "}
+              Don't have an account?{' '}
               <button
                 type="button"
                 className="text-indigo-600 font-medium hover:text-indigo-800"
@@ -137,7 +113,6 @@ export default function LoginForm() {
                 Register here
               </button>
             </div>
-
           </form>
         </div>
       </div>
