@@ -1,7 +1,4 @@
-<<<<<<< Updated upstream
-ECHO is on.
-=======
-// ClubMembersList.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useClubContext } from "../../context/provider/ClubContext"; // Assuming you have this
@@ -151,4 +148,4 @@ const ClubMembersList = ({clubId}) => {
 };
 
 export default ClubMembersList;
->>>>>>> Stashed changes
+

@@ -1,6 +1,5 @@
-<<<<<<< Updated upstream
-ECHO is on.
-=======
+
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../../context/provider/AuthContext";
@@ -330,4 +329,4 @@ const handleDeleteEvent = async (event) => {
 };
 
 export default AdminDashboard;
->>>>>>> Stashed changes
+
