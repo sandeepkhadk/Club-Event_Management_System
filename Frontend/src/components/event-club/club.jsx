@@ -93,6 +93,7 @@ const Club = () => {
             const evRes = await fetch(`${apiUrl}events/${c.club_id}/`);
             if (evRes.ok) {
               const evData = await evRes.json();
+              console.log(`Club ${c.club_id} events:`, evData);
               eventsCount = evData.events?.length ?? eventsCount;
             }
           } catch {
