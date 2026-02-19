@@ -102,7 +102,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
               </select>
 
               <div className="flex justify-between space-x-2">
-                <button
+                {/* <button
                   onClick={() => approveMember(member.user_id)}
                   disabled={!roleSelections[member.user_id]}
                   className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
@@ -115,7 +115,21 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
                   className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700"
                 >
                   Reject
-                </button>
+                </button> */}
+                <button
+                    onClick={() => approveMember(member.user_id)}
+                    disabled={!roleSelections[member.user_id]}
+                    className="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-200 py-2 rounded-full font-semibold text-sm hover:bg-indigo-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() => rejectMember(member.user_id)}
+                    className="flex-1 bg-red-50 text-red-600 border border-red-200 py-2 rounded-full font-semibold text-sm hover:bg-red-100 transition-all"
+                  >
+                    Reject
+                  </button>
               </div>
             </div>
           ))}
