@@ -145,10 +145,15 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 text-slate-900 antialiased">
+     <div className="flex min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
 
-      {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-slate-900/95 to-slate-900 backdrop-blur-xl border-r border-slate-800/50 shadow-2xl flex flex-col">
+
+
+      {/* This to Sidebar */}
+      <aside className="fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-slate-900/95 to-slate-900 backdrop-blur-xl border-r border-slate-800/50 
+  shadow-2xl flex flex-col">
+
+    
         <div className="p-6 flex-shrink-0 border-b border-slate-800/50">
           <UserInfo />
         </div>
@@ -210,7 +215,11 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-white/50 backdrop-blur-sm">
+      <main className="ml-64 flex-1 h-screen overflow-y-auto 
+       p-6 lg:p-8 bg-white/50 backdrop-blur-sm">
+
+
+      
   <div className="max-w-7xl mx-auto space-y-8">
 
     {/* Member Management */}
