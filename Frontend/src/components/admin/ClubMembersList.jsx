@@ -81,49 +81,75 @@ const ClubMembersList = ({clubId}) => {
       </div>
     );
   }
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-800/70 to-slate-900/70 backdrop-blur-sm rounded-2xl border border-slate-700/50">
-        <div className="flex items-center gap-3">
-          <Users className="w-7 h-7 text-emerald-400" />
+      <div className="flex items-center justify-between p-5 
+        bg-gradient-to-r from-indigo-500/10 to-cyan-400/10 
+        backdrop-blur-md rounded-2xl 
+        border border-indigo-200/40 shadow-md">
+
+        <div className="flex items-center gap-4">
+          <Users className="w-7 h-7 text-indigo-500" />
           <div>
-            <h2 className="text-xl font-black text-slate-200">Club Members</h2>
-            <p className="text-sm text-slate-400">{members.length} total</p>
+            <h2 className="text-xl font-black text-slate-800">
+              Club Members
+            </h2>
+            <p className="text-sm text-slate-500">
+              {members.length} total members
+            </p>
           </div>
         </div>
-        <div className="text-sm font-bold text-slate-400">
+
+        <div className="text-sm font-bold text-indigo-600">
           {members.filter(m => m.status?.toLowerCase() === 'approved').length} Approved
         </div>
       </div>
 
       {/* Members List */}
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+
         {members.length > 0 ? (
           members.map((member) => (
-            <div
-              key={member.user_id}
-              className="group flex items-center justify-between p-4 bg-slate-800/60 hover:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-700/50 hover:border-slate-600/70 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                {/* Avatar */}
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl flex items-center justify-center border-2 border-slate-700/50">
-                  <span className="text-lg font-black text-indigo-300">
-                    {member.name?.charAt(0)?.toUpperCase() || '?'}
-                  </span>
-                </div>
+           <div
+            key={member.user_id}
+            className="group flex items-center justify-between p-4
+              bg-gradient-to-br from-pink-50/80 to-purple-100/70
+              hover:from-pink-100/80 hover:to-purple-200/70
+              backdrop-blur-md rounded-xl
+              border border-pink-200/60
+              hover:border-purple-300
+              shadow-sm hover:shadow-md
+              transition-all duration-300"
+          >
+
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+
+              {/* Avatar */}
+              <div className="w-12 h-12 
+                bg-gradient-to-br from-blue-300 to-blue-400 
+                rounded-xl flex items-center justify-center 
+                shadow-lg group-hover:shadow-yellow-400/40
+                transition-all duration-300">
+
+                <span className="text-lg font-black text-white">
+                  {member.name?.charAt(0)?.toUpperCase() || '?'}
+                </span>
+              </div>
 
                 {/* Member Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-slate-200 truncate max-w-[150px]">
+                    <span className="text-sm font-bold text-slate-800 truncate max-w-[180px]">
                       {member.name || 'Unknown User'}
                     </span>
                     {getStatusIcon(member.status)}
                   </div>
+
                   {member.role && (
-                    <div className={`px-2 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1 ${getRoleColor(member.role)}`}>
+                    <div className={`px-3 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1 
+                      ${getRoleColor(member.role)}`}>
                       <Shield className="w-3 h-3" />
                       <span>{member.role}</span>
                     </div>
@@ -131,19 +157,30 @@ const ClubMembersList = ({clubId}) => {
                 </div>
               </div>
 
-              {/* Status Badge */}
-           
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-slate-800/50 rounded-xl border-2 border-dashed border-slate-700/50">
-            <Users className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-slate-400 mb-2">No Members Yet</h3>
-            <p className="text-sm text-slate-500">Approve pending requests to add members.</p>
+          <div className="text-center py-12 
+            bg-gradient-to-br from-teal-50/70 to-cyan-50/70 
+            rounded-xl border-2 border-dashed border-teal-200/50">
+
+            <Users className="w-16 h-16 text-teal-300 mx-auto mb-4" />
+
+            <h3 className="text-lg font-bold text-slate-700 mb-2">
+              No Members Yet
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              Approve pending requests to add members.
+            </p>
           </div>
         )}
+
       </div>
     </div>
   );
 };
-export default ClubMembersList
+
+export default ClubMembersList;
+
+  
