@@ -44,9 +44,9 @@ const fetchDashboardData = useCallback(async () => {
 
   try {
     const [clubRes, eventRes, profileRes] = await Promise.all([
-      fetch(`${apiUrl}/clubs/`),
-      fetch(`${apiUrl}/events/global/`),
-      fetch(`${apiUrl}/users/profile/`,{
+      fetch(`${apiUrl}clubs/`),
+      fetch(`${apiUrl}events/global/`),
+      fetch(`${apiUrl}users/profile/`,{
         headers: { Authorization: `Bearer ${token}` },
 
       }),
@@ -146,7 +146,7 @@ const fetchDashboardData = useCallback(async () => {
 
   try {
     const response = await fetch(
-      `${apiUrl}/users/join-club/${club_id}/`,
+      `${apiUrl}users/join-club/${club_id}/`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -195,7 +195,7 @@ const handleJoinEvent = async (event) => {
     const eventId = event.id || event.event_id;
 
     // Call backend
-    const res = await fetch(`${apiUrl}/events/join/`, {
+    const res = await fetch(`${apiUrl}events/join/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -238,7 +238,7 @@ const handleLeaveEvent = async (event) => {
     const eventId = event.id || event.event_id;
 
     // Call backend
-    const res = await fetch(`${apiUrl}/events/leave/`, {
+    const res = await fetch(`${apiUrl}events/leave/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -277,7 +277,7 @@ const handleLeaveEvent = async (event) => {
       if (!token) throw new Error("You must be logged in.");
       
       const eventId = event.id || event.event_id;
-     const res = await fetch(`${apiUrl}/events/join/`, {
+     const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
