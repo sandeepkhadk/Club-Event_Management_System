@@ -17,7 +17,7 @@ from .tables import events_table
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-@jwt_required
+
 @csrf_exempt
 def get_club_events(request, club_id):
     session = SessionLocal()
@@ -399,3 +399,59 @@ def get_feed_events(request):
         return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from Users.utils import jwt_required
+from core.db.base import SessionLocal
+from .tables import events_table, events_participants
+from Users.tables import users_table as users
+from sqlalchemy import select
+
+# @csrf_exempt
+# @jwt_required
+# def get_club_events(request, club_id):
+#     """
+#     Returns all events for a specific club along with:
+#     - Handler name
+#     - List of user_ids who joined
+#     - Optionally a 'joined' flag for the current user
+#     """
+#     session = SessionLocal()
+#     try:
+#         user_id = request.user_payload.get("user_id")
+
+#         # 1️⃣ Select events for the given club and join with handler name
+#         stmt = (
+#             select(
+#                 events_table.c.event_id,
+#                 events_table.c.title,
+#                 events_table.c.description,
+#                 events_table.c.start_datetime,
+#                 events_table.c.end_datetime,
+#                 events_table.c.status,
+#                 events_table.c.handler_id,
+#                 users.c.name.label("handler_name"),
+#                 events_table.c.visibility,
+#                 events_table.c.max_capacity
+#             )
+#             .join(users, users.c.user_id == events_table.c.handler_id)
+#             .where(events_table.c.club_id == club_id)
+#             .order_by(events_table.c.start_datetime)
+#         )
+#         events = session.execute(stmt).mappings().all()
+#         events_list = [dict(e) for e in events]
+
+#         # 2️⃣ Add joined users for each event
+#         for e in events_list:
+#             joined_rows = session.execute(
+#                 select(events_participants.c.user_id)
+#                 .where(events_participants.c.event_id == e["event_id"])
+#             ).fetchall()
+#             joined_user_ids = [u[0] for u in joined_rows]
+#             e["joined_users"] = joined_user_ids
+#             e["joined"] = user_id in joined_user_ids if user_id else False
+
+#         return JsonResponse({"club_id": club_id, "events": events_list}, status=200)
+
+#     finally:
+#         session.close()

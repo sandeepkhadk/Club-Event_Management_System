@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Navbar from "../home/Navbar";
 import { useLocation } from "react-router-dom"; 
-import apiUrl from "../../api";
 
 import { 
   Search, 
@@ -18,7 +17,7 @@ import {
 } from "lucide-react";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+import apiUrl from "../../api";
 const Club = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,7 +56,7 @@ const Club = () => {
   //   const fetchUser = async () => {
   //     try {
   //       const res = await fetch("http://127.0.0.1:8000/users/profile/", {
-  //        headers: { Authorization: `Bearer ${token}` },
+  //        headers: { Authorization: Bearer ${token} },
   //       });
   //       if (res.ok) {
   //         const data = await res.json();
@@ -75,31 +74,52 @@ const Club = () => {
   // }, [token]);
 
   // Fetch clubs
-  useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await fetch(`${apiUrl}clubs/`);
-        if (!res.ok) throw new Error("Failed to fetch clubs");
-        const data = await res.json();
-        setClubs(data.clubs.map(c => ({
-          id: c.club_id,
-          name: c.name,
-          desc: c.description || "",
-          members: c.members_count || 0,
-          events: c.events_count || 0,
-          category: c.category || "Community"
-        })));
-      } catch (err) {
-        setError(err.message);
-        console.error("Clubs fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchClubs();
-  }, []);
+ useEffect(() => {
+  const fetchClubs = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(`${apiUrl}clubs/`);
+      if (!res.ok) throw new Error("Failed to fetch clubs");
+      const data = await res.json();
+
+      // Fetch event counts for each club
+      const clubsWithEvents = await Promise.all(
+        data.clubs.map(async (c) => {
+          let eventsCount = c.events_count || 0;
+
+          try {
+            const evRes = await fetch(`${apiUrl}events/${c.club_id}/`);
+            if (evRes.ok) {
+              const evData = await evRes.json();
+              eventsCount = evData.events?.length ?? eventsCount;
+            }
+          } catch {
+            // fallback to events_count from clubs API
+          }
+
+          return {
+            id: c.club_id,
+            name: c.name,
+            desc: c.description || "",
+            members: c.members_names.length || 0,
+            events: eventsCount,
+            category: c.category || "Community",
+          };
+        })
+      );
+
+      setClubs(clubsWithEvents);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchClubs();
+}, []);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -119,7 +139,7 @@ const Club = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: Bearer `${token}`,
         },
         body: JSON.stringify(formData),
       });
