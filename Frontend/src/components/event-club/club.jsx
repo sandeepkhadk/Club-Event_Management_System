@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useNavigate } from "react-router-dom";
-import apiUrl from "../../api";
 
 const Club = () => {
   const navigate = useNavigate();
