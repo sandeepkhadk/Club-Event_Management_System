@@ -11,7 +11,7 @@ const StudentDashboard = () => {
   const decoded = useUserRole();
   const user_id = decoded?.user_id; // ✅ FIXED: Optional chaining
   const { token, logout } = useAuthContext();
-
+// const name="dnm"
   // --- State ---
   const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
@@ -21,7 +21,7 @@ const StudentDashboard = () => {
   const [clubEvents, setClubEvents] = useState({}); // ✅ ADDED: Missing state
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // ✅ ADDED: Club status helper
   const getClubStatus = (clubId) => {
   const application = myApplications.find(
@@ -169,7 +169,7 @@ const fetchDashboardData = useCallback(async () => {
     // 🔥 Immediately update UI with Pending request
     const newApplication = {
       club_id: club.club_id,
-      club_name: club.club.name, //ALWAYS correct name
+      club_name: club.club_name, //ALWAYS correct name
       status: "Pending",
       created_at: new Date().toISOString(),
     };

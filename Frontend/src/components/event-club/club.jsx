@@ -51,27 +51,27 @@ const Club = () => {
   }, [clubs, activeFilter, searchTerm]);
 
   // Fetch user profile
-  useEffect(() => {
-    if (!token) return;
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("http://127.0.0.1:8000/users/profile/", {
-         headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setFormData((prev) => ({
-            ...prev,
-            name: data.name || data.username || "",
-            email: data.email || "",
-          }));
-        }
-      } catch (err) {
-        console.error("Profile fetch failed", err);
-      }
-    };
-    fetchUser();
-  }, [token]);
+  // useEffect(() => {
+  //   if (!token) return;
+  //   const fetchUser = async () => {
+  //     try {
+  //       const res = await fetch("http://127.0.0.1:8000/users/profile/", {
+  //        headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (res.ok) {
+  //         const data = await res.json();
+  //         setFormData((prev) => ({
+  //           ...prev,
+  //           name: data.name || data.username || "",
+  //           email: data.email || "",
+  //         }));
+  //       }
+  //     } catch (err) {
+  //       console.error("Profile fetch failed", err);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, [token]);
 
   // Fetch clubs
   useEffect(() => {
@@ -131,7 +131,7 @@ const Club = () => {
       const data = await res.json();
       alert("✅ Request sent to admin! Check your dashboard for status updates.");
       
-      // Navigate to dashboard to see application status
+      
       navigate("/student-dashboard");
       
     } catch (err) {
