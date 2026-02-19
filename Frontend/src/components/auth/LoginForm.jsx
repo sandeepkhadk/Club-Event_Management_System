@@ -4,6 +4,7 @@ import UserTypeSelector from './UserTypeSelector';
 import { useAuthContext } from "../../context/provider/AuthContext";
 import Navbar from '../home/Navbar';
 import { useUserRole } from '../../context/hooks/useUserRole';
+import apiUrl from '../../api';
 
 export default function LoginForm() {
   const { login, token } = useAuthContext();
@@ -31,7 +32,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await fetch("http://127.0.0.1:8000/users/login/", {
+   const res = await fetch(`${apiUrl}/users/login/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, userType }),

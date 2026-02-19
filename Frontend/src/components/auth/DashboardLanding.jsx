@@ -28,7 +28,7 @@ const DashboardLanding = () => {
       try {
         console.log(`🔍 Checking club ${clubId} for user ${user_id}`);
         
-        const res = await fetch(`http://127.0.0.1:8000/clubs/${clubId}/members/`, {
+       const res = await fetch(`${apiUrl}/clubs/${clubId}/members/`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
