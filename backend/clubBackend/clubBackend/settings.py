@@ -158,11 +158,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://club-event-management-system-v0ll.onrender.com",
     os.environ.get('FRONTEND_URL', ''),  # add your deployed frontend URL in Render env vars
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "https://club-event-management-system-v0ll.onrender.com",
     os.environ.get('FRONTEND_URL', ''),
 ]
 SECRET_KEY = os.environ.get('SECRET_KEY')
