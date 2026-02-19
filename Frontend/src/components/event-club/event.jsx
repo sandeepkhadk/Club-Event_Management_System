@@ -118,7 +118,8 @@ const EventPage = () => {
       {showNavbar && <Navbar />}
 
       {/* Events Grid */}
-     <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20 relative z-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Events Grid */}
+<main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 pb-20 relative z-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
   {events.length > 0 ? events.map((event) => (
     <div
       key={event.id}

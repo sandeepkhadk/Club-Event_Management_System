@@ -58,7 +58,7 @@ const ClubMembersList = ({clubId}) => {
 
   const getRoleColor = (role) => {
     switch (role?.toLowerCase()) {
-      case 'admin': return 'bg-gradient-to-r from-yellow-400/20 to-orange-500/20 text-yellow-300 border-yellow-400/30';
+     case 'admin': return 'bg-gradient-to-r from-yellow-200/30 to-orange-300/30 text-yellow-600 border-yellow-300/50';
       case 'moderator': return 'bg-gradient-to-r from-purple-400/20 to-indigo-500/20 text-purple-300 border-purple-400/30';
       case 'member': return 'bg-emerald-100/50 text-emerald-300 border-emerald-400/30';
       default: return 'bg-slate-100/30 text-slate-300 border-slate-700/30';
@@ -81,7 +81,7 @@ const ClubMembersList = ({clubId}) => {
       </div>
     );
   }
-  return (
+return (
     <div className="space-y-6">
       
       {/* Header */}
@@ -182,5 +182,3 @@ const ClubMembersList = ({clubId}) => {
 };
 
 export default ClubMembersList;
-
-  
