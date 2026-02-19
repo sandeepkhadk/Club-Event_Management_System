@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserTypeSelector from './UserTypeSelector';
 import { useAuthContext } from "../../context/provider/AuthContext";
-import Navbar from '../home/navbar';
+import Navbar from '../home/Navbar';
 import { useUserRole } from '../../context/hooks/useUserRole';
 
 export default function LoginForm() {

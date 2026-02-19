@@ -152,7 +152,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../home/navbar';
+import Navbar from '../home/Navbar';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
