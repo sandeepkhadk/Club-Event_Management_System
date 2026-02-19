@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import Navbar from "../home/navbar";
+import Navbar from "../home/Navbar";
 import { useLocation } from "react-router-dom"; 
 import apiUrl from "../../api";
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, MapPin, Clock, X, ChevronRight, LogIn, Users, Loader2 } from "lucide-react";
-import Navbar from "../home/navbar";
+import Navbar from "../home/Navbar";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import apiUrl from "../../api";

@@ -9,7 +9,7 @@ import Unauth from './components/auth/unauth'
 import NotFound from './components/auth/notfound'
 import PublicRoute from './components/auth/publicroute'
 import Hero from './components/home/Hero'
-import Navbar from './components/home/navbar'
+import Navbar from './components/home/Navbar'
 import Club from './components/event-club/club'
 import EventPage from './components/event-club/event'
 import About from './components/home/About'
@@ -56,4 +56,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
