@@ -44,7 +44,7 @@ function App() {
           <Route path='/admin' element={<SuperAdminPage></SuperAdminPage>}></Route>
         </Route>
         <Route element={<PrivateRoute allowedRoles={["member"]} />}>
-         <Route path="/student/:clubId/" element={<AdminDashboard />} />
+         <Route path="/student/:clubId" element={<AdminDashboard />} />
          </Route>
        
       <Route element={<PrivateRoute  allowedRoles={["unmember"]} />}>
