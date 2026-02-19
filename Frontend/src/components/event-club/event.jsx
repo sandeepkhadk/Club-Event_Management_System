@@ -21,7 +21,7 @@ const EventPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch(`${apiUrl}/events/global/`);
+        const res = await fetch(`${apiUrl}events/global/`);
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
 

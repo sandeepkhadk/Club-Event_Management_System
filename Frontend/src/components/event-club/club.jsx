@@ -93,7 +93,7 @@ const Club = () => {
     
     setJoining(true);
     try {
-      const res = await fetch(`${apiUrl}/clubs/${selectedClub.id}/join/` , {
+      const res = await fetch(`${apiUrl}clubs/${selectedClub.id}/join/` , {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
