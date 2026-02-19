@@ -4,12 +4,21 @@ import { Clock, ChevronRight, Trash2, X } from "lucide-react";
 const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUserRole }) => {
   const [filter, setFilter] = useState("all"); // all, active, upcoming, completed
 
+  // const gradients = [
+  //   "from-blue-500 to-indigo-500",
+  //   "from-purple-600 to-pink-500",
+  //   "from-rose-500 to-orange-400",
+  //   "from-emerald-500 to-teal-400",
+  // ];
   const gradients = [
-    "from-blue-500 to-indigo-500",
-    "from-purple-600 to-pink-500",
-    "from-rose-500 to-orange-400",
-    "from-emerald-500 to-teal-400",
-  ];
+  "from-indigo-700 to-indigo-500",  // deep indigo
+  "from-purple-700 to-purple-450",  // muted purple
+  "from-rose-700 to-rose-500",      // soft red
+  "from-teal-700 to-teal-500",      // calm teal
+  "from-orange-700 to-orange-500",  // subtle orange
+  "from-sky-700 to-sky-500",        // dark sky blue
+];
+
 
   const now = new Date();
 
@@ -141,16 +150,21 @@ const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUs
                     {!event.isCompleted && !event.joined && onJoin && (
                       <button
                         onClick={() => onJoin(event)}
-                        className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-all active:scale-95 shadow"
+                        // className="flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-indigo-600 transition-all active:scale-95 shadow"
+                          className="flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg font-semibold text-sm hover:bg-indigo-100 transition-all active:scale-95"
                       >
                         Join <ChevronRight size={14} />
                       </button>
+                      
+
+                      
                     )}
 
                     {!event.isCompleted && event.joined && onLeave && (
                       <button
                         onClick={() => onLeave(event)}
-                        className="flex items-center gap-2 bg-yellow-500 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-yellow-600 transition-all active:scale-95 shadow"
+                        // className="flex items-center gap-2 bg-yellow-500 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-yellow-600 transition-all active:scale-95 shadow"
+                        className="flex items-center gap-2 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg font-semibold text-sm hover:bg-amber-100 transition-all active:scale-95"
                       >
                         Leave <X size={14} />
                       </button>
@@ -159,7 +173,8 @@ const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUs
                     {onDelete && currentUserRole === "admin" && (
                       <button
                         onClick={() => onDelete(event)}
-                        className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all active:scale-95 shadow"
+                        // className="flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-2xl font-bold text-sm hover:bg-red-700 transition-all active:scale-95 shadow"
+                         className="flex items-center gap-2 bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg font-semibold text-sm hover:bg-red-100 transition-all active:scale-95"
                       >
                         Delete <Trash2 size={14} />
                       </button>
