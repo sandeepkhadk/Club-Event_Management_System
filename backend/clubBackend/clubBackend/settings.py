@@ -159,14 +159,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://club-event-management-system-v0ll.onrender.com",
-    os.environ.get('FRONTEND_URL', ''),  # add your deployed frontend URL in Render env vars
+   
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "https://club-event-management-system-v0ll.onrender.com",
-    os.environ.get('FRONTEND_URL', ''),
+   
 ]
+FRONTEND_URL = os.environ.get('FRONTEND_URL')
+if FRONTEND_URL:
+    CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
 SECRET_KEY = os.environ.get('SECRET_KEY')
 SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL')
 
