@@ -3,6 +3,7 @@ import { Calendar, MapPin, Clock, X, ChevronRight, LogIn, Users, Loader2 } from 
 import Navbar from "../home/navbar";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import apiUrl from "../../api";
 
 const EventPage = () => {
   const [events, setEvents] = useState([]);
@@ -20,7 +21,7 @@ const EventPage = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/events/global/");
+        const res = await fetch(`${apiUrl}/events/global/`);
         if (!res.ok) throw new Error("Failed to fetch events");
         const data = await res.json();
 
@@ -64,7 +65,7 @@ const EventPage = () => {
     if (!token) return;
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/users/profile/", {
+        const res = await fetch(`${apiUrl}/users/profile/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -89,7 +90,7 @@ const EventPage = () => {
     }
     setJoining(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/events/join/", {
+      const res = await fetch(`${apiUrl}/events/join/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ ...formData, event_id: selectedEvent.id }),

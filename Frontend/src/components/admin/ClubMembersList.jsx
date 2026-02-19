@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useClubContext } from "../../context/provider/ClubContext"; // Assuming you have this
 import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
+import apiUrl from '../../api';
 
 
 const ClubMembersList = ({clubId}) => {
@@ -23,7 +24,7 @@ const ClubMembersList = ({clubId}) => {
 
       try {
         setLoading(true);
-        const res = await fetch(`http://127.0.0.1:8000/users/${clubId}/members/`, {
+        const res = await fetch(`${apiUrl}/users/${clubId}/members/`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

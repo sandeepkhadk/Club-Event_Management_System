@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Navbar from "../home/navbar";
 import { useLocation } from "react-router-dom"; 
+import apiUrl from "../../api";
 
 import { 
   Search, 
@@ -50,36 +51,14 @@ const Club = () => {
     return filtered;
   }, [clubs, activeFilter, searchTerm]);
 
-  // Fetch user profile
-  // useEffect(() => {
-  //   if (!token) return;
-  //   const fetchUser = async () => {
-  //     try {
-  //       const res = await fetch("http://127.0.0.1:8000/users/profile/", {
-  //        headers: { Authorization: `Bearer ${token}` },
-  //       });
-  //       if (res.ok) {
-  //         const data = await res.json();
-  //         setFormData((prev) => ({
-  //           ...prev,
-  //           name: data.name || data.username || "",
-  //           email: data.email || "",
-  //         }));
-  //       }
-  //     } catch (err) {
-  //       console.error("Profile fetch failed", err);
-  //     }
-  //   };
-  //   fetchUser();
-  // }, [token]);
-
   // Fetch clubs
   useEffect(() => {
     const fetchClubs = async () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch("http://127.0.0.1:8000/clubs/");
+        const res = await fetch(`${apiUrl}/clubs/`);
+
         if (!res.ok) throw new Error("Failed to fetch clubs");
         const data = await res.json();
         setClubs(data.clubs.map(c => ({
@@ -114,7 +93,7 @@ const Club = () => {
     
     setJoining(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/clubs/${selectedClub.id}/join/`, {
+      const res = await fetch(`${apiUrl}/clubs/${selectedClub.id}/join/` , {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

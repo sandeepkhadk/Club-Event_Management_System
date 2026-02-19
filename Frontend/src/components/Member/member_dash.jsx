@@ -5,24 +5,25 @@ import { LogOut, Users, Calendar, Activity,  GraduationCap, Home, Plus } from "l
 import { useAuthContext } from "../../context/provider/AuthContext";
 import EventList from "../admin/EventList";
 import { useUserRole } from "../../context/hooks/useUserRole";
+import apiUrl from "../../api";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const decoded = useUserRole();
-  const user_id = decoded?.user_id; // ✅ FIXED: Optional chaining
+  const user_id = decoded?.user_id; // FIXED: Optional chaining
   const { token, logout } = useAuthContext();
-// const name="dnm"
+
   // --- State ---
   const [clubs, setClubs] = useState([]);
   const [events, setEvents] = useState([]);
   const [myApplications, setMyApplications] = useState([]);
   const [myProfile, setMyProfile] = useState(null);
-  const [myClubs, setMyClubs] = useState([]); // ✅ ADDED: Missing state
-  const [clubEvents, setClubEvents] = useState({}); // ✅ ADDED: Missing state
+  const [myClubs, setMyClubs] = useState([]); 
+  const [clubEvents, setClubEvents] = useState({}); 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ ADDED: Club status helper
+  //  ADDED: Club status helper
   const getClubStatus = (clubId) => {
   const application = myApplications.find(
     app => Number(app.club_id) === Number(clubId)
@@ -43,9 +44,9 @@ const fetchDashboardData = useCallback(async () => {
 
   try {
     const [clubRes, eventRes, profileRes] = await Promise.all([
-      fetch("http://127.0.0.1:8000/clubs/"),
-      fetch("http://127.0.0.1:8000/events/global/"),
-      fetch("http://127.0.0.1:8000/users/profile/", {
+      fetch(`${apiUrl}/clubs/`),
+      fetch(`${apiUrl}/events/global/`),
+      fetch(`${apiUrl}/users/profile/`,{
         headers: { Authorization: `Bearer ${token}` },
 
       }),
@@ -77,10 +78,10 @@ const fetchDashboardData = useCallback(async () => {
 
     setMyApplications(clubRequests);
 
-    // ✅ Set approved clubs
+    //  Set approved clubs
     setMyClubs(profileData.approved_clubs || []);
 
-    // ✅ Map events and attach joined flag
+    // Map events and attach joined flag
     const mappedEvents = (eventData.events || []).map(e => ({
       ...e,
       joined: e.joined_users?.includes(user_id) || false,
@@ -95,7 +96,7 @@ const fetchDashboardData = useCallback(async () => {
 );
 
 
-    // ✅ Club-specific events
+    //  Club-specific events
     const clubEventsMap = {};
     (profileData.approved_clubs || []).forEach(club => {
       clubEventsMap[club.club_id] = mappedEvents.filter(
@@ -145,7 +146,7 @@ const fetchDashboardData = useCallback(async () => {
 
   try {
     const response = await fetch(
-      `http://127.0.0.1:8000/users/join-club/${club_id}/`,
+      `${apiUrl}/users/join-club/${club_id}/`,
       {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
@@ -158,7 +159,7 @@ const fetchDashboardData = useCallback(async () => {
       throw new Error(data.message || "Failed to send request");
     }
 
-    // 🔥 GET CLUB NAME DIRECTLY FROM clubs STATE
+    //  GET CLUB NAME DIRECTLY FROM clubs STATE
     const club = clubs.find(c => c.club_id === club_id);
 
     if (!club) {
@@ -166,7 +167,7 @@ const fetchDashboardData = useCallback(async () => {
       return;
     }
 
-    // 🔥 Immediately update UI with Pending request
+    // Immediately update UI with Pending request
     const newApplication = {
       club_id: club.club_id,
       club_name: club.club_name, //ALWAYS correct name
@@ -194,7 +195,7 @@ const handleJoinEvent = async (event) => {
     const eventId = event.id || event.event_id;
 
     // Call backend
-    const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
+    const res = await fetch(`${apiUrl}/events/join/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -237,7 +238,7 @@ const handleLeaveEvent = async (event) => {
     const eventId = event.id || event.event_id;
 
     // Call backend
-    const res = await fetch(`http://127.0.0.1:8000/events/leave/`, {
+    const res = await fetch(`${apiUrl}/events/leave/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -251,7 +252,7 @@ const handleLeaveEvent = async (event) => {
       throw new Error(errorData.message || "Failed to leave event");
     }
 
-    // ✅ Update frontend state correctly
+    // Update frontend state correctly
     setEvents(prevEvents =>
       prevEvents.map(e => {
         if (e.id !== eventId && e.event_id !== eventId) return e;
@@ -270,13 +271,13 @@ const handleLeaveEvent = async (event) => {
 };
 
 
-  // ✅ ADDED: Club event handler
+  // ADDED: Club event handler
   const handleJoinClubEvent = async (event, clubId) => {
     try {
       if (!token) throw new Error("You must be logged in.");
       
       const eventId = event.id || event.event_id;
-      const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
+     const res = await fetch(`${apiUrl}/events/join/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -351,113 +352,114 @@ const joinedEvents = events.filter(
       </header>
 
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24 space-y-20">
-        {/* 🔥 1. APPLICATION TRACKER */}
+      {/*  1. APPLICATION TRACKER */}
        <section aria-labelledby="applications-title">
-  <header className="flex items-center gap-3 mb-10 pb-8 border-b border-slate-200">
-    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
-      <Activity className="w-6 h-6 text-white" />
-    </div>
-    <div>
-      <h2 id="applications-title" className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-        Your Club Requests
-      </h2>
-      <p className="text-slate-500 mt-2 text-lg">
-        {myApplications.length} request{myApplications.length !== 1 ? "s" : ""}
-      </p>
-    </div>
-  </header>
-
-  {myApplications.length ? (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {myApplications.map((app, idx) => (
-        <article key={idx} className="group bg-gradient-to-r from-indigo-50/80 to-purple-50/60 backdrop-blur-xl border border-indigo-200/60 hover:border-indigo-300 p-8 lg:p-10 rounded-4xl shadow-2xl hover:shadow-3xl hover:-translate-y-2 transition-all relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity -skew-x-3" />
-          <div className="relative z-10 space-y-6">
-            <div className="flex items-start justify-between gap-6">
-              <div className="flex items-center gap-4 flex-1">
-                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl flex-shrink-0">
-                  <Users className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600">
-                    {app.club_name}
-                  </h3>
-                  <p className="text-sm font-bold text-indigo-600 uppercase tracking-wider mt-1">
-                    Membership Request
-                  </p>
-                </div>
-              </div>
-
-              <div className={`px-6 py-3 rounded-3xl font-black text-sm uppercase tracking-widest shadow-lg flex items-center gap-2 ${
-                app.status === "Approved"
-                  ? "bg-emerald-500/90 text-white shadow-emerald-500/25 animate-pulse"
-                  : app.status === "Rejected"
-                    ? "bg-rose-500/90 text-white shadow-rose-500/25"
-                    : "bg-amber-500/90 text-white shadow-amber-500/25 animate-pulse"
-              }`}>
-                {app.status || "Pending"}
-              </div>
+        <header className="flex items-center gap-3 mb-10 pb-8 border-b border-slate-200">
+          <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
+            <Activity className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h2 id="applications-title" className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+              Your Club Requests
+            </h2>
+            <p className="text-slate-500 mt-2 text-lg">
+              {myApplications.length} request{myApplications.length !== 1 ? "s" : ""}
+            </p>
             </div>
+          </header>
 
-            {app.reason && (
-              <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/50 shadow-xl">
-                <p className="text-slate-700 text-base leading-relaxed italic">
-                  "{app.reason}"
+          {myApplications.length ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {myApplications.map((app, idx) => (
+                <article key={idx} className="group bg-gradient-to-r from-indigo-50/80 to-purple-50/60 backdrop-blur-xl border border-indigo-200/60 hover:border-indigo-300 p-8 lg:p-10 rounded-4xl shadow-2xl hover:shadow-3xl hover:-translate-y-2 transition-all relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity -skew-x-3" />
+                  <div className="relative z-10 space-y-6">
+                    <div className="flex items-start justify-between gap-6">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl flex-shrink-0">
+                          <Users className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-black text-slate-900 group-hover:text-indigo-600">
+                            {app.club_name}
+                          </h3>
+                          <p className="text-sm font-bold text-indigo-600 uppercase tracking-wider mt-1">
+                            Membership Request
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className={`px-6 py-3 rounded-3xl font-black text-sm uppercase tracking-widest shadow-lg flex items-center gap-2 ${
+                        app.status === "Approved"
+                          ? "bg-emerald-500/90 text-white shadow-emerald-500/25 animate-pulse"
+                          : app.status === "Rejected"
+                            ? "bg-rose-500/90 text-white shadow-rose-500/25"
+                            : "bg-amber-500/90 text-white shadow-amber-500/25 animate-pulse"
+                      }`}>
+                        {app.status || "Pending"}
+                      </div>
+                    </div>
+
+                    {app.reason && (
+                      <div className="bg-white/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-200/50 shadow-xl">
+                        <p className="text-slate-700 text-base leading-relaxed italic">
+                          "{app.reason}"
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-200/50">
+                      <span className="text-sm font-bold text-slate-500 flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        {app.created_at ? new Date(app.created_at).toLocaleDateString() : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="p-20 lg:p-24 bg-gradient-to-br from-indigo-50/70 to-purple-50/50 backdrop-blur-xl border-2 border-dashed border-indigo-200/60 rounded-4xl text-center shadow-2xl">
+              <div className="w-28 h-28 bg-gradient-to-br from-slate-100/60 to-indigo-100/60 backdrop-blur-xl rounded-4xl flex items-center justify-center mx-auto mb-10 border-2 border-slate-200/50 shadow-xl">
+                <Users className="w-14 h-14 text-slate-500" />
+              </div>
+              <h3 className="text-3xl lg:text-4xl font-black text-slate-800 mb-6">
+                No Requests Yet
+              </h3>
+              <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
+                Apply to clubs to see your request status here.
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* 🔹 EVENT TRACKER */}
+        {joinedEvents.length > 0 && (
+          <section>
+            <header className="flex items-center gap-4 mb-12 pb-8 border-b border-slate-200">
+              <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-xl">
+                <Calendar className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+                  Event Tracker
+                </h2>
+                <p className="text-slate-500 mt-2 text-lg">
+                  {joinedEvents.length} joined event{joinedEvents.length !== 1 ? 's' : ''}
                 </p>
               </div>
-            )}
+            </header>
 
-            <div className="flex items-center justify-between pt-6 border-t border-slate-200/50">
-              <span className="text-sm font-bold text-slate-500 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {app.created_at ? new Date(app.created_at).toLocaleDateString() : "N/A"}
-              </span>
-            </div>
-          </div>
-        </article>
-      ))}
-    </div>
-  ) : (
-    <div className="p-20 lg:p-24 bg-gradient-to-br from-indigo-50/70 to-purple-50/50 backdrop-blur-xl border-2 border-dashed border-indigo-200/60 rounded-4xl text-center shadow-2xl">
-      <div className="w-28 h-28 bg-gradient-to-br from-slate-100/60 to-indigo-100/60 backdrop-blur-xl rounded-4xl flex items-center justify-center mx-auto mb-10 border-2 border-slate-200/50 shadow-xl">
-        <Users className="w-14 h-14 text-slate-500" />
-      </div>
-      <h3 className="text-3xl lg:text-4xl font-black text-slate-800 mb-6">
-        No Requests Yet
-      </h3>
-      <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
-        Apply to clubs to see your request status here.
-      </p>
-    </div>
-  )}
-</section>
-{/* 🔹 EVENT TRACKER */}
-{joinedEvents.length > 0 && (
-  <section>
-    <header className="flex items-center gap-4 mb-12 pb-8 border-b border-slate-200">
-      <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-xl">
-        <Calendar className="w-7 h-7 text-white" />
-      </div>
-      <div>
-        <h2 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-          Event Tracker
-        </h2>
-        <p className="text-slate-500 mt-2 text-lg">
-          {joinedEvents.length} joined event{joinedEvents.length !== 1 ? 's' : ''}
-        </p>
-      </div>
-    </header>
-
-    <EventList
-      events={events.filter(e => e.joined_users?.includes(user_id))} // ✅ Only joined events
-      onLeave={handleLeaveEvent} // optional
-      currentUserId={user_id}
-    />
-  </section>
-)}
+            <EventList
+              events={events.filter(e => e.joined_users?.includes(user_id))} // ✅ Only joined events
+              onLeave={handleLeaveEvent} // optional
+              currentUserId={user_id}
+            />
+          </section>
+        )}
 
 
-        {/* 🔥 2. MY CLUBS */}
+        {/*MY CLUBS */}
         {myClubs.length > 0 && (
           <section>
             <header className="flex items-center gap-4 mb-12 pb-8 border-b border-slate-200">
@@ -515,7 +517,7 @@ const joinedEvents = events.filter(
           </section>
         )}
 
-        {/* 🔥 3. LIVE EVENTS */}
+        {/* LIVE EVENTS */}
         <section>
           <header className="flex items-center gap-4 mb-12 pb-8 border-b border-slate-200">
             <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl shadow-xl">
@@ -539,7 +541,7 @@ const joinedEvents = events.filter(
         </section>
 
 
-      {/* 🔥 4. EXPLORE CLUBS - ELEVATED FEATURED CARDS */}
+      {/* EXPLORE CLUBS - ELEVATED FEATURED CARDS */}
       <section aria-labelledby="explore-clubs-title">
         <header className="flex items-center gap-4 mb-12 pb-8 border-b border-slate-200">
           <div className="p-4 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl shadow-xl">
@@ -578,7 +580,7 @@ const joinedEvents = events.filter(
                     {club.description || "Join us to learn new skills and connect with peers who share your interests."}
                   </p>
                   
-                  {/* 🔥 ENHANCED DYNAMIC BUTTON */}
+                  {/* ENHANCED DYNAMIC BUTTON */}
               
                     <div className="space-y-3">
                   {status === 'approved' ? (

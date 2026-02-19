@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Shield } from "lucide-react";
+import apiUrl from "../../api";
 
 const MemberManagement = ({ members, token, fetchMembers }) => {
   const [roleSelections, setRoleSelections] = useState({});
@@ -26,7 +27,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
 
     try {
       await fetch(
-        `http://127.0.0.1:8000/users/requests/approve/${requestId}/`,
+        `${apiUrl}/approve/${requestId}/`,
         {
           method: "POST",
           headers: {
@@ -102,20 +103,6 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
               </select>
 
               <div className="flex justify-between space-x-2">
-                {/* <button
-                  onClick={() => approveMember(member.user_id)}
-                  disabled={!roleSelections[member.user_id]}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  Approve
-                </button>
-
-                <button
-                  onClick={() => rejectMember(member.user_id)}
-                  className="flex-1 bg-red-600 text-white py-2 rounded hover:bg-red-700"
-                >
-                  Reject
-                </button> */}
                 <button
                     onClick={() => approveMember(member.user_id)}
                     disabled={!roleSelections[member.user_id]}

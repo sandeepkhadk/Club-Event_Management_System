@@ -10,6 +10,7 @@ import EventList from './EventList';
 import EditEventModal from './EditEventModal';
 import UserInfo from './UserInfo';
 import ClubMembersList from './ClubMembersList';
+import apiUrl from '../../api';
 
 const AdminDashboard = () => {
   const decoded = useUserRole();
@@ -35,7 +36,7 @@ const AdminDashboard = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/clubs/${clubId}/members/`, {
+      const res = await fetch(`${apiUrl}/clubs/${clubId}/members/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +51,7 @@ const AdminDashboard = () => {
   // Fetch Events
   const fetchEvents = async () => {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/events/visibility/`, {
+      const res = await fetch(`${apiUrl}/events/visibility/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +71,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to join an event.");
 
-      const res = await fetch(`http://127.0.0.1:8000/events/join/`, {
+    const res = await fetch(`${apiUrl}/events/join/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +94,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to leave an event.");
 
-      const res = await fetch(`http://127.0.0.1:8000/events/leave/`, {
+      const res = await fetch(`${apiUrl}/events/leave/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -118,7 +119,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to delete an event.");
 
-      const res = await fetch(`http://127.0.0.1:8000/events/${event.id}/delete/`, {
+      const res = await fetch(`${apiUrl}/events/${event.id}/delete/`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

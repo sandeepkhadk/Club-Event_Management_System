@@ -4,12 +4,6 @@ import { Clock, ChevronRight, Trash2, X } from "lucide-react";
 const EventList = ({ events, onJoin, onLeave, onDelete, currentUserId, currentUserRole }) => {
   const [filter, setFilter] = useState("all"); // all, active, upcoming, completed
 
-  // const gradients = [
-  //   "from-blue-500 to-indigo-500",
-  //   "from-purple-600 to-pink-500",
-  //   "from-rose-500 to-orange-400",
-  //   "from-emerald-500 to-teal-400",
-  // ];
   const gradients = [
   "from-indigo-700 to-indigo-500",  // deep indigo
   "from-purple-700 to-purple-450",  // muted purple

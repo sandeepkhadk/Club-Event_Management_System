@@ -1,4 +1,4 @@
-import { jwtDecode } from "jwt-decode";  // 🔥 NAMED EXPORT
+import { jwtDecode } from "jwt-decode";  
 import { useAuthContext } from "../provider/AuthContext";
 
 export function useUserRole() {
@@ -7,7 +7,7 @@ export function useUserRole() {
   if (!token) return null;
 
   try {
-    const decoded = jwtDecode(token);  // 🔥 jwtDecode (named)
+    const decoded = jwtDecode(token);  
     console.log('useUserRole DECODED:', decoded);
     return decoded;
   } catch {

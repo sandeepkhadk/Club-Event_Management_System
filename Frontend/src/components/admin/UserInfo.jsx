@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { User, Crown, Building2 } from 'lucide-react';
+import apiUrl from '../../api';
 
 const UserInfo = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -12,7 +13,7 @@ const UserInfo = () => {
     const fetchUserInfo = async () => {
       if (!token) return;
       try {
-        const res = await fetch('http://127.0.0.1:8000/users/profile/', {
+        const res = await fetch(`${apiUrl}/users/profile/`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
