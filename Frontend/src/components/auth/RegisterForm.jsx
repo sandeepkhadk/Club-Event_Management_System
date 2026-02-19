@@ -32,7 +32,7 @@ export default function RegisterForm() {
       user_type: "student"  // For your users table
     };
     
-    const res = await fetch(`${apiUrl}/users/register/`, {
+    const res = await fetch(`${apiUrl}users/register/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData)

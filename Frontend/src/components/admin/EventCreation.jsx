@@ -70,7 +70,7 @@ const EventCreationForm = ({ onEventCreated, approvedHandlers = [] }) => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${apiUrl}/events/create/`, {
+      const response = await fetch(`${apiUrl}events/create/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

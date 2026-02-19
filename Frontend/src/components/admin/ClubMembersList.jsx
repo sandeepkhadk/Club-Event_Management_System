@@ -24,7 +24,7 @@ const ClubMembersList = ({clubId}) => {
 
       try {
         setLoading(true);
-        const res = await fetch(`${apiUrl}/users/${clubId}/members/`, {
+        const res = await fetch(`${apiUrl}users/${clubId}/members/`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

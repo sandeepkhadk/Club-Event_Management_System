@@ -36,7 +36,7 @@ const AdminDashboard = () => {
 
   const fetchMembers = async () => {
     try {
-      const res = await fetch(`${apiUrl}/clubs/${clubId}/members/`, {
+      const res = await fetch(`${apiUrl}clubs/${clubId}/members/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +51,7 @@ const AdminDashboard = () => {
   // Fetch Events
   const fetchEvents = async () => {
     try {
-      const res = await fetch(`${apiUrl}/events/visibility/`, {
+      const res = await fetch(`${apiUrl}events/visibility/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to leave an event.");
 
-      const res = await fetch(`${apiUrl}/events/leave/`, {
+      const res = await fetch(`${apiUrl}events/leave/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to delete an event.");
 
-      const res = await fetch(`${apiUrl}/events/${event.id}/delete/`, {
+      const res = await fetch(`${apiUrl}events/${event.id}/delete/`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -32,8 +32,8 @@ export default function SuperAdminPage({ superAdminId }) {
   const [foundedDate, setFoundedDate] = useState("");
   const [selectedUserEmail, setSelectedUserEmail] = useState("");
 
- const CLUB_API = `${apiUrl}/clubs/`;
- const USER_API = `${apiUrl}/users/list/`;
+ const CLUB_API = `${apiUrl}clubs/`;
+ const USER_API = `${apiUrl}users/list/`;
 
 
   // Initial load

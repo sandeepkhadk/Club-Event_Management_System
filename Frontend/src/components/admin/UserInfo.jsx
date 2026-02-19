@@ -13,7 +13,7 @@ const UserInfo = () => {
     const fetchUserInfo = async () => {
       if (!token) return;
       try {
-        const res = await fetch(`${apiUrl}/users/profile/`, {
+        const res = await fetch(`${apiUrl}users/profile/`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

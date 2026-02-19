@@ -27,7 +27,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
 
     try {
       await fetch(
-        `${apiUrl}/approve/${requestId}/`,
+        `${apiUrl}approve/${requestId}/`,
         {
           method: "POST",
           headers: {
@@ -46,7 +46,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
   const rejectMember = async (userId) => {
     try {
       await fetch(
-        `http://127.0.0.1:8000/users/reject/${userId}/`,
+        `${apiUrl}users/reject/${userId}/`,
         {
           method: "POST",
           headers: {

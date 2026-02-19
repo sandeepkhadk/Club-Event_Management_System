@@ -32,7 +32,7 @@ export default function LoginForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-   const res = await fetch(`${apiUrl}/users/login/`, {
+   const res = await fetch(`${apiUrl}users/login/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password, userType }),
