@@ -65,7 +65,7 @@ const EventPage = () => {
     if (!token) return;
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`${apiUrl}/users/profile/`, {
+        const res = await fetch(`${apiUrl}users/profile/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -90,7 +90,7 @@ const EventPage = () => {
     }
     setJoining(true);
     try {
-      const res = await fetch(`${apiUrl}/events/join/`, {
+      const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ ...formData, event_id: selectedEvent.id }),
