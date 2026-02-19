@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 # env_path = Path(__file__).resolve().parent.parent / '.env'
 # print("Looking for .env at:", env_path)
 # print("File exists:", env_path.exists())
@@ -23,12 +24,11 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env_path = BASE_DIR / '.env'
-print("Looking for .env at:", env_path)
-print("File exists:", env_path.exists())
+
 
 load_dotenv(env_path)
 
-print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
+
 
 
 
@@ -98,17 +98,22 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('DB_NAME'),
+#         'USER': os.environ.get('DB_USER'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD'),
+#         'HOST': os.environ.get('DB_HOST'),
+#         'PORT': os.environ.get('DB_PORT'),
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+    )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
