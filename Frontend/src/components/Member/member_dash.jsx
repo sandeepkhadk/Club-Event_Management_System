@@ -593,7 +593,7 @@ const joinedEvents = events.filter(
                       Request Pending
                       {pendingApp && (
                         <span className="text-xs bg-white/30 px-2 py-1 rounded-xl ml-2">
-                          {new Date(pendingApp.created_at).toLocaleDateString()}
+                          {/* {new Date(pendingApp.created_at).toLocaleDateString()} */}
                         </span>
                       )}
                     </div>
