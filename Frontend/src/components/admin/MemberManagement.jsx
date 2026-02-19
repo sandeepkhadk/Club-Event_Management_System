@@ -27,7 +27,7 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
 
     try {
       await fetch(
-        `${apiUrl}approve/${requestId}/`,
+        `${apiUrl}users/request/approve/${requestId}/`,
         {
           method: "POST",
           headers: {
