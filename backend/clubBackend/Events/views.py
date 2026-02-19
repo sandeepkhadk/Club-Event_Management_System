@@ -18,7 +18,43 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-@csrf_exempt
+# @csrf_exempt
+# def get_club_events(request, club_id):
+#     session = SessionLocal()
+#     try:
+#         # 1️⃣ Join events_table with users for handler name
+#         stmt = (
+#             select(
+#                 events_table.c.event_id,
+#                 events_table.c.title,
+#                 events_table.c.description,
+#                 events_table.c.start_datetime,
+#                 events_table.c.end_datetime,
+#                 events_table.c.status,
+#                 events_table.c.handler_id,
+#                 events_table.c.visibility,
+#                 events_table.c.max_capacity,
+#                 users.c.name.label("handler_name")
+#             )
+#             .join(users, users.c.user_id == events_table.c.handler_id)
+#             .where(events_table.c.club_id == club_id)
+#             .order_by(events_table.c.start_datetime)
+#         )
+#         events = session.execute(stmt).mappings().all()
+#         events_list = [dict(e) for e in events]
+
+#         # 2️⃣ Add joined users for each event
+#         for e in events_list:
+#             joins = session.execute(
+#                 select(events_participants.c.user_id)
+#                 .where(events_participants.c.event_id == e["event_id"])
+#             ).fetchall()
+#             e["joined_users"] = [u[0] for u in joins]  # list of user_ids
+
+#         return JsonResponse({"events": events_list}, status=200)
+#     finally:
+#         session.close()
+csrf_exempt
 def get_club_events(request, club_id):
     session = SessionLocal()
     try:
@@ -54,6 +90,7 @@ def get_club_events(request, club_id):
         return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
