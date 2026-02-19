@@ -330,7 +330,7 @@ const Club = () => {
                     <div className="p-2.5 bg-emerald-100/80 rounded-xl backdrop-blur-sm border border-emerald-200/40">
                       <Calendar className="w-5 h-5 text-emerald-600" />
                     </div>
-                    <span className="font-black text-xl lg:text-2xl text-slate-900">{events}</span>
+                    <span className="font-black text-xl lg:text-2xl text-slate-900">{club.events}</span>
                   </div>
                 </div>
 

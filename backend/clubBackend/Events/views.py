@@ -25,7 +25,7 @@ def get_club_events(request, club_id):
         # 1️⃣ Join events_table with users for handler name
         stmt = (
             select(
-                events.c.event_id,
+                events_table.c.event_id,
                 events_table.c.title,
                 events_table.c.description,
                 events_table.c.start_datetime,
