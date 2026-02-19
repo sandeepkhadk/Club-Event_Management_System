@@ -11,9 +11,25 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+# env_path = Path(__file__).resolve().parent.parent / '.env'
+# print("Looking for .env at:", env_path)
+# print("File exists:", env_path.exists())
+
+# print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env_path = BASE_DIR / '.env'
+print("Looking for .env at:", env_path)
+print("File exists:", env_path.exists())
+
+load_dotenv(env_path)
+
+print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +41,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,6 +66,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,11 +101,11 @@ WSGI_APPLICATION = 'clubBackend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydb',
-        'USER': 'postgres',
-        'PASSWORD': '080bct039@$$',
-        'HOST': 'localhost', 
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
@@ -140,8 +157,8 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
-SECRET_KEY="deepsanjin"
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:080bct039%40%24%24@localhost:5432/mydb"
+SECRET_KEY = os.environ.get('SECRET_KEY')
+SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL')
 
 
 
