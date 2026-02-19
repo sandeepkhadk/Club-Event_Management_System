@@ -4,6 +4,5 @@ import core.db.tables  # ensures all tables are registered
 
 def init_db():
     metadata.create_all(bind=engine)
-    print("All tables created successfully")
-init_db()
+    print("All tables created successfully"
     
