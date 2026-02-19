@@ -57,7 +57,7 @@ const Club = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${apiUrl}/clubs/`);
+        const res = await fetch(`${apiUrl}clubs/`);
 
         if (!res.ok) throw new Error("Failed to fetch clubs");
         const data = await res.json();
