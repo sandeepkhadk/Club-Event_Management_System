@@ -329,7 +329,7 @@ const Club = () => {
       </div>
 
       {/*  MEDIUM MODAL - Perfect Size */}
-     {selectedClub && (
+    {selectedClub && (
   <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-2xl flex items-center justify-center z-50 p-4 lg:p-8 animate-in fade-in-50 zoom-in-95 duration-300">
     <div className="bg-white/95 backdrop-blur-3xl rounded-3xl p-8 lg:p-12 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-4xl border border-slate-200/60 relative animate-in slide-in-from-bottom-4 duration-500">
       
@@ -344,43 +344,29 @@ const Club = () => {
         <h2 className="text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 bg-clip-text text-transparent mb-4 lg:mb-6 leading-tight">
           {selectedClub.name}
         </h2>
-        <div className="inline-flex items-center gap-2 px-5 lg:px-6 py-2.5 lg:py-3 bg-gradient-to-r from-emerald-500/15 to-emerald-400/10 backdrop-blur-xl border-2 border-emerald-400/40 rounded-3xl text-emerald-700 font-black text-base lg:text-lg uppercase tracking-widest shadow-2xl">
-          <UserCheck className="w-4 h-4 lg:w-5 lg:h-5" />
-          Verified Official Club
-        </div>
       </div>
 
       <div className="bg-gradient-to-br from-slate-50/90 via-white/80 to-indigo-50/70 p-8 lg:p-10 rounded-3xl border-2 border-slate-200/50 backdrop-blur-2xl mb-10 lg:mb-12 shadow-2xl shadow-slate-200/50">
-        <div className="flex items-start gap-3 mb-6">
-          <div className="p-3 bg-gradient-to-br from-sky-500/20 to-indigo-500/20 backdrop-blur-xl border border-sky-400/30 rounded-2xl text-sky-400 shrink-0 mt-1">
-            <Info className="w-6 h-6" />
-          </div>
-          <h4 className="text-xl lg:text-2xl font-black text-slate-900 mt-1 flex-1">About This Community</h4>
-        </div>
         <p className="text-slate-700 text-lg lg:text-xl leading-relaxed whitespace-pre-wrap">
           {selectedClub.desc || "Join this vibrant student organization to participate in official campus events, workshops, networking opportunities, and community-building activities with fellow students."}
         </p>
       </div>
 
       <div className="text-center p-4 lg:p-6 bg-gradient-to-br from-slate-50/90 via-white/80 to-indigo-50/70 rounded-xl border-2 border-dashed border-slate-200/60 backdrop-blur-xl shadow-xl">
-        <div className="w-14 h-14 lg:w-16 lg:h-16 mx-auto mb-4 bg-gradient-to-br from-sky-500/20 to-indigo-500/20 backdrop-blur-xl border-2 border-sky-400/40 rounded-xl flex items-center justify-center shadow-lg">
-          <LogIn className="w-7 h-7 lg:w-8 lg:h-8 text-sky-600" />
-        </div>
-        <h3 className="text-xl lg:text-2xl font-black text-slate-900 mb-3 leading-tight">Login Required</h3>
-        <p className="text-sm lg:text-base text-slate-600 mb-4 max-w-xs mx-auto leading-relaxed font-medium">
-          Sign in to view or join this club
-        </p>
+        <h3 className="text-xl lg:text-2xl font-black text-slate-900 mb-3 leading-tight">
+          Login Required
+        </h3>
         <button 
           onClick={() => navigate("/login")}
-          className="px-6 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white rounded-xl font-black text-base uppercase tracking-wide hover:from-sky-500 hover:via-indigo-500 hover:to-purple-600 hover:shadow-xl hover:shadow-sky-500/40 hover:-translate-y-0.5 transition-all duration-400 shadow-lg flex items-center gap-1.5 mx-auto group"
+          className="px-6 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white rounded-xl font-black text-base uppercase tracking-wide hover:from-sky-500 hover:via-indigo-500 hover:to-purple-600 transition-all duration-400 shadow-lg flex items-center gap-1.5 mx-auto group"
         >
-          <LogIn className="w-4 h-4 group-hover:scale-110 transition-transform" />
           Sign In
         </button>
       </div>
-       
+
     </div>
-    )}
+  </div>
+)}
   </div>
       
       );
