@@ -161,8 +161,9 @@ npm install
 ```
 
 3. Configure Environment Variables
-
-       Create a .env file in the project root using .env.example with proper credentials.
+```
+Create a .env file in the project root using .env.example with proper credentials.
+```
     
 4. Start frontend development server:
 
