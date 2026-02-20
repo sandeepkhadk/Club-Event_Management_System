@@ -24,8 +24,8 @@ const Contact = () => {
     e.preventDefault();
 
     emailjs.send(
-      "santoshkhadka655@gmail.com",        // Replace with your EmailJS Service ID
-      "santoshkhadka655@gmail.com",       // Replace with your EmailJS Template ID
+        "service_spfzgtc",        // Replace with your EmailJS Service ID
+      "template_z2ekl0k",       // Replace with your EmailJS Template ID
       {
         from_name: formData.name,
         from_email: formData.email,
