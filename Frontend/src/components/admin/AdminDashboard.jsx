@@ -71,7 +71,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to join an event.");
 
-    const res = await fetch(`${apiUrl}/events/join/`, {
+    const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
