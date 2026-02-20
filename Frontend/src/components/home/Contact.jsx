@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Navbar from "./Navbar";
 import { useLocation } from "react-router-dom";
 import { Mail, Facebook, Phone, MapPin, MessageCircle, Clock } from "lucide-react";
-import emailjs from "emailjs-com"; // ← import EmailJS
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const contactInfo = [
