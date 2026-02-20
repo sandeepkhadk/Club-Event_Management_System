@@ -6,7 +6,7 @@ import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
 import apiUrl from '../../api';
 
 
-const ClubMembersList = ({clubId}) => {
+const ClubMembersList = ({clubId,}) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -111,72 +111,71 @@ return (
       {/* Members List */}
       <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
 
-        {members.length > 0 ? (
-          members.map((member) => (
-           <div
-            key={member.user_id}
-            className="group flex items-center justify-between p-4
-              bg-gradient-to-br from-pink-50/80 to-purple-100/70
-              hover:from-pink-100/80 hover:to-purple-200/70
-              backdrop-blur-md rounded-xl
-              border border-pink-200/60
-              hover:border-purple-300
-              shadow-sm hover:shadow-md
-              transition-all duration-300"
-          >
+      {members.length > 0 ? (
+  members.map((member) => (
+    <div
+      key={member.user_id}
+      className="group flex items-center justify-between p-4
+        bg-gradient-to-br from-pink-50/80 to-purple-100/70
+        hover:from-pink-100/80 hover:to-purple-200/70
+        backdrop-blur-md rounded-xl
+        border border-pink-200/60
+        hover:border-purple-300
+        shadow-sm hover:shadow-md
+        transition-all duration-300"
+    >
+      <div className="flex items-center gap-4 flex-1 min-w-0">
 
-            <div className="flex items-center gap-4 flex-1 min-w-0">
+        {/* Avatar */}
+        <div className="w-12 h-12 
+          bg-gradient-to-br from-blue-300 to-blue-400 
+          rounded-xl flex items-center justify-center 
+          shadow-lg group-hover:shadow-yellow-400/40
+          transition-all duration-300">
+          <span className="text-lg font-black text-white">
+            {member.name?.charAt(0)?.toUpperCase() || '?'}
+          </span>
+        </div>
 
-              {/* Avatar */}
-              <div className="w-12 h-12 
-                bg-gradient-to-br from-blue-300 to-blue-400 
-                rounded-xl flex items-center justify-center 
-                shadow-lg group-hover:shadow-yellow-400/40
-                transition-all duration-300">
-
-                <span className="text-lg font-black text-white">
-                  {member.name?.charAt(0)?.toUpperCase() || '?'}
-                </span>
-              </div>
-
-                {/* Member Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-bold text-slate-800 truncate max-w-[180px]">
-                      {member.name || 'Unknown User'}
-                    </span>
-                    {getStatusIcon(member.status)}
-                  </div>
-
-                  {member.role && (
-                    <div className={`px-3 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1 
-                      ${getRoleColor(member.role)}`}>
-                      <Shield className="w-3 h-3" />
-                      <span>{member.role}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-12 
-            bg-gradient-to-br from-teal-50/70 to-cyan-50/70 
-            rounded-xl border-2 border-dashed border-teal-200/50">
-
-            <Users className="w-16 h-16 text-teal-300 mx-auto mb-4" />
-
-            <h3 className="text-lg font-bold text-slate-700 mb-2">
-              No Members Yet
-            </h3>
-
-            <p className="text-sm text-slate-500">
-              Approve pending requests to add members.
-            </p>
+        {/* Member Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-bold text-slate-800 truncate max-w-[180px]">
+              {member.name || 'Unknown User'}
+            </span>
+            {getStatusIcon(member.status)}
           </div>
-        )}
 
+          {member.role && (
+            <div className={`px-3 py-1 rounded-lg text-xs font-bold border inline-flex items-center gap-1 
+              ${getRoleColor(member.role)}`}>
+              <Shield className="w-3 h-3" />
+              <span>{member.role}</span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ✅ Remove button only for admins */}
+      {member.club_role === 'admin' && (
+        <button
+          onClick={() => handleRemoveMember(member.user_id)}
+          className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+        >
+          Remove
+        </button>
+      )}
+    </div>
+  ))
+) : (
+  <div className="text-center py-12 bg-gradient-to-br from-teal-50/70 to-cyan-50/70 rounded-xl border-2 border-dashed border-teal-200/50">
+    <Users className="w-16 h-16 text-teal-300 mx-auto mb-4" />
+    <h3 className="text-lg font-bold text-slate-700 mb-2">No Members Yet</h3>
+    <p className="text-sm text-slate-500">
+      Approve pending requests to add members.
+    </p>
+  </div>
+)}
       </div>
     </div>
   );
