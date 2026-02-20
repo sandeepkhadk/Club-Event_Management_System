@@ -195,7 +195,7 @@ const Club = () => {
             </div>
             <button 
               onClick={() => window.location.reload()} 
-              className="px-8 py-4 bg-gradient-to-r from-sky-500 to-indigo-500 text-white font-black rounded-3xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shadow-xl"
+              className="px-8 py-4 bg-gradient-to-r from-sky-500 to-indigo-500 text-white font-black rounded-3xl cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 shadow-xl"
             >
               Try Again
             </button>
@@ -248,7 +248,7 @@ const Club = () => {
                 <button 
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`group relative px-6 lg:px-8 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all duration-500 flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1 whitespace-nowrap ${
+                  className={`group relative px-6 lg:px-8 py-3 rounded-2xl text-sm font-black uppercase tracking-widest transition-all duration-500 flex items-center cursor-pointer gap-2 shadow-lg hover:shadow-xl hover:-translate-y-1 whitespace-nowrap ${
                     activeFilter === cat
                       ? "bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500 text-white shadow-sky-500/40"
                       : "text-slate-700 hover:text-slate-900 bg-white/60 hover:bg-white/80 border-2 border-slate-200/60 hover:border-sky-300 shadow-slate-200/50"
@@ -335,7 +335,7 @@ const Club = () => {
       
       <button 
         onClick={() => setSelectedClub(null)}
-        className="group absolute top-6 right-6 p-3 lg:p-4 bg-white/70 hover:bg-white/90 rounded-3xl backdrop-blur-xl border-2 border-slate-200/60 hover:border-slate-300 shadow-2xl hover:shadow-3xl transition-all duration-400 hover:scale-105 hover:rotate-3 active:scale-95"
+        className="group absolute top-6 right-6 p-3 lg:p-4 bg-white/70 hover:bg-white/90 rounded-3xl backdrop-blur-xl border-2 border-slate-200/60 hover:border-slate-300 shadow-2xl hover:shadow-3xl transition-all duration-400 hover:scale-105 hover:rotate-3 active:scale-95 cursor-pointer"
       >
         <X className="w-5 h-5 lg:w-6 lg:h-6 text-slate-600 group-hover:text-slate-900 transition-all" />
       </button>
@@ -358,7 +358,7 @@ const Club = () => {
         </h3>
         <button 
           onClick={() => navigate("/login")}
-          className="px-6 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white rounded-xl font-black text-base uppercase tracking-wide hover:from-sky-500 hover:via-indigo-500 hover:to-purple-600 transition-all duration-400 shadow-lg flex items-center gap-1.5 mx-auto group"
+          className="px-6 lg:px-8 py-2.5 lg:py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-900 text-white rounded-xl font-black text-base uppercase tracking-wide hover:from-sky-500 hover:via-indigo-500 hover:to-purple-600 transition-all duration-400 shadow-lg flex items-center gap-1.5 mx-auto group cursor-pointer"
         >
           Sign In
         </button>
