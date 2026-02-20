@@ -1,8 +1,16 @@
-# Club-Event_Management_System
-College Based  Club-Event Management System designed to simplify the management of student clubs and events organized by them. The system allows admins and club coordinators to manage members, organize events, publish announcements, and track participation through a user-friendly web interface.
-# Club‑Event Management System
+# Project Overview
+Project Name: CLUB & EVENT MANAGEMENT SYSTEM
 
-## 🧩 Overview
+
+Frontend Hosted at : https://projects.tcioe.edu.np (live)
+
+
+Backend Hosted at : https://club-event-management-system-v0ll.onrender.com (live)
+
+<img width="1831" height="885" alt="Screenshot 2026-02-19 220109" src="https://github.com/user-attachments/assets/c7fbaaed-fb0a-4194-8c9f-0a25d2e017fc" />
+
+
+# CLUB & EVENT MANAGEMENT SYSTEM
 
 This web application provides a centralized platform for managing student clubs and their activities. It allows colleges to:
 
@@ -15,23 +23,27 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 
 ---
 
-## 🚀 Features
+#  🚀 Features
 
-### 🔹 General Features
+## 🔹 General Features
 
 - Fully responsive design  
 - Smooth and interactive UI components  
 - Role-based user access (Admin, Student(Member))  
 - Easy navigation between clubs, events, and dashboards  
 
-### 👤 User Roles
+## 👤 User Roles
 
-| Role | Capabilities |
-|------|--------------|
-| Admin | Manage clubs, events, announcements |
-| Student | View clubs/events and register participation |
+| Role            | Description                 | Key Permissions                                                 |
+| --------------- | --------------------------- | --------------------------------------------------------------- |
+| **Super Admin** | System-level authority      | Create/remove admins, monitor all clubs                         |
+| **Admin**       | Club-level authority        | Create/manage events, manage members                            |
+| **Member**      | Registered club participant | Join global events, club only events and access their own club  |
+| **Student**     | General user                | Browse clubs, view events, request membership                   |
 
-### 📌 Core Functionality
+
+
+## 📌 Core Functionality
 
 - Manage clubs  
 - Schedule and manage events  
@@ -41,7 +53,7 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 
 ---
 
-## 💻 Tech Stack
+# 💻 Tech Stack
 
 - **Frontend:** React, Vite, Tailwind CSS
 - **Backend:** Django, Python
@@ -51,11 +63,52 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 
 ## 📁 Folder Structure
 
-<img width="220" height="459" alt="image" src="https://github.com/user-attachments/assets/3c8cd54c-cf36-43cd-aeff-8a37ef897a61" />
-
-
-
----
+``` text
+Club-Event_Management_System/
+│
+├── Frontend/
+│ ├── src/
+│ │ ├── assets/
+│ │ ├── components/
+│ │ │ ├── Members/
+│ │ │ ├── admin/
+│ │ │ ├── auth/
+│ │ │ ├── event-club/
+│ │ │ └── home/
+│ │ │
+│ │ ├── context/
+│ │ ├── hooks/
+│ │ ├── provider/
+│ │ ├── App.css
+│ │ ├── App.jsx
+│ │ ├── api.jsx
+│ │ ├── index.css
+│ │ └── main.jsx
+│ │
+│ ├── eslint.config.js
+│ ├── index.html
+│ ├── package.json
+│ ├── package-lock.json
+│ ├── postcss.config.js
+│ └── vite.config.js
+│
+├── backend/
+│ ├── clubBackend/
+│ │ ├── Events/
+│ │ ├── Users/
+│ │ ├── clubBackend/
+│ │ ├── clubs/
+│ │ ├── core/
+│ │ ├── manage.py
+│ │ └── requirements.txt
+│
+├── build.sh
+├── package.json
+├── package-lock.json
+├── README.md
+├── .gitignore
+└── .gitattributes
+```
 
 ## 🛠️ Installation & Setup
 
@@ -67,13 +120,13 @@ cd Club-Event_Management_System
 ```
 ### 2️⃣ Backend Setup (Django)
 
-I. Navigate to backend folder:
+1. Navigate to backend folder:
 
 ```bash
 cd backend/clubBackend
 ```
 
-II. Create a virtual environment:
+2. Create a virtual environment:
 
 ```bash
 python -m venv venv
@@ -81,20 +134,13 @@ source venv/bin/activate     # Linux/Mac
 venv\Scripts\activate        # Windows
 ```
 
-III. Install dependencies:
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-IV. Apply migrations:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
-V. Start backend server:
+4. Start backend server:
 
 ```bash
 python manage.py runserver
@@ -102,21 +148,29 @@ python manage.py runserver
 
 ### 3️⃣ Frontend Setup (React + Vite + Tailwind CSS)
 
-I. Navigate to frontend folder:
+1. Navigate to frontend folder:
 
 ```bash
 cd ../../../frontend
 ```
 
-II. Install dependencies:
+2. Install dependencies:
 
 ```bash
 npm install 
 ```
 
-III. Start frontend development server:
+3. Configure Environment Variables
+
+       Create a .env file in the project root using .env.example with proper credentials.
+    
+4. Start frontend development server:
 
 ```bash
 npm run dev
 ```
-
+5. Access the Application
+   
+```bash
+http://localhost:5173
+```
