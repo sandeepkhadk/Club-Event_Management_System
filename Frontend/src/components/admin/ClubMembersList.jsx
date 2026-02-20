@@ -157,14 +157,14 @@ return (
       </div>
 
       {/* ✅ Remove button only for admins */}
-      {member.club_role === 'admin' && (
+     
         <button
           onClick={() => handleRemoveMember(member.user_id)}
           className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
         >
           Remove
         </button>
-      )}
+     
     </div>
   ))
 ) : (
