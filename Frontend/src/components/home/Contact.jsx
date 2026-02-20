@@ -113,7 +113,7 @@ const Contact = () => {
                     type="text"
                     required
                     className="w-full px-4 py-3 border-2 border-slate-200/60 rounded-xl focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 bg-white/70 backdrop-blur-xl transition-all duration-300 text-sm placeholder-slate-500 shadow-lg font-medium"
-                    placeholder="John Doe"
+                    placeholder="Hari Bahadur"
                   />
                 </div>
                 <div>
@@ -124,7 +124,7 @@ const Contact = () => {
                     type="email"
                     required
                     className="w-full px-4 py-3 border-2 border-slate-200/60 rounded-xl focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 bg-white/70 backdrop-blur-xl transition-all duration-300 text-sm placeholder-slate-500 shadow-lg font-medium"
-                    placeholder="john@example.com"
+                    placeholder="hari@example.com"
                   />
                 </div>
               </div>
