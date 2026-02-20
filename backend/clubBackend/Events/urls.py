@@ -2,7 +2,7 @@ from django.urls import path
 
 
 
-from django.urls import path
+
 from Events.views import (
     create_event,
     get_all_events,
@@ -18,13 +18,11 @@ from Events.views import (
 
 urlpatterns = [
     path("create/", create_event, name="create-event"),
-    path("<int:club_id>/", get_club_events, name="club-events"),
-    # path("<int:event_id>/", get_event, name="get-event"),
-    path("<int:event_id>/delete/", delete_event, name="delete-event"),
+    path("<int:event_id>/delete/", delete_event, name="delete-event"),  # move above <int:club_id> if needed
+    path("<int:club_id>/", get_club_events, name="club-event"),
     path("join/", join_event, name="join-event"),
     path("leave/", leave_event, name="leave-event"),
     path("all/", get_all_events, name="all-events"), 
-    path("global/",get_global_events,name="global event"),
-    path("visibility/",get_feed_events,name="visible"),
-    # path("club/<int:club_id>/",get_club_events,name="club_event")
+    path("global/", get_global_events, name="global event"),
+    path("visibility/", get_feed_events, name="visible"),
 ]
