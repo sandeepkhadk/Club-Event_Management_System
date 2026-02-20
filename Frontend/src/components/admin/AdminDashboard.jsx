@@ -89,27 +89,26 @@ const AdminDashboard = () => {
       alert(err.message);
     }
   };
-  const handleRemoveMember = async (userId) => {
-  if (!window.confirm("Are you sure you want to remove this member?")) return;
+  setMembers(prev => prev.filter(m => m.user_id !== requestId));
+  setRoleSelections(prev => {
+    const updated = { ...prev };
+    delete updated[requestId];
+    return updated;
+  });
 
   try {
-    const res = await fetch(`${apiUrl}users/${userId}/remove/`, {
-      method: "DELETE",
+    await fetch(`${apiUrl}users/requests/approve/${requestId}/`, {
+      method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "",
       },
+      body: JSON.stringify({ role }),
     });
-
-    if (res.ok) {
-      setMembers(prev => prev.filter(m => m.user_id !== userId));
-      alert("Member removed successfully");
-    } else {
-      alert("Failed to remove member");
-    }
   } catch (err) {
     console.error(err);
-    alert("Network error");
+    // Optional: rollback in case of failure
+    fetchMembers();
   }
 };
 
