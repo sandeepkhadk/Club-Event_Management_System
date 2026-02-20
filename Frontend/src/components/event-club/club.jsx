@@ -378,9 +378,10 @@ const Club = () => {
           Sign In
         </button>
       </div>
-       )}
+       
     </div>
   </div>
+      )}
       );
   };
 
