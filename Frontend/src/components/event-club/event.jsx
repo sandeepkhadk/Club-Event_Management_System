@@ -109,7 +109,7 @@ const EventPage = () => {
 
   if (loading) return (
     <>
-    <Navbar/>
+    {showNavbar && <Navbar />}
     <div className="min-h-screen bg-indigo-50 flex items-center justify-center">
       
       <div className="animate-bounce text-indigo-600 font-black text-2xl">Loading Events...</div>
