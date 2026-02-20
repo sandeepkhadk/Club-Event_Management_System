@@ -142,7 +142,7 @@ export default function RegisterForm() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full py-3 rounded-xl text-white font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg transform hover:-translate-y-0.5"
+              className="cursor-pointer w-full py-3 rounded-xl text-white font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg transform hover:-translate-y-0.5"
             >
                Register as Student
             </button>
