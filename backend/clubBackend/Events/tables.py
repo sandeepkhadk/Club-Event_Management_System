@@ -11,7 +11,7 @@ events_table = Table(
     Column('description', Text),
     Column('start_datetime', DateTime, nullable=False),
     Column('end_datetime', DateTime, nullable=False),
-    # Column('status', String(20)),
+    Column('status', String(20)),
     Column('created_at', DateTime, server_default=text('CURRENT_TIMESTAMP')), 
     Column('visibility', String(20), nullable=False, default='Public'),  # New column for visibility
     Column('max_capacity', Integer, nullable=True),  # New column for max capacity
