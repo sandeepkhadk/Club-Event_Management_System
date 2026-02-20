@@ -158,25 +158,21 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-<<<<<<< HEAD
+
     "https://club-event-management-system-v0ll.onrender.com",
     "https://club-eventmanagement.vercel.app",
    
-=======
-   "https://club-eventmanagement.vercel.app",
 
->>>>>>> df7e9a0646f5e3528a878921285d07b37c69f7e8
+
+
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
-<<<<<<< HEAD
+
     "https://club-event-management-system-v0ll.onrender.com",
     "https://club-eventmanagement.vercel.app",
-=======
-    "https://club-eventmanagement.vercel.app",
-   
->>>>>>> df7e9a0646f5e3528a878921285d07b37c69f7e8
+
 ]
 FRONTEND_URL = os.environ.get('FRONTEND_URL')
 if FRONTEND_URL:
