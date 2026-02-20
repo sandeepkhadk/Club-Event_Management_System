@@ -382,6 +382,6 @@ const Club = () => {
     </div>
   </div>
       };
-};
+);
 
 export default Club;
