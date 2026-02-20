@@ -292,7 +292,7 @@ const AdminDashboard = () => {
     {/* Club Members */}
     {activeTab === 'club-members' && (
       <div className="px-4 lg:px-0">
-        <ClubMembersList clubId={clubId}  handleRemoveMember={handleRemoveMember}/>
+        <ClubMembersList clubId={clubId} members={members} handleRemoveMember={handleRemoveMember}/>
       </div>
     )}
 
