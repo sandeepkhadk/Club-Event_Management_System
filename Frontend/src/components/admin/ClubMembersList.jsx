@@ -6,7 +6,7 @@ import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
 import apiUrl from '../../api';
 
 
-const ClubMembersList = ({clubId,}) => {
+const ClubMembersList = ({clubId,handleRemoveMember}) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
