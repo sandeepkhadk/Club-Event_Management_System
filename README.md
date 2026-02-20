@@ -2,7 +2,7 @@
 Project Name: CLUB & EVENT MANAGEMENT SYSTEM
 
 
-Frontend Hosted at : https://projects.tcioe.edu.np (live)
+Frontend Hosted at : https://club-eventmanagement.vercel.app (live)
 
 
 Backend Hosted at : https://club-event-management-system-v0ll.onrender.com (live)
