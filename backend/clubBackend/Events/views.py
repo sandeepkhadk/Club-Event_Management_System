@@ -404,7 +404,7 @@ def get_feed_events(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-                
+                events_table.c.status,
                 events_table.c.handler_id,
                 users.c.name.label("handler_name"),
                 events_table.c.club_id,
