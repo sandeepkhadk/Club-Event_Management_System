@@ -11,6 +11,13 @@ from .utils import hash_password, verify_password, jwt_required
 from .jwt import generate_jwt
 from clubs.views import create_join_request
 import json
+import random
+import time
+from django.core.mail import send_mail
+from django.conf import settings
+
+# Temporary in-memory OTP store (use Redis/DB for production)
+otp_store = {}
 
 
 
@@ -681,5 +688,129 @@ def user_clubs(request):
         
         clubs = [dict(row) for row in results]
         return JsonResponse({"clubs": clubs})
+    finally:
+        session.close()
+
+    import random
+
+
+@csrf_exempt
+def forgot_password(request):
+    """Send OTP to user's email"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not email:
+        return JsonResponse({"error": "Email required"}, status=400)
+
+    session = SessionLocal()
+    try:
+        # Check if user exists
+        user = session.execute(
+            select(users).where(users.c.email == email)
+        ).fetchone()
+
+        if not user:
+            return JsonResponse({"error": "Email not found"}, status=404)
+
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        otp_store[email] = {
+            "otp": otp,
+            "expires_at": time.time() + 300  # 5 minutes
+        }
+
+        # Send email
+        send_mail(
+            subject="Password Reset OTP",
+            message=f"Your OTP for password reset is: {otp}\nThis OTP expires in 5 minutes.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"success": True, "message": "OTP sent to your email"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
+
+
+@csrf_exempt
+def verify_otp(request):
+    """Verify OTP entered by user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp = data.get("otp")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    stored = otp_store.get(email)
+
+    if not stored:
+        return JsonResponse({"error": "OTP not found. Request a new one."}, status=400)
+
+    if time.time() > stored["expires_at"]:
+        del otp_store[email]
+        return JsonResponse({"error": "OTP expired. Request a new one."}, status=400)
+
+    if stored["otp"] != otp:
+        return JsonResponse({"error": "Invalid OTP"}, status=400)
+
+    return JsonResponse({"success": True, "message": "OTP verified"})
+
+
+@csrf_exempt
+def reset_password(request):
+    """Reset password after OTP verified"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp = data.get("otp")
+        new_password = data.get("new_password")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not email or not otp or not new_password:
+        return JsonResponse({"error": "All fields required"}, status=400)
+
+    # Verify OTP again
+    stored = otp_store.get(email)
+    if not stored or stored["otp"] != otp or time.time() > stored["expires_at"]:
+        return JsonResponse({"error": "Invalid or expired OTP"}, status=400)
+
+    session = SessionLocal()
+    try:
+        hashed = hash_password(new_password)
+
+        session.execute(
+            update(users)
+            .where(users.c.email == email)
+            .values(password=hashed)
+        )
+        session.commit()
+
+        # Clear OTP after use
+        del otp_store[email]
+
+        return JsonResponse({"success": True, "message": "Password reset successful"})
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()

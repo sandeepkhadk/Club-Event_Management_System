@@ -8,6 +8,9 @@ from Users.views import (
     get_club_members,assign_role,
     remove_member,
     user_clubs,
+    forgot_password,
+    verify_otp,
+    reset_password,
     
     
 )
@@ -26,7 +29,10 @@ urlpatterns = [
     path('list/', users_list_view, name='users_list'),
   
     path('clubs/', user_clubs, name='user_clubs'),
-    path('<int:user_id>/remove/', remove_member, name='remove-member')
+    path('<int:user_id>/remove/', remove_member, name='remove-member'),
+    path("forgot-password/", forgot_password, name="forgot-password"),
+    path("verify-otp/", verify_otp, name="verify-otp"),
+    path("reset-password/", reset_password, name="reset-password"),
 
 
 ]

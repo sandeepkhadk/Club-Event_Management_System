@@ -90,6 +90,15 @@ export default function LoginForm() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
               />
             </div>
+            <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-indigo-600 text-sm hover:text-indigo-800 cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+            </div>
 
             {message.text && (
               <div className={`p-2 text-sm rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>

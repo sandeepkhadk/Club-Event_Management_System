@@ -342,9 +342,78 @@ const AdminDashboard = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
 
+<<<<<<< Updated upstream
       
       <aside className="hidden lg:flex flex-col w-64 bg-slate-900 shadow-2xl flex-shrink-0">
         <SidebarContent {...sidebarSharedProps} closeMobile={null} />
+=======
+    // this to the adim-dash return firstdiv
+
+   <div className="flex min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
+
+      {/* This to Sidebar */}
+      <aside className="fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-slate-900/95 to-slate-900 backdrop-blur-xl border-r border-slate-800/50 
+  shadow-2xl flex flex-col">
+
+        <div className="p-6 flex-shrink-0 border-b border-slate-800/50">
+          <UserInfo />
+        </div>
+
+        <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
+          {club_role === 'admin' && (
+            <>
+              <SidebarButton
+                active={activeTab === 'members'}
+                icon={<Users className="w-5 h-5" />}
+                title="Member Requests"
+                subtitle="Pending Approvals"
+                onClick={() => setActiveTab('members')}
+              />
+              <SidebarButton
+                active={activeTab === 'events'}
+                icon={<PlusCircle className="w-5 h-5" />}
+                title="Create Event"
+                subtitle="New Events"
+                onClick={() => setActiveTab('events')}
+              />
+            </>
+          )}
+
+          <SidebarButton
+            active={activeTab === 'enrolled-events'}
+            icon={<Calendar className="w-5 h-5" />}
+            title="Enrolled Events"
+            subtitle="Events You Joined"
+            onClick={() => setActiveTab('enrolled-events')}
+          />
+
+          <SidebarButton
+            active={activeTab === 'manage-events'}
+            icon={<Calendar className="w-5 h-5" />}
+            title="Event Management"
+            subtitle="All Events"
+            onClick={() => { setActiveTab('manage-events'); fetchEvents(); }}
+          />
+
+          <SidebarButton
+            active={activeTab === 'club-members'}
+            icon={<Users className="w-5 h-5" />}
+            title="Club Members"
+            subtitle="View All"
+            onClick={() => setActiveTab('club-members')}
+          />
+        </nav>
+
+        <div className="p-6 flex-shrink-0 border-t border-slate-800/50">
+          <button 
+            onClick={handleLogout}
+            className=" cursor-pointer group flex items-center w-full p-4 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-400/50 transition-all duration-300 shadow-lg hover:shadow-rose-500/25"
+          >
+            <LogOut className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-bold tracking-wide">Sign Out</span>
+          </button>
+        </div>
+>>>>>>> Stashed changes
       </aside>
 
       
