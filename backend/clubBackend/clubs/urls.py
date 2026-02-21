@@ -28,7 +28,7 @@ from Users.views import (
 
 from clubs.views import (
     create_club, get_clubs, get_club, delete_club,
-    get_club_members, update_club
+    get_club_members, update_club, announcements_list_create, announcement_delete
 )
 
 urlpatterns = [
@@ -44,5 +44,9 @@ urlpatterns = [
     # ADD THESE NEW URLS ↓
     path("<int:club_id>/approve-member/<int:member_id>/", approve_member_request, name="approve-member"),
     path("<int:club_id>/reject-member/<int:member_id>/", reject_member_request, name="reject-member"),
+    
+    #Announcements
+    path('clubs/<int:club_id>/announcements/', announcements_list_create),
+    path('clubs/<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
    
 ]

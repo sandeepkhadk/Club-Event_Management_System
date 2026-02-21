@@ -671,3 +671,135 @@ def update_club(request, club_id):
     except Exception as e:
         print(f"UPDATE ERROR: {str(e)}")
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+    
+
+@csrf_exempt
+@jwt_required
+def announcements_list_create(request, club_id):
+    if request.method == "GET":
+        session = SessionLocal()
+        try:
+            rows = session.execute(
+                text("""
+                    SELECT a.announcement_id, a.message, a.created_at,
+                           u.name AS posted_by_name
+                    FROM announcements a
+                    LEFT JOIN users u ON u.user_id = a.posted_by_id
+                    WHERE a.club_id = :club_id
+                    ORDER BY a.created_at DESC
+                """),
+                {"club_id": club_id}
+            ).mappings().all()
+
+            announcements = [
+                {
+                    "id": row["announcement_id"],
+                    "message": row["message"],
+                    "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+                    "posted_by_name": row["posted_by_name"],
+                }
+                for row in rows
+            ]
+            return JsonResponse({"announcements": announcements}, status=200)
+
+        except Exception as e:
+            print(f"🚨 ANNOUNCEMENTS GET ERROR: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+        finally:
+            session.close()
+
+    if request.method == "POST":
+        session = SessionLocal()
+        try:
+            # Only admin of this club can post
+            role_row = session.execute(
+                text("""
+                    SELECT role FROM members
+                    WHERE club_id = :club_id AND user_id = :user_id
+                """),
+                {"club_id": club_id, "user_id": request.user_payload.get("user_id")}
+            ).first()
+
+            if not role_row or role_row[0] != "admin":
+                return JsonResponse({"error": "Only admins can post announcements."}, status=403)
+
+            body = json.loads(request.body)
+            message = body.get("message", "").strip()
+
+            if not message:
+                return JsonResponse({"error": "Message cannot be empty."}, status=400)
+
+            result = session.execute(
+                text("""
+                    INSERT INTO announcements (club_id, posted_by_id, message)
+                    VALUES (:club_id, :posted_by_id, :message)
+                    RETURNING announcement_id, created_at
+                """),
+                {
+                    "club_id": club_id,
+                    "posted_by_id": request.user_payload.get("user_id"),
+                    "message": message,
+                }
+            ).first()
+
+            session.commit()
+
+            name_row = session.execute(
+                text("SELECT name FROM users WHERE user_id = :user_id"),
+                {"user_id": request.user_payload.get("user_id")}
+            ).first()
+
+            return JsonResponse({
+                "announcement": {
+                    "id": result[0],
+                    "message": message,
+                    "created_at": result[1].isoformat() if result[1] else None,
+                    "posted_by_name": name_row[0] if name_row else "",
+                }
+            }, status=201)
+
+        except Exception as e:
+            print(f"🚨 ANNOUNCEMENTS POST ERROR: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+        finally:
+            session.close()
+
+    return JsonResponse({"error": "Method not allowed."}, status=405)
+
+#Announcements
+@csrf_exempt
+@jwt_required
+def announcement_delete(request, club_id, announcement_id):
+    if request.method != "DELETE":
+        return JsonResponse({"error": "Method not allowed."}, status=405)
+
+    session = SessionLocal()
+    try:
+        # Only admin of this club can delete
+        role_row = session.execute(
+            text("""
+                SELECT role FROM members
+                WHERE club_id = :club_id AND user_id = :user_id
+            """),
+            {"club_id": club_id, "user_id": request.user_payload.get("user_id")}
+        ).first()
+
+        if not role_row or role_row[0] != "admin":
+            return JsonResponse({"error": "Only admins can delete announcements."}, status=403)
+
+        session.execute(
+            text("""
+                DELETE FROM announcements
+                WHERE announcement_id = :announcement_id AND club_id = :club_id
+            """),
+            {"announcement_id": announcement_id, "club_id": club_id}
+        )
+        session.commit()
+
+        return JsonResponse({"success": True, "message": "Announcement deleted."}, status=200)
+
+    except Exception as e:
+        print(f"🚨 ANNOUNCEMENT DELETE ERROR: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
