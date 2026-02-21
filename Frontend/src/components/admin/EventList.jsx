@@ -96,6 +96,8 @@ const EventList = ({
               String(event.handler_id) === String(currentUserId);
 
             const canEdit = onEdit && isHandler
+            console.log(canEdit)
+
 
             return (
               <div
