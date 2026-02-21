@@ -245,7 +245,7 @@ from Users.tables import members
 
 from django.http import JsonResponse
 from core.db.base import SessionLocal
-from .tables import clubs_table
+from .tables import clubs_table,events_table
 from Users.tables import member_requests, members,users_table
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, insert,join,text
