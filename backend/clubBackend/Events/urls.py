@@ -13,6 +13,7 @@ from Events.views import (
     leave_event,
     get_feed_events,
     get_global_events,
+    update_event
  
 )
 
@@ -25,4 +26,5 @@ urlpatterns = [
     path("all/", get_all_events, name="all-events"), 
     path("global/", get_global_events, name="global event"),
     path("visibility/", get_feed_events, name="visible"),
+    path("<int:event_id>/update/", update_event, name="update-event"),
 ]
