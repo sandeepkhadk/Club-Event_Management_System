@@ -16,6 +16,7 @@ from Events.views import (
  
 )
 
+
 urlpatterns = [
     path("create/", create_event, name="create-event"),
     path("<int:event_id>/delete/", delete_event, name="delete-event"),  # move above <int:club_id> if needed
@@ -25,4 +26,5 @@ urlpatterns = [
     path("all/", get_all_events, name="all-events"), 
     path("global/", get_global_events, name="global event"),
     path("visibility/", get_feed_events, name="visible"),
+    
 ]

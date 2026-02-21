@@ -5,22 +5,30 @@ import { Search, Users, Calendar, X, ArrowRight, LogIn, Sparkles } from "lucide-
 import { useAuthContext } from "../../context/provider/AuthContext";
 import apiUrl from "../../api";
 
-/*  Category accent colours */
-const CATEGORY_COLORS = {
-  Tech:       { bg: "from-cyan-400/20 to-blue-500/20",    dot: "#38bdf8", text: "text-cyan-600"   },
-  Art:        { bg: "from-rose-400/20 to-pink-500/20",    dot: "#fb7185", text: "text-rose-500"   },
-  Music:      { bg: "from-violet-400/20 to-purple-500/20",dot: "#a78bfa", text: "text-violet-500" },
-  Sports:     { bg: "from-emerald-400/20 to-teal-500/20", dot: "#34d399", text: "text-emerald-600"},
-  Science:    { bg: "from-amber-400/20 to-orange-500/20", dot: "#fbbf24", text: "text-amber-600"  },
-  General:    { bg: "from-slate-300/20 to-slate-400/20",  dot: "#94a3b8", text: "text-slate-500"  },
-};
+/* Palette — one accent per club, derived from its id so it's stable */
+const PALETTES = [
+  { bg: "from-cyan-400/20 to-blue-500/20",    dot: "#38bdf8" },
+  { bg: "from-rose-400/20 to-pink-500/20",    dot: "#fb7185" },
+  { bg: "from-violet-400/20 to-purple-500/20",dot: "#a78bfa" },
+  { bg: "from-emerald-400/20 to-teal-500/20", dot: "#34d399" },
+  { bg: "from-amber-400/20 to-orange-500/20", dot: "#fbbf24" },
+  { bg: "from-slate-300/20 to-slate-400/20",  dot: "#94a3b8" },
+];
 
-const accent = (cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.General;
+const getPalette = (id) => PALETTES[(id ?? 0) % PALETTES.length];
 
-/* Club Card  */
+const getInitials = (name) =>
+  (name || "?")
+    .split(" ")
+    .map(w => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+/* Club Card */
 const ClubCard = ({ club, index, onClick }) => {
-  const { bg, dot, text } = accent(club.category);
-  const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const { bg, dot } = getPalette(club.id);
+  const initials = getInitials(club.name);
 
   return (
     <div
@@ -46,12 +54,6 @@ const ClubCard = ({ club, index, onClick }) => {
             style={{ background: `linear-gradient(135deg, ${dot}, ${dot}99)` }}>
             {initials}
           </div>
-
-          {/* Category chip */}
-          <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border ${text}`}
-            style={{ borderColor: `${dot}44`, background: `${dot}15` }}>
-            {club.category}
-          </span>
         </div>
 
         {/* Name + desc */}
@@ -87,10 +89,10 @@ const ClubCard = ({ club, index, onClick }) => {
   );
 };
 
-/*  Modal */
+/* Modal */
 const ClubModal = ({ club, token, onClose, onNavigate }) => {
-  const { dot, bg } = accent(club.category);
-  const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const { dot } = getPalette(club.id);
+  const initials = getInitials(club.name);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -103,7 +105,7 @@ const ClubModal = ({ club, token, onClose, onNavigate }) => {
         onClick={e => e.stopPropagation()}
       >
         {/* Header band */}
-        <div className={`relative h-28 bg-gradient-to-br ${bg} flex items-end px-7 pb-0`}
+        <div className="relative h-28 flex items-end px-7 pb-0"
           style={{ background: `linear-gradient(135deg, ${dot}33 0%, ${dot}11 100%)` }}>
           {/* Large avatar */}
           <div className="absolute -bottom-6 left-7 w-16 h-16 rounded-2xl shadow-xl
@@ -123,10 +125,6 @@ const ClubModal = ({ club, token, onClose, onNavigate }) => {
 
         {/* Body */}
         <div className="px-7 pt-10 pb-7">
-          <span className="text-[10px] font-black uppercase tracking-widest"
-            style={{ color: dot }}>
-            {club.category}
-          </span>
           <h2 className="text-2xl font-black text-slate-900 mt-1 mb-3">{club.name}</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
             {club.desc || "No description available for this club."}
@@ -192,7 +190,8 @@ const Club = () => {
     if (!searchTerm.trim()) return clubs;
     const s = searchTerm.toLowerCase();
     return clubs.filter(c =>
-      c.name.toLowerCase().includes(s) || c.desc.toLowerCase().includes(s)
+      (c.name ?? "").toLowerCase().includes(s) ||
+      (c.desc ?? "").toLowerCase().includes(s)
     );
   }, [clubs, searchTerm]);
 
@@ -203,12 +202,11 @@ const Club = () => {
         if (!res.ok) throw new Error("Failed to fetch clubs");
         const data = await res.json();
         const mapped = data.clubs.map(c => ({
-          id:       c.club_id,
-          name:     c.name,
-          desc:     c.description || "",
-          members:  c.members_names?.length || 0,
-          events:   c.events_count || 0,
-          category: c.category || "General",
+          id:      c.club_id,
+          name:    c.name || "Unnamed Club",
+          desc:    c.description || "",
+          members: c.members_names?.length || 0,
+          events:  c.events_count || 0,
         }));
         setClubs(mapped);
       } catch (err) {
@@ -257,7 +255,6 @@ const Club = () => {
 
       {/* ── Hero Header ── */}
       <div className="relative overflow-hidden bg-slate-900 pt-16 pb-20 px-6">
-        {/* Decorative blobs */}
         <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full opacity-10"
           style={{ background: "radial-gradient(circle, #39D353 0%, transparent 70%)", filter: "blur(60px)" }} />
         <div className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full opacity-10"
