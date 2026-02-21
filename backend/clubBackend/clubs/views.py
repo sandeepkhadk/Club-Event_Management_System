@@ -555,28 +555,15 @@ def create_join_request(user_id, club_id):
 def get_club_members(request, club_id):
     session = SessionLocal()
     try:
-        # 1️⃣ APPROVED MEMBERS - RAW SQL
+        # Fetch all members for the given club
         members_sql = """
-            SELECT DISTINCT m.user_id, u.name, m.role, m.club_id, 'Approved' as status
-            FROM members m
-            LEFT JOIN users u ON m.user_id = u.user_id 
-            WHERE m.club_id = :club_id
+            SELECT user_id, name, role, club_id
+            FROM members
+            WHERE club_id = :club_id
         """
         member_results = session.execute(text(members_sql), {"club_id": club_id}).mappings().all()
 
-        # 2️⃣ PENDING REQUESTS - RAW SQL  
-        requests_sql = """
-            SELECT DISTINCT r.user_id, u.name, r.club_id, r.status, 'Pending' as status
-            FROM member_requests r
-            LEFT JOIN users u ON r.user_id = u.user_id 
-            WHERE r.club_id = :club_id AND r.status = 'pending'
-        """
-        request_results = session.execute(text(requests_sql), {"club_id": club_id}).mappings().all()
-
-        # 3️⃣ COMBINE RESULTS
-        all_members = []
-        for row in member_results + request_results:
-            all_members.append(dict(row))
+        all_members = [dict(row) for row in member_results]
 
         return JsonResponse({"members": all_members}, status=200)
 
@@ -585,7 +572,6 @@ def get_club_members(request, club_id):
         return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
-
 @csrf_exempt
 @jwt_required
 def update_club(request, club_id):
