@@ -24,7 +24,6 @@ export default function PublicRoute() {  // ← FUNCTION START
     if (role === "superadmin" && currentPath === "/admin") return false;
     if (role === "member" && clubId && currentPath === `/student/${clubId}`) return false;
     if (role === "unmember" && currentPath === "/student") return false;
-    if (currentPath === "/") return false;
     if (role === "club_admin" && clubId && currentPath === `/clubs/${clubId}/admin`) return false;
     return true;
   };

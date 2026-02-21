@@ -24,9 +24,9 @@ export default function LoginForm() {
     if (!decoded) return; // Not logged in
 
     // Already logged in → redirect
-    if (decoded.global_role === "admin") navigate("/admin");
-    else if (decoded.global_role === "member") navigate(`/student/${decoded.club_id}`);
-    else navigate("/student");
+    if (decoded.global_role === "admin") navigate("/admin", { replace: true });
+    else if (decoded.global_role === "member") navigate(`/student/${decoded.club_id}`, { replace: true });
+    else navigate("/student", { replace: true });
   }, [decoded, navigate, loading]);
 
   const handleSubmit = async (e) => {

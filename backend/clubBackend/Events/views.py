@@ -66,7 +66,7 @@ def get_club_events(request, club_id):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-                events_table.c.status,
+              
                 events_table.c.handler_id,
                 events_table.c.visibility,
                 events_table.c.max_capacity,
@@ -107,7 +107,7 @@ def get_all_events(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-                events_table.c.status,
+               
                 events_table.c.handler_id,
                 users.c.name.label("handler_name"),
                 events_table.c.club_id
@@ -190,7 +190,7 @@ def create_event(request):
                 description=description,
                 start_datetime=start_datetime,
                 end_datetime=end_datetime,
-                status=status,
+              
                 visibility=visibility,
                 max_capacity=max_capacity
             )
@@ -200,7 +200,7 @@ def create_event(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-                events_table.c.status,
+              
                 events_table.c.handler_id
             )
         )
@@ -214,7 +214,7 @@ def create_event(request):
             "description": new_event.description,
             "start_datetime": new_event.start_datetime.isoformat() if isinstance(new_event.start_datetime, datetime) else new_event.start_datetime,
             "end_datetime": new_event.end_datetime.isoformat() if isinstance(new_event.end_datetime, datetime) else new_event.end_datetime,
-            "status": new_event.status,
+           
             "handler_id": new_event.handler_id,
             "handler_name": session.execute(
                 select(users.c.name).where(users.c.user_id == new_event.handler_id)
@@ -356,7 +356,7 @@ def get_global_events(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-                events_table.c.status,
+               
                 events_table.c.handler_id,
                 users.c.name.label("handler_name"),
                 events_table.c.club_id,

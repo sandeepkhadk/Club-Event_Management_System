@@ -71,7 +71,7 @@ const AdminDashboard = () => {
     try {
       if (!token) throw new Error("You must be logged in to join an event.");
 
-    const res = await fetch(`${apiUrl}/events/join/`, {
+    const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -89,6 +89,30 @@ const AdminDashboard = () => {
       alert(err.message);
     }
   };
+  const handleRemoveMember = async (userId) => {
+  if (!window.confirm("Are you sure you want to remove this member?")) return;
+
+  try {
+    const res = await fetch(`${apiUrl}users/${userId}/remove/`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (res.ok) {
+      // ✅ Remove from state immediately
+      setMembers((prev) => prev.filter((m) => m.user_id !== userId));
+      alert("Member removed successfully");
+    } else {
+      alert("Failed to remove member");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Network error");
+  }
+};
 
   const handleLeaveEvent = async (event) => {
     try {
@@ -284,7 +308,7 @@ const AdminDashboard = () => {
     {/* Club Members */}
     {activeTab === 'club-members' && (
       <div className="px-4 lg:px-0">
-        <ClubMembersList clubId={clubId} />
+        <ClubMembersList clubId={clubId} members={members} handleRemoveMember={handleRemoveMember}/>
       </div>
     )}
 
