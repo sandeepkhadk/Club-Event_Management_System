@@ -591,7 +591,6 @@
 // );
 // }
 // export default AdminDashboard;
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/provider/AuthContext";
@@ -630,18 +629,8 @@ const SidebarContent = ({ activeTab, setActiveTab, club_role, handleLogout, clos
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo / Brand */}
-      <div className="px-5 pt-6 pb-4 border-b border-slate-700/60">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#39D353] flex items-center justify-center shadow-lg shadow-[#39D353]/30">
-            <span className="text-slate-900 font-black text-sm">C</span>
-          </div>
-          <span className="text-white font-bold tracking-wide text-base">ClubHub</span>
-        </div>
-      </div>
-
-      {/* User Info */}
-      <div className="px-4 pt-4 pb-2">
+      {/* User Info at the very top — uses the icon from UserInfo */}
+      <div className="px-4 pt-6 pb-4 border-b border-slate-700/60">
         <UserInfo />
       </div>
 
@@ -853,12 +842,7 @@ const AdminDashboard = () => {
           >
             <Menu size={22} />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#39D353] flex items-center justify-center">
-              <span className="text-slate-900 font-black text-xs">C</span>
-            </div>
-            <span className="text-white font-bold text-sm tracking-wide">ClubHub</span>
-          </div>
+          <span className="text-white font-bold text-sm tracking-wide">ClubHub</span>
         </div>
 
         {/* ── Page Content ───────────────────────────────── */}
