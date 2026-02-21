@@ -27,7 +27,7 @@ function App() {
         <Route path="/clubs" element={<Club />} />
         <Route path="/events" element={<EventPage />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />  {/* Fixed */}
+        <Route path="/contact" element={<Contact />} /> 
         <Route path="/" element={
           <><Navbar/><Hero/><About/><EventPage/><Club/><Contact/></>
         }/>

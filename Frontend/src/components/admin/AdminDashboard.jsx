@@ -230,7 +230,7 @@ const AdminDashboard = () => {
       const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ event_id: event.id }),
+        body: JSON.stringify({ event_id: event_id }),
       });
       if (!res.ok) throw new Error("Failed to join event");
       setEvents(prev => prev.map(e =>
