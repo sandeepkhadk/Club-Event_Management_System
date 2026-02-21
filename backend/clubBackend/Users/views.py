@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from datetime import datetime
+from functools import wraps
 from sqlalchemy import insert, select, text,update,delete
 from sqlalchemy.exc import SQLAlchemyError
 from core.db.base import SessionLocal
@@ -811,6 +812,94 @@ def reset_password(request):
 
     except SQLAlchemyError as e:
         session.rollback()
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
+     # views/members.py  (add this view to your existing members views)
+
+
+
+
+# ── Update Member Role ─────────────────────────────────────────────────────────
+# PATCH /clubs/<club_id>/members/<user_id>/role/
+# Body: { "role": "event_handler" | "member" | "admin" }
+# Only accessible by club admin
+
+@jwt_required
+def update_member_role(request, club_id, user_id):
+    if request.method != "PATCH":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    session = SessionLocal()
+    try:
+        import json
+        body = json.loads(request.body)
+        new_role = body.get("role", "").strip()
+
+        ALLOWED_ROLES = {"member", "event_handler", "admin"}
+        if new_role not in ALLOWED_ROLES:
+            return JsonResponse(
+                {"error": f"Invalid role. Must be one of: {', '.join(ALLOWED_ROLES)}"},
+                status=400
+            )
+
+        # Verify requester is admin of this club
+        requester_id = request.user_id  # set by your @jwt_required decorator
+        admin_check_sql = """
+            SELECT role FROM members
+            WHERE user_id = :requester_id AND club_id = :club_id
+        """
+        requester = session.execute(
+            text(admin_check_sql),
+            {"requester_id": requester_id, "club_id": club_id}
+        ).mappings().first()
+
+        if not requester or requester["role"] != "admin":
+            return JsonResponse({"error": "Only admins can update member roles"}, status=403)
+
+        # Prevent demoting yourself
+        if str(requester_id) == str(user_id):
+            return JsonResponse({"error": "You cannot change your own role"}, status=400)
+
+        # Check target member exists in this club
+        member_check_sql = """
+            SELECT id, role FROM members
+            WHERE user_id = :user_id AND club_id = :club_id
+        """
+        member = session.execute(
+            text(member_check_sql),
+            {"user_id": user_id, "club_id": club_id}
+        ).mappings().first()
+
+        if not member:
+            return JsonResponse({"error": "Member not found in this club"}, status=404)
+
+        # Prevent changing another admin's role
+        if member["role"] == "admin":
+            return JsonResponse({"error": "Cannot change the role of another admin"}, status=403)
+
+        # Update role
+        update_sql = """
+            UPDATE members
+            SET role = :new_role
+            WHERE user_id = :user_id AND club_id = :club_id
+        """
+        session.execute(
+            text(update_sql),
+            {"new_role": new_role, "user_id": user_id, "club_id": club_id}
+        )
+        session.commit()
+
+        return JsonResponse({
+            "success": True,
+            "user_id": user_id,
+            "club_id": club_id,
+            "new_role": new_role,
+        }, status=200)
+
+    except Exception as e:
+        session.rollback()
+        print(f"🚨 UPDATE MEMBER ROLE ERROR: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
