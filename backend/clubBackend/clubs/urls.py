@@ -22,7 +22,8 @@ from Users.views import (
     join_club_request,
     # ADD THESE 4 IMPORTS  
     approve_member_request, 
-    reject_member_request
+    reject_member_request,
+    update_member_role 
  
 )
 
@@ -48,5 +49,6 @@ urlpatterns = [
     #Announcements
     path('clubs/<int:club_id>/announcements/', announcements_list_create),
     path('clubs/<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
-   
+
+    path('clubs/<int:club_id>/members/<int:user_id>/role/', update_member_role),
 ]
