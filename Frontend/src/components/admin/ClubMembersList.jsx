@@ -1,10 +1,8 @@
 // ClubMembersList.jsx
 import React, { useState } from 'react';
 import { Users, User, Shield, Clock, CheckCircle, Search, Trash2, Crown } from 'lucide-react';
-import { useAuthContext } from "../../context/provider/AuthContext";
 
-const ClubMembersList = ({ members = [], handleRemoveMember }) => {
-  const { userInfo } = useAuthContext();
+const ClubMembersList = ({ members = [], handleRemoveMember, club_role }) => {
   const [search, setSearch] = useState('');
 
   const filtered = members.filter(m =>
@@ -124,7 +122,7 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
         scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
 
         {filtered.length > 0 ? (
-          filtered.map((member, idx) => (
+          filtered.map((member) => (
             <div
               key={member.user_id}
               className="group flex items-center justify-between gap-3 p-4
@@ -160,8 +158,8 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
                 </div>
               </div>
 
-              {/* Right: Remove button — always visible for admin */}
-              {userInfo?.club_role === 'admin' && member.role !== 'admin' && (
+              {/* Right: Remove button — only visible for admin, and not for other admins */}
+              {club_role === 'admin' && member.role !== 'admin' && (  
                 <button
                   onClick={() => handleRemoveMember(member.user_id)}
                   className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2

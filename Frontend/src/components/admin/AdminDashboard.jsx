@@ -230,11 +230,13 @@ const AdminDashboard = () => {
       const res = await fetch(`${apiUrl}events/join/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ event_id: event_id }),
+        body: JSON.stringify({ event_id: event.event_id }),  // ✅ Fixed: was `event_id` (undefined)
       });
       if (!res.ok) throw new Error("Failed to join event");
       setEvents(prev => prev.map(e =>
-        e.id === event.id ? { ...e, joined_users: [...(e.joined_users || []), currentUserId] } : e
+        e.event_id === event.event_id  // ✅ Fixed: was e.id === event.id
+          ? { ...e, joined_users: [...(e.joined_users || []), currentUserId] }
+          : e
       ));
     } catch (err) { alert(err.message); }
   };
@@ -245,11 +247,11 @@ const AdminDashboard = () => {
       const res = await fetch(`${apiUrl}events/leave/`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ event_id: event.id }),
+        body: JSON.stringify({ event_id: event.event_id }),  // ✅ Fixed: consistent with event_id
       });
       if (!res.ok) throw new Error("Failed to leave event");
       setEvents(prev => prev.map(e =>
-        e.id === event.id
+        e.event_id === event.event_id  // ✅ Fixed: was e.id === event.id
           ? { ...e, joined_users: (e.joined_users || []).filter(uid => uid !== currentUserId) }
           : e
       ));
@@ -268,12 +270,12 @@ const AdminDashboard = () => {
     }
     if (!window.confirm(`Delete "${event.title || event.name}"? This cannot be undone.`)) return;
     try {
-      const res = await fetch(`${apiUrl}events/${event.id}/delete/`, {
+      const res = await fetch(`${apiUrl}events/${event.event_id}/delete/`, {  // ✅ Fixed: was event.id
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete event");
-      setEvents(prev => prev.filter(e => e.id !== event.id && e.event_id !== event.id));
+      setEvents(prev => prev.filter(e => e.event_id !== event.event_id));  // ✅ Fixed: use event_id only
     } catch (err) { console.error(err); alert("Error deleting event."); }
   };
 
@@ -299,7 +301,7 @@ const AdminDashboard = () => {
       });
       if (!res.ok) throw new Error("Failed to approve request");
       setEvents(prev => prev.map(e =>
-        e.id === eventId
+        e.event_id === eventId
           ? {
               ...e,
               join_requests: (e.join_requests || []).map(r =>
@@ -320,7 +322,7 @@ const AdminDashboard = () => {
       });
       if (!res.ok) throw new Error("Failed to reject request");
       setEvents(prev => prev.map(e =>
-        e.id === eventId
+        e.event_id === eventId
           ? {
               ...e,
               join_requests: (e.join_requests || []).map(r =>
@@ -403,6 +405,7 @@ const AdminDashboard = () => {
                 clubId={clubId}
                 members={members}
                 handleRemoveMember={handleRemoveMember}
+                club_role={club_role}
               />
             )}
             {activeTab === 'manage-events' && club_role === 'admin' && (
@@ -493,7 +496,7 @@ const AdminDashboard = () => {
               event={selectedEvent}
               onClose={() => setIsEditModalOpen(false)}
               onSave={(updated) => {
-                setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
+                setEvents(prev => prev.map(e => e.event_id === updated.event_id ? updated : e));  // ✅ Fixed: was e.id === updated.id
                 setIsEditModalOpen(false);
               }}
             />
