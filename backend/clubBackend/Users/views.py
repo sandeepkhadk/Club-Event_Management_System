@@ -13,6 +13,7 @@ from clubs.views import create_join_request
 import json
 import random
 import time
+import resend
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -726,15 +727,14 @@ def forgot_password(request):
             "expires_at": time.time() + 300  # 5 minutes
         }
 
-        # Send email
-        send_mail(
-            subject="Password Reset OTP",
-            message=f"Your OTP for password reset is: {otp}\nThis OTP expires in 5 minutes.",
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            fail_silently=False,
-        )
-
+        resend.api_key = os.environ.get("RESEND_API_KEY")
+         # Replace send_mail with:
+        resend.Emails.send({
+           "from": "onboarding@resend.dev",
+           "to": email,
+           "subject": "Password Reset OTP",
+           "text": f"Your OTP is: {otp}\nExpires in 5 minutes."
+        })
         return JsonResponse({"success": True, "message": "OTP sent to your email"})
 
     except Exception as e:
