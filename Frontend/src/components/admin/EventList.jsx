@@ -90,10 +90,12 @@ const EventList = ({
           filteredEvents.map((event) => {
             // 🔹 Permission logic
             const isAdmin = currentUserRole === "admin";
+           
+          
             const isHandler =
               String(event.handler_id) === String(currentUserId);
 
-            const canEdit = onEdit && ( isHandler);
+            const canEdit = onEdit && isHandler
 
             return (
               <div
