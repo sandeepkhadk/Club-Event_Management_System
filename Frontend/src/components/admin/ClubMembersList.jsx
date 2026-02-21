@@ -13,27 +13,33 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
   );
 
   const getRoleChip = (role) => {
-    switch ((role || 'member').toLowerCase()) {
-      case 'admin':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-600 border border-orange-200">
-            <Crown className="w-3 h-3" /> Admin
-          </span>
-        );
-      case 'event_handler':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#39D353]/10 text-[#25a83d] border border-[#39D353]/30">
-            <ClipboardList className="w-3 h-3" /> Event Handler
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-            Member
-          </span>
-        );
-    }
-  };
+  switch ((role || 'member').toLowerCase()) {
+    case 'admin':
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-600 border border-orange-200">
+          <Crown className="w-3 h-3" /> Admin
+        </span>
+      );
+    case 'event_handler':
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#39D353]/10 text-[#25a83d] border border-[#39D353]/30">
+          <ClipboardList className="w-3 h-3" /> Event Handler
+        </span>
+      );
+    case 'moderator':  
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+          <ClipboardList className="w-3 h-3" /> Moderator
+        </span>
+      );
+    default:
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
+          Member
+        </span>
+      );
+  }
+};
 
   const getAvatarGradient = (name = '') => {
     const colors = [
@@ -83,6 +89,7 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
         {filtered.length > 0 ? filtered.map(member => {
           const memberRole = (member.role || 'member').toLowerCase();
           const isAdmin = memberRole === 'admin';
+          const isModerator=memberRole==="moderator"
 
           return (
             <div
