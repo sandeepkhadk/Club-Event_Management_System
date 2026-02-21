@@ -12,6 +12,7 @@ from .utils import hash_password, verify_password, jwt_required
 from .jwt import generate_jwt
 from clubs.views import create_join_request
 import json
+import os 
 import random
 import time
 import resend
