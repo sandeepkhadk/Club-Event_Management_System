@@ -12,10 +12,13 @@ passlib==1.7.4
 psycopg2-binary==2.9.11
 PyJWT==2.10.1
 python-dotenv==1.2.1
+resend==2.22.0
 SQLAlchemy==2.0.45
 sqlparse==0.5.5
 typing_extensions==4.15.0
 tzdata==2025.3
 Werkzeug==3.1.5
 whitenoise==6.11.0
+
+
 
