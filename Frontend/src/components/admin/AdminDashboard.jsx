@@ -536,4 +536,5 @@ return (
 
   </div>
 );
+}
 export default AdminDashboard;
