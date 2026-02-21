@@ -149,75 +149,91 @@ const AdminDashboard = () => {
 
     // this to the adim-dash return firstdiv
 
-   <div className="flex min-h-screen bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
+   <div className="flex h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
 
-      {/* This to Sidebar */}
-      <aside className="fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-slate-900/95 to-slate-900 backdrop-blur-xl border-r border-slate-800/50 
-  shadow-2xl flex flex-col">
+      {selectedClub && (
+  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center z-50 px-4 sm:px-6 lg:px-8">
+    
+    {/* Modal Container */}
+    <div className="relative bg-white/95 backdrop-blur-3xl 
+      w-full 
+      max-w-md sm:max-w-xl lg:max-w-3xl 
+      max-h-[90vh] 
+      overflow-y-auto 
+      rounded-2xl sm:rounded-3xl 
+      p-6 sm:p-8 lg:p-12 
+      shadow-2xl transition-all duration-300">
 
-        <div className="p-6 flex-shrink-0 border-b border-slate-800/50">
-          <UserInfo />
+      {/* Close Button */}
+      <button
+        onClick={() => setSelectedClub(null)}
+        className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition cursor-pointer text-lg sm:text-xl"
+      >
+        ✕
+      </button>
+
+      {/* Club Title */}
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800 mb-4">
+        {selectedClub.name}
+      </h2>
+
+      {/* Description */}
+      <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-6 leading-relaxed">
+        {selectedClub.description}
+      </p>
+
+      {/* Info Section (Example Grid Layout) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="bg-slate-100 p-4 rounded-xl">
+          <h4 className="font-semibold text-sm sm:text-base">Category</h4>
+          <p className="text-gray-600 text-sm sm:text-base">
+            {selectedClub.category}
+          </p>
         </div>
 
-        <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
-          {club_role === 'admin' && (
-            <>
-              <SidebarButton
-                active={activeTab === 'members'}
-                icon={<Users className="w-5 h-5" />}
-                title="Member Requests"
-                subtitle="Pending Approvals"
-                onClick={() => setActiveTab('members')}
-              />
-              <SidebarButton
-                active={activeTab === 'events'}
-                icon={<PlusCircle className="w-5 h-5" />}
-                title="Create Event"
-                subtitle="New Events"
-                onClick={() => setActiveTab('events')}
-              />
-            </>
-          )}
-
-          <SidebarButton
-            active={activeTab === 'enrolled-events'}
-            icon={<Calendar className="w-5 h-5" />}
-            title="Enrolled Events"
-            subtitle="Events You Joined"
-            onClick={() => setActiveTab('enrolled-events')}
-          />
-
-          <SidebarButton
-            active={activeTab === 'manage-events'}
-            icon={<Calendar className="w-5 h-5" />}
-            title="Event Management"
-            subtitle="All Events"
-            onClick={() => { setActiveTab('manage-events'); fetchEvents(); }}
-          />
-
-          <SidebarButton
-            active={activeTab === 'club-members'}
-            icon={<Users className="w-5 h-5" />}
-            title="Club Members"
-            subtitle="View All"
-            onClick={() => setActiveTab('club-members')}
-          />
-        </nav>
-
-        <div className="p-6 flex-shrink-0 border-t border-slate-800/50">
-          <button 
-            onClick={handleLogout}
-            className="group flex items-center w-full p-4 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/20 border border-rose-500/30 hover:border-rose-400/50 transition-all duration-300 shadow-lg hover:shadow-rose-500/25"
-          >
-            <LogOut className="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-bold tracking-wide">Sign Out</span>
-          </button>
+        <div className="bg-slate-100 p-4 rounded-xl">
+          <h4 className="font-semibold text-sm sm:text-base">Members</h4>
+          <p className="text-gray-600 text-sm sm:text-base">
+            {selectedClub.membersCount}
+          </p>
         </div>
-      </aside>
+      </div>
 
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-4 mt-6">
+
+        <button
+          onClick={() => handleJoin(selectedClub.id)}
+          className="bg-indigo-600 hover:bg-indigo-700 
+            text-white 
+            px-6 py-2 
+            rounded-xl 
+            transition 
+            cursor-pointer 
+            w-full sm:w-auto"
+        >
+          Join Club
+        </button>
+
+        <button
+          onClick={() => setSelectedClub(null)}
+          className="bg-gray-200 hover:bg-gray-300 
+            px-6 py-2 
+            rounded-xl 
+            transition 
+            cursor-pointer 
+            w-full sm:w-auto"
+        >
+          Cancel
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
       {/*This to  Main Content */}
       <main className="ml-64 flex-1 h-screen overflow-y-auto 
-  p-6 lg:p-8 bg-white/50 backdrop-blur-sm">
+      p-6 lg:p-8 bg-white/50 backdrop-blur-sm">
 
   <div className="max-w-7xl mx-auto space-y-8">
 
