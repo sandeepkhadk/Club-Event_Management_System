@@ -84,14 +84,17 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
                 </div>
               </div>
 
-              {/* Remove Button */}
-              <button
-                onClick={() => handleRemoveMember(member.user_id)}
-                className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
-              >
-                Remove
-              </button>
-            </div>
+               {/* Remove Button - Only visible if logged-in user is admin AND member is not admin */}
+                {currentUser?.club_role === 'admin' && member.role !== 'admin' && (
+                  <button
+                    onClick={() => handleRemoveMember(member.user_id)}
+                    className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
+                  >
+                    Remove
+                  </button>
+                
+                )}
+                </div>
           ))
         ) : (
           <div className="text-center py-12 bg-gradient-to-br from-teal-50/70 to-cyan-50/70 rounded-xl border-2 border-dashed border-teal-200/50">

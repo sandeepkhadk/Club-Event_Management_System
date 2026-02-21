@@ -374,42 +374,93 @@ const AdminDashboard = () => {
 // );
 return (
   <div className="flex h-screen overflow-hidden bg-gradient-to-br from-rose-50 via-amber-50 to-purple-50 text-slate-900 antialiased">
-
+     {/* --- MOBILE SIDEBAR TOGGLE BUTTON --- */}
+      <div className="lg:hidden flex justify-end p-4">
+        <button
+          onClick={() => setIsMobileSidebarOpen(true)}
+          className="text-slate-900 hover:text-indigo-600"
+        >
+          <Menu size={28} />
+        </button>
+      </div>
     {/* --------------------------- */}
     {/* Desktop Sidebar (visible lg+) */}
     {/* --------------------------- */}
     <aside className="hidden lg:flex lg:flex-col w-64 bg-slate-900 text-slate-200 shadow-2xl">
-      <div className="p-6 text-xl font-bold border-b border-slate-800">
-        Club Admin
-      </div>
-      <nav className="flex-1 p-4 space-y-2">
-        <button onClick={() => setActiveTab("members")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Members</button>
-        <button onClick={() => setActiveTab("events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Create Event</button>
-        <button onClick={() => setActiveTab("club-members")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Club Members</button>
-        <button onClick={() => setActiveTab("manage-events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Manage Events</button>
-        <button onClick={() => setActiveTab("enrolled-events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Enrolled Events</button>
-      </nav>
-      <div className="p-4 border-t border-slate-800">
-        <button onClick={handleLogout} className="w-full text-left p-3 rounded-lg hover:bg-red-600 transition">Logout</button>
-      </div>
-    </aside>
+    <UserInfo />
+
+    <nav className="flex-1 p-4 space-y-2">
+      <button onClick={() => setActiveTab("members")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+        Members
+      </button>
+      <button onClick={() => setActiveTab("events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+        Create Event
+      </button>
+      <button onClick={() => setActiveTab("club-members")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+        Club Members
+      </button>
+      <button onClick={() => setActiveTab("manage-events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+        Manage Events
+      </button>
+      <button onClick={() => setActiveTab("enrolled-events")} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+        Enrolled Events
+      </button>
+    </nav>
+
+    <div className="p-4 border-t border-slate-800">
+      <button onClick={handleLogout} className="w-full text-left p-3 rounded-lg hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+  </aside>
 
     {/* --------------------------- */}
     {/* Mobile Sidebar Overlay */}
     {/* --------------------------- */}
-    <div className={`fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-lg transform transition-transform duration-300 lg:hidden ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-      <div className="w-64 bg-slate-900 h-full text-slate-200 p-6 flex flex-col">
-        <button onClick={() => setIsMobileSidebarOpen(false)} className="self-end mb-4 text-white text-lg">✕</button>
-        <nav className="flex-1 space-y-2">
-          <button onClick={() => { setActiveTab("members"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Members</button>
-          <button onClick={() => { setActiveTab("events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Create Event</button>
-          <button onClick={() => { setActiveTab("club-members"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Club Members</button>
-          <button onClick={() => { setActiveTab("manage-events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Manage Events</button>
-          <button onClick={() => { setActiveTab("enrolled-events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">Enrolled Events</button>
-        </nav>
-        <div className="mt-auto">
-          <button onClick={handleLogout} className="w-full text-left p-3 rounded-lg hover:bg-red-600 transition">Logout</button>
-        </div>
+    {/* Dark overlay */}
+    <div
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
+      onClick={() => setIsMobileSidebarOpen(false)}
+    />
+
+    {/* Drawer */}
+    <div
+      className={`fixed top-0 right-0 h-full w-64 bg-slate-900 shadow-2xl z-[1000] transform transition-transform duration-300 lg:hidden ${
+        isMobileSidebarOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}
+    >
+      <div className="flex justify-end p-4">
+        <button onClick={() => setIsMobileSidebarOpen(false)} className="text-white">
+          <X size={28} />
+        </button>
+      </div>
+
+      <UserInfo />
+
+      <nav className="mt-4 flex flex-col gap-2 px-4">
+        <button onClick={() => { setActiveTab("members"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+          Members
+        </button>
+        <button onClick={() => { setActiveTab("events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+          Create Event
+        </button>
+        <button onClick={() => { setActiveTab("club-members"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+          Club Members
+        </button>
+        <button onClick={() => { setActiveTab("manage-events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+          Manage Events
+        </button>
+        <button onClick={() => { setActiveTab("enrolled-events"); setIsMobileSidebarOpen(false); }} className="w-full text-left p-3 rounded-lg hover:bg-slate-800 transition">
+          Enrolled Events
+        </button>
+      </nav>
+
+      <div className="mt-auto p-4 border-t border-slate-800">
+        <button onClick={handleLogout} className="w-full text-left p-3 rounded-lg hover:bg-red-600 transition">
+          Logout
+        </button>
       </div>
     </div>
 
@@ -472,6 +523,7 @@ return (
             clubId={clubId}
             members={members}
             handleRemoveMember={handleRemoveMember}
+            currentUser={userInfo}
           />
         )}
 
