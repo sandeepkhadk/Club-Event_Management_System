@@ -5,7 +5,7 @@ import { Search, Users, Calendar, X, ArrowRight, LogIn, Sparkles } from "lucide-
 import { useAuthContext } from "../../context/provider/AuthContext";
 import apiUrl from "../../api";
 
-/* ─── Category accent colours ─────────────────────────────────── */
+/*  Category accent colours */
 const CATEGORY_COLORS = {
   Tech:       { bg: "from-cyan-400/20 to-blue-500/20",    dot: "#38bdf8", text: "text-cyan-600"   },
   Art:        { bg: "from-rose-400/20 to-pink-500/20",    dot: "#fb7185", text: "text-rose-500"   },
@@ -17,7 +17,7 @@ const CATEGORY_COLORS = {
 
 const accent = (cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.General;
 
-/* ─── Club Card ────────────────────────────────────────────────── */
+/* Club Card  */
 const ClubCard = ({ club, index, onClick }) => {
   const { bg, dot, text } = accent(club.category);
   const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
@@ -87,7 +87,7 @@ const ClubCard = ({ club, index, onClick }) => {
   );
 };
 
-/* ─── Modal ─────────────────────────────────────────────────────── */
+/*  Modal */
 const ClubModal = ({ club, token, onClose, onNavigate }) => {
   const { dot, bg } = accent(club.category);
   const initials = club.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
@@ -174,7 +174,7 @@ const ClubModal = ({ club, token, onClose, onNavigate }) => {
   );
 };
 
-/* ─── Main Page ─────────────────────────────────────────────────── */
+/* Main Page */
 const Club = () => {
   const navigate  = useNavigate();
   const location  = useLocation();
@@ -222,20 +222,24 @@ const Club = () => {
 
   /* ── Loading ── */
   if (loading) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
+    <div className="min-h-screen bg-slate-50">
+      {showNavbar && <Navbar />}
+      <div className="flex flex-col items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
         <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-slate-800 animate-spin" />
-        <p className="text-sm font-semibold text-slate-400 tracking-wide">Loading clubs…</p>
+        <p className="text-sm font-semibold text-slate-400 tracking-wide mt-4">Loading clubs…</p>
       </div>
     </div>
   );
 
   /* ── Error ── */
   if (error) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <div className="bg-white border border-red-100 rounded-2xl p-8 text-center shadow-sm max-w-sm">
-        <p className="text-red-500 font-bold mb-1">Something went wrong</p>
-        <p className="text-sm text-slate-400">{error}</p>
+    <div className="min-h-screen bg-slate-50">
+      {showNavbar && <Navbar />}
+      <div className="flex items-center justify-center" style={{ minHeight: 'calc(100vh - 64px)' }}>
+        <div className="bg-white border border-red-100 rounded-2xl p-8 text-center shadow-sm max-w-sm">
+          <p className="text-red-500 font-bold mb-1">Something went wrong</p>
+          <p className="text-sm text-slate-400">{error}</p>
+        </div>
       </div>
     </div>
   );
