@@ -1,12 +1,10 @@
 // ClubMembersList.jsx
 import React, { useState } from 'react';
-import { Users, User, Shield, Clock, CheckCircle, Search, Trash2, Crown, ClipboardList } from 'lucide-react';
+import { Users, User, Clock, CheckCircle, Search, Trash2, Crown, ClipboardList } from 'lucide-react';
 import { useAuthContext } from '../../context/provider/AuthContext';
-import apiUrl from '../../api';
 
 const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember, club_role }) => {
   const [search, setSearch] = useState('');
-  const [roleLoadingId, setRoleLoadingId] = useState(null);
   const { token } = useAuthContext();
 
   const filtered = members.filter(m =>
@@ -14,42 +12,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
   );
 
   const approvedCount = members.filter(m => m.status?.toLowerCase() === 'approved').length;
-
-  // ── Role toggle: member ↔ event_handler ──────────────────────────────────
-  const handleRoleToggle = async (member) => {
-    const currentRole = (member.role || 'member').toLowerCase();
-    if (currentRole === 'admin') return;
-
-    const newRole = currentRole === 'event_handler' ? 'member' : 'event_handler';
-
-    setRoleLoadingId(member.user_id);
-    try {
-      const res = await fetch(`${apiUrl}clubs/${clubId}/members/${member.user_id}/role/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ role: newRole }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to update role');
-      }
-
-      // Optimistic update in members list
-      setMembers(prev =>
-        prev.map(m =>
-          m.user_id === member.user_id ? { ...m, role: newRole } : m
-        )
-      );
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setRoleLoadingId(null);
-    }
-  };
 
   const getStatusBadge = (status) => {
     switch (status?.toLowerCase()) {
@@ -154,8 +116,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
         {filtered.length > 0 ? filtered.map((member) => {
           const memberRole = (member.role || 'member').toLowerCase();
           const isAdmin    = memberRole === 'admin';
-          const isHandler  = memberRole === 'event_handler';
-          const isLoading  = roleLoadingId === member.user_id;
 
           return (
             <div
@@ -185,31 +145,9 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
                 </div>
               </div>
 
-              {/* Admin actions — not shown for other admins */}
+              {/* Admin actions — only Remove button, not shown for other admins */}
               {club_role === 'admin' && !isAdmin && (
                 <div className="flex items-center gap-2 flex-shrink-0">
-
-                  {/* Make Handler / Demote button */}
-                  <button
-                    onClick={() => handleRoleToggle(member)}
-                    disabled={isLoading}
-                    title={isHandler ? 'Demote to Member' : 'Promote to Event Handler'}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold
-                      border transition-all duration-200 shadow-sm
-                      disabled:opacity-50 disabled:cursor-not-allowed
-                      ${isHandler
-                        ? 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200'
-                        : 'bg-[#39D353]/10 hover:bg-[#39D353]/20 text-[#25a83d] border-[#39D353]/30'
-                      }`}
-                  >
-                    {isLoading
-                      ? <span className="w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin" />
-                      : <ClipboardList className="w-3.5 h-3.5" />
-                    }
-                    {isHandler ? 'Demote' : 'Make Handler'}
-                  </button>
-
-                  {/* Remove button */}
                   <button
                     onClick={() => handleRemoveMember(member.user_id)}
                     title="Remove member"

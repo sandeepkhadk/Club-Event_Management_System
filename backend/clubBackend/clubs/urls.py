@@ -47,8 +47,8 @@ urlpatterns = [
     path("<int:club_id>/reject-member/<int:member_id>/", reject_member_request, name="reject-member"),
     
     #Announcements
-    path('clubs/<int:club_id>/announcements/', announcements_list_create),
-    path('clubs/<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
+    path('<int:club_id>/announcements/', announcements_list_create),
+    path('<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
 
-    path('clubs/<int:club_id>/members/<int:user_id>/role/', update_member_role),
+    path('<int:club_id>/members/<int:user_id>/role/', update_member_role),
 ]
