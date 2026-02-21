@@ -4,7 +4,7 @@ import { useAuthContext } from "../../context/provider/AuthContext";
 import { useUserRole } from '../../context/hooks/useUserRole';
 import {
   Calendar, Menu, X, Users, PlusCircle, CalendarCheck,
-  Settings, LogOut, ClipboardList, AlertTriangle
+  Settings, LogOut, ClipboardList, Megaphone
 } from 'lucide-react';
 import MemberManagement from './MemberManagement';
 import EventCreationForm from './EventCreation';
@@ -13,6 +13,7 @@ import EditEventModal from './EditEventModal';
 import UserInfo from './UserInfo';
 import ClubMembersList from './ClubMembersList';
 import EventHandlerPanel from './EventHandlerPanel';
+import AnnouncementsPanel from './AnnouncementsPanel';
 import apiUrl from '../../api';
 
 // club_role values: 'admin' | 'event_handler' | 'member'
@@ -52,6 +53,12 @@ const NAV_ITEMS = [
     key: 'enrolled-events',
     label: 'Enrolled Events',
     icon: <CalendarCheck size={18} />,
+    roles: ['admin', 'event_handler', 'member'],
+  },
+  {
+    key: 'announcements',
+    label: 'Announcements',
+    icon: <Megaphone size={18} />,
     roles: ['admin', 'event_handler', 'member'],
   },
 ];
@@ -149,10 +156,11 @@ const AdminDashboard = () => {
 
   const [members, setMembers] = useState([]);
   const [events,  setEvents]  = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent,   setSelectedEvent]   = useState(null);
 
-  useEffect(() => { fetchMembers(); fetchEvents(); }, []);
+  useEffect(() => { fetchMembers(); fetchEvents(); fetchAnnouncements(); }, []);
 
   const fetchMembers = async () => {
     try {
@@ -172,6 +180,41 @@ const AdminDashboard = () => {
       const data = await res.json();
       setEvents(data.events || []);
     } catch (err) { console.log("Error fetching events:", err); }
+  };
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res  = await fetch(`${apiUrl}clubs/${clubId}/announcements/`, {
+        headers: { "Content-Type": "application/json", Authorization: token ? `Bearer ${token}` : "" },
+      });
+      const data = await res.json();
+      setAnnouncements(data.announcements || []);
+    } catch (err) { console.log("Error fetching announcements:", err); }
+  };
+
+  const handlePostAnnouncement = async (message) => {
+    try {
+      const res = await fetch(`${apiUrl}clubs/${clubId}/announcements/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ message }),
+      });
+      if (!res.ok) throw new Error("Failed to post announcement");
+      const data = await res.json();
+      setAnnouncements(prev => [data.announcement || { id: Date.now(), message, created_at: new Date().toISOString() }, ...prev]);
+    } catch (err) { alert(err.message); }
+  };
+
+  const handleDeleteAnnouncement = async (announcementId) => {
+    if (!window.confirm("Delete this announcement?")) return;
+    try {
+      const res = await fetch(`${apiUrl}clubs/${clubId}/announcements/${announcementId}/`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to delete announcement");
+      setAnnouncements(prev => prev.filter(a => a.id !== announcementId));
+    } catch (err) { alert(err.message); }
   };
 
   const enrolledEvents = events.filter(e => (e.joined_users || []).includes(currentUserId));
@@ -363,24 +406,15 @@ const AdminDashboard = () => {
               />
             )}
             {activeTab === 'manage-events' && club_role === 'admin' && (
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-700">
-                  <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-500 mt-0.5" />
-                  <span>
-                    All admins can <strong>edit</strong> events.
-                    Only the admin who <strong>created</strong> an event can <strong>delete</strong> it.
-                  </span>
-                </div>
-                <EventList
-                  events={events}
-                  onEdit={openEditModal}
-                  onJoin={handleJoinEvent}
-                  onDelete={handleDeleteEvent}
-                  onLeave={handleLeaveEvent}
-                  currentUserId={currentUserId}
-                  currentUserRole={club_role}
-                />
-              </div>
+              <EventList
+                events={events}
+                onEdit={openEditModal}
+                onJoin={handleJoinEvent}
+                onDelete={handleDeleteEvent}
+                onLeave={handleLeaveEvent}
+                currentUserId={currentUserId}
+                currentUserRole={club_role}
+              />
             )}
             {activeTab === 'handler-events' && club_role === 'event_handler' && (
               <EventHandlerPanel
@@ -410,6 +444,16 @@ const AdminDashboard = () => {
                   <p className="text-sm text-slate-400">Join events to see them listed here.</p>
                 </div>
               )
+            )}
+
+            {activeTab === 'announcements' && (
+              <AnnouncementsPanel
+                announcements={announcements}
+                isAdmin={club_role === 'admin'}
+                onPost={handlePostAnnouncement}
+                onDelete={handleDeleteAnnouncement}
+                currentUserId={currentUserId}
+              />
             )}
 
           </div>

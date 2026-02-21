@@ -160,7 +160,7 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
                 </div>
               </div>
 
-              {/* Right: Remove button */}
+              {/* Right: Remove button — always visible for admin */}
               {userInfo?.club_role === 'admin' && member.role !== 'admin' && (
                 <button
                   onClick={() => handleRemoveMember(member.user_id)}
@@ -169,7 +169,7 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
                     text-red-500 hover:text-white
                     text-xs font-bold rounded-xl border border-red-200 hover:border-red-500
                     shadow-sm hover:shadow-md
-                    transition-all duration-200 opacity-0 group-hover:opacity-100"
+                    transition-all duration-200"
                   title="Remove member"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
