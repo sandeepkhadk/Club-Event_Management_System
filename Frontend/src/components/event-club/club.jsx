@@ -203,7 +203,7 @@ const Club = () => {
         const data = await res.json();
         const mapped = data.clubs.map(c => ({
           id:      c.club_id,
-          name:    c.name || "Unnamed Club",
+          name:    c.club_name || "Unnamed Club",
           desc:    c.description || "",
           members: c.members_names?.length || 0,
           events:  c.events_count || 0,
