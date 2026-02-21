@@ -360,27 +360,43 @@ def get_clubs(request):
             select(members.c.club_id, members.c.user_id)
         ).mappings().all()
 
-        # Map club_id → list of member names
         members_map = {}
         for m in club_members:
             club_id = m['club_id']
             user_id = m['user_id']
-            members_map.setdefault(club_id, []).append(user_map.get(user_id, "Unknown"))
+            members_map.setdefault(club_id, []).append(
+                user_map.get(user_id, "Unknown")
+            )
 
-        # 4️⃣ Convert clubs → list of dict and attach created_by_name + members list
+        # ✅ 4️⃣ Fetch event counts per club
+        event_counts = session.execute(
+            select(
+                events_table.c.club_id,
+                func.count(events_table.c.event_id).label("count")
+            ).group_by(events_table.c.club_id)
+        ).mappings().all()
+
+        event_count_map = {e["club_id"]: e["count"] for e in event_counts}
+
+        # 5️⃣ Attach everything to clubs list
         clubs_list = []
         for club in clubs:
             club_dict = dict(club)
+
             created_by_id = club_dict.get("created_by")
+            club_id = club_dict["club_id"]
+
             club_dict["created_by_name"] = user_map.get(created_by_id, "Unknown")
-            club_dict["members_names"] = members_map.get(club_dict["club_id"], [])
+            club_dict["members_names"] = members_map.get(club_id, [])
+            club_dict["events_count"] = event_count_map.get(club_id, 0)
+
             clubs_list.append(club_dict)
 
         return JsonResponse({"clubs": clubs_list}, status=200)
 
     finally:
         session.close()
-
+        
 # @jwt_required
 # def get_club(request, club_id):
 #     # if request.user_payload.get("role") != "admin":
