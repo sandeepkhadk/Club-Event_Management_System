@@ -72,8 +72,10 @@ const AdminDashboard = () => {
   const { logout, token } = useAuthContext();
   const navigate = useNavigate();
 
-  const [effective_role,      setEffectiveRole]      = useState(club_role);
-  const [activeTab,           setActiveTab]           = useState(club_role === 'admin' ? 'members' : 'browse-events');
+  const [effective_role,setEffectiveRole]= useState(club_role);
+ const [activeTab, setActiveTab] = useState(
+  club_role !== 'admin' ? 'browse-events' : 'members'
+);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [members,             setMembers]             = useState([]);
   const [events,              setEvents]              = useState([]);
@@ -98,7 +100,9 @@ const AdminDashboard = () => {
 
   const fetchEvents = async () => {
     try {
-      const res  = await fetch(`${apiUrl}events/visibility/`, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+      const res  = await fetch(`${apiUrl}events/visibility/`,
+         { headers: { "Content-Type": "application/json", 
+          Authorization: `Bearer ${token}` } });
       const data = await res.json();
       setEvents(data.events || []);
     } catch (err) { console.log("Error fetching events:", err); }
@@ -224,7 +228,7 @@ const AdminDashboard = () => {
       <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 lg:hidden ${isMobileSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setIsMobileSidebarOpen(false)} />
       <div className={`fixed top-0 left-0 h-full w-64 bg-slate-900 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <button onClick={() => setIsMobileSidebarOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-[#39D353] transition-colors z-10"><X size={22} /></button>
-        <SidebarContent {...sidebarProps} closeMobile={() => setIsMobileSidebarOpen(false)} />
+        <SidebarContent {...sidebarProps} closeMobile={() => setIsMobileSidebarOpen(false)}  />
       </div>
 
       <main className="flex-1 h-screen overflow-y-auto bg-white/50 backdrop-blur-sm flex flex-col">
