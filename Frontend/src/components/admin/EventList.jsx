@@ -92,7 +92,7 @@ const EventList = ({
             const isAdmin = currentUserRole === "admin";
            
           
-            const isHandler =event.handler_id
+            const isHandler =(event.role==="event_handler")
             const canEdit = onEdit && isHandler
             console.log(canEdit)
 
