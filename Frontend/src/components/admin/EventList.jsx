@@ -93,7 +93,7 @@ const EventList = ({
             const isHandler =
               String(event.handler_id) === String(currentUserId);
 
-            const canEdit = onEdit && (isAdmin || isHandler);
+            const canEdit = onEdit && ( isHandler);
 
             return (
               <div
