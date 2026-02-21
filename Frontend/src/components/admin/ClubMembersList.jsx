@@ -1,9 +1,10 @@
 // ClubMembersList.jsx
 import React from 'react';
 import { Users, User, Shield, Clock, CheckCircle } from 'lucide-react';
+import { useAuthContext } from "../../context/provider/AuthContext";
 
 const ClubMembersList = ({ members = [], handleRemoveMember }) => {
-
+  const { userInfo } = useAuthContext();
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case 'approved': return <CheckCircle className="w-4 h-4 text-emerald-400" />;
@@ -85,7 +86,7 @@ const ClubMembersList = ({ members = [], handleRemoveMember }) => {
               </div>
 
                {/* Remove Button - Only visible if logged-in user is admin AND member is not admin */}
-                {currentUser?.club_role === 'admin' && member.role !== 'admin' && (
+                {userInfo?.club_role === 'admin' && member.role !== 'admin' && (
                   <button
                     onClick={() => handleRemoveMember(member.user_id)}
                     className="ml-4 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-300"
