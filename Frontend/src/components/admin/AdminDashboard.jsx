@@ -12,6 +12,7 @@ import UserInfo from './UserInfo';
 import ClubMembersList from './ClubMembersList';
 import apiUrl from '../../api';
 
+
 const AdminDashboard = () => {
   const decoded = useUserRole();
   const clubId = decoded.club_id;
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
   const [selectedClub, setSelectedClub] = useState(null);
   const { logout, token } = useAuthContext();
   const navigate = useNavigate();
-
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(
     club_role === 'member' ? 'enrolled-events' : 'members'
   );
