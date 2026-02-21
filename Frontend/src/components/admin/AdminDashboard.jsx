@@ -22,9 +22,9 @@ const NAV_ITEMS = [
   { key: 'club-members',   label: 'Club Members',    icon: <Users size={18} />,        roles: ['admin', 'event_handler', 'member'] },
   { key: 'manage-events',  label: 'Manage Events',   icon: <Settings size={18} />,     roles: ['admin'] },
   { key: 'handler-events', label: 'My Events',       icon: <ClipboardList size={18} />,roles: ['event_handler'] },
-  { key: 'browse-events',  label: 'Browse Events',   icon: <Search size={18} />,       roles: ['admin', 'event_handler', 'member'] },
-  { key: 'enrolled-events',label: 'Enrolled Events', icon: <CalendarCheck size={18} />,roles: ['admin', 'event_handler', 'member'] },
-  { key: 'announcements',  label: 'Announcements',   icon: <Megaphone size={18} />,    roles: ['admin', 'event_handler', 'member'] },
+  { key: 'browse-events',  label: 'Browse Events',   icon: <Search size={18} />,       roles: ['admin', 'event_handler', 'member',"moderator"] },
+  { key: 'enrolled-events',label: 'Enrolled Events', icon: <CalendarCheck size={18} />,roles: ['admin', 'event_handler', 'member',"moderator"] },
+  { key: 'announcements',  label: 'Announcements',   icon: <Megaphone size={18} />,    roles: ['admin', 'event_handler', 'member',"moderator"] },
 ];
 
 const SidebarContent = ({ activeTab, setActiveTab, effective_role, handleLogout, closeMobile }) => {
