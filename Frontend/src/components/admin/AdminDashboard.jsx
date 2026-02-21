@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/provider/AuthContext";
 import { useUserRole } from '../../context/hooks/useUserRole';
 
-import { Users, Calendar, PlusCircle, LogOut } from 'lucide-react';
+import { Users, Calendar, PlusCircle, LogOut, Menu, X} from 'lucide-react';
 import MemberManagement from './MemberManagement';
 import EventCreationForm from './EventCreation';
 import EventList from './EventList';
