@@ -65,7 +65,7 @@ const fetchDashboardData = useCallback(async () => {
     
     const clubMap = {};
     (clubData.clubs || []).forEach(club => {
-      clubMap[Number(club.club_id)] = club.club_name; // ✅ Use club_name
+      clubMap[Number(club.club_id)] = club.club_name; //  Use club_name
     });
 
     const clubRequests = (profileData.applications || []).map(app => ({
