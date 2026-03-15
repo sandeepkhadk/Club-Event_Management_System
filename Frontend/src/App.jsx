@@ -15,6 +15,8 @@ import EventPage from './components/event-club/event'
 import About from './components/home/About'
 import SuperAdminPage from './components/admin/superadmin'
 import Contact from './components/home/Contact'
+import ForgotPassword from './components/auth/ForgotPassword'
+
 function App() {
  
   return (
@@ -23,6 +25,7 @@ function App() {
       <Routes>
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/clubs" element={<Club />} />
         <Route path="/events" element={<EventPage />} />

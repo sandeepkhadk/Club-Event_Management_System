@@ -15,6 +15,7 @@ from Users.utils import jwt_required
 from core.db.base import SessionLocal
 from .tables import events_table
 from django.http import JsonResponse
+from sqlalchemy import select, insert, update, text  # ← make sure update and text are here
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -132,7 +133,6 @@ def get_all_events(request):
         session.close()
 from datetime import datetime
 
-
 @csrf_exempt
 @jwt_required
 def create_event(request):
@@ -151,25 +151,21 @@ def create_event(request):
     start_datetime = data.get("start_datetime")
     end_datetime = data.get("end_datetime")
     status = data.get("status", "Planned")
-    visibility=data.get("visibility")
+    visibility = data.get("visibility")
     max_capacity = data.get("max_capacity")
+    handler_id = data.get("handler_id")  # ← from the form dropdown
 
     if max_capacity in ("", None):
-     max_capacity = None
+        max_capacity = None
     else:
-     max_capacity = int(max_capacity)
+        max_capacity = int(max_capacity)
 
-
-
-    if not all([club_id, title, description, start_datetime, end_datetime]):
-        return JsonResponse(
-            {"error": "All fields (club_id, title, description, start_datetime, end_datetime) are required"},
-            status=400
-        )
+    if not all([club_id, title, description, start_datetime, end_datetime, handler_id]):
+        return JsonResponse({"error": "All fields including handler_id are required"}, status=400)
 
     session = SessionLocal()
     try:
-        # Check if user is a member
+        # Check if requester is admin
         is_member = session.execute(
             select(members).where(
                 members.c.user_id == user_id,
@@ -180,17 +176,16 @@ def create_event(request):
         if not is_member:
             return JsonResponse({"error": "Only club members can create events"}, status=403)
 
-        # Insert event
+        # Insert event with the selected handler_id (not admin's user_id)
         result = session.execute(
             insert(events_table)
             .values(
                 club_id=club_id,
-                handler_id=user_id,
+                handler_id=handler_id,  # ← use selected handler
                 title=title,
                 description=description,
                 start_datetime=start_datetime,
                 end_datetime=end_datetime,
-              
                 visibility=visibility,
                 max_capacity=max_capacity
             )
@@ -200,26 +195,35 @@ def create_event(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-              
                 events_table.c.handler_id
             )
         )
         new_event = result.first()
+
+        # ← Auto-promote handler to event_handler role (skip if already admin)
+        session.execute(
+            text("""
+                UPDATE members
+                SET role = 'event_handler'
+                WHERE user_id = :handler_id
+                  AND club_id = :club_id
+                  AND role != 'admin'
+            """),
+            {"handler_id": handler_id, "club_id": club_id}
+        )
+
         session.commit()
 
-        # Convert Row to dict and stringify datetime
         response = {
             "event_id": new_event.event_id,
             "title": new_event.title,
             "description": new_event.description,
             "start_datetime": new_event.start_datetime.isoformat() if isinstance(new_event.start_datetime, datetime) else new_event.start_datetime,
             "end_datetime": new_event.end_datetime.isoformat() if isinstance(new_event.end_datetime, datetime) else new_event.end_datetime,
-           
             "handler_id": new_event.handler_id,
             "handler_name": session.execute(
                 select(users.c.name).where(users.c.user_id == new_event.handler_id)
             ).scalar()
-           
         }
         return JsonResponse({"success": True, "event": response}, status=201)
 
@@ -436,59 +440,66 @@ def get_feed_events(request):
         return JsonResponse({"events": events_list}, status=200)
     finally:
         session.close()
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from Users.utils import jwt_required
-from core.db.base import SessionLocal
-from .tables import events_table, events_participants
-from Users.tables import users_table as users
-from sqlalchemy import select
 
-# @csrf_exempt
-# @jwt_required
-# def get_club_events(request, club_id):
-#     """
-#     Returns all events for a specific club along with:
-#     - Handler name
-#     - List of user_ids who joined
-#     - Optionally a 'joined' flag for the current user
-#     """
-#     session = SessionLocal()
-#     try:
-#         user_id = request.user_payload.get("user_id")
+@csrf_exempt
+@jwt_required
+def update_event(request, event_id):
+    if request.method != "PATCH":
+        return JsonResponse({"error": "PATCH request required"}, status=405)
 
-#         # 1️⃣ Select events for the given club and join with handler name
-#         stmt = (
-#             select(
-#                 events_table.c.event_id,
-#                 events_table.c.title,
-#                 events_table.c.description,
-#                 events_table.c.start_datetime,
-#                 events_table.c.end_datetime,
-#                 events_table.c.status,
-#                 events_table.c.handler_id,
-#                 users.c.name.label("handler_name"),
-#                 events_table.c.visibility,
-#                 events_table.c.max_capacity
-#             )
-#             .join(users, users.c.user_id == events_table.c.handler_id)
-#             .where(events_table.c.club_id == club_id)
-#             .order_by(events_table.c.start_datetime)
-#         )
-#         events = session.execute(stmt).mappings().all()
-#         events_list = [dict(e) for e in events]
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-#         # 2️⃣ Add joined users for each event
-#         for e in events_list:
-#             joined_rows = session.execute(
-#                 select(events_participants.c.user_id)
-#                 .where(events_participants.c.event_id == e["event_id"])
-#             ).fetchall()
-#             joined_user_ids = [u[0] for u in joined_rows]
-#             e["joined_users"] = joined_user_ids
-#             e["joined"] = user_id in joined_user_ids if user_id else False
+    user_id = request.user_payload.get("user_id")
 
-#         return JsonResponse({"club_id": club_id, "events": events_list}, status=200)
+    session = SessionLocal()
+    try:
+        # Fetch event
+        event = session.execute(
+            select(events_table).where(events_table.c.event_id == event_id)
+        ).mappings().first()
 
-#     finally:
-#         session.close()
+        if not event:
+            return JsonResponse({"error": "Event not found"}, status=404)
+
+        # Only admin or assigned handler can update
+        member = session.execute(
+            select(members).where(
+                members.c.user_id == user_id,
+                members.c.club_id == event["club_id"]
+            )
+        ).mappings().first()
+
+        if not member:
+            return JsonResponse({"error": "Not a club member"}, status=403)
+
+        is_admin   = member["role"] == "admin"
+        is_handler = str(event["handler_id"]) == str(user_id)
+
+        if not is_admin and not is_handler:
+            return JsonResponse({"error": "Only admin or assigned handler can edit this event"}, status=403)
+
+        # Build update fields
+        allowed_fields = ["title", "description", "start_datetime", "end_datetime", "status", "visibility", "max_capacity"]
+        update_data = {k: v for k, v in data.items() if k in allowed_fields}
+
+        if not update_data:
+            return JsonResponse({"error": "No valid fields to update"}, status=400)
+
+        session.execute(
+            update(events_table)
+            .where(events_table.c.event_id == event_id)
+            .values(**update_data)
+        )
+        session.commit()
+
+        return JsonResponse({"success": True, "event": {"event_id": event_id, **update_data}}, status=200)
+
+    except Exception as e:
+        session.rollback()
+        print(f"🚨 UPDATE EVENT ERROR: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()

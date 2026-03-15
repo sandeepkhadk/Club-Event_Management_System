@@ -246,9 +246,10 @@ from Users.tables import members
 from django.http import JsonResponse
 from core.db.base import SessionLocal
 from .tables import clubs_table
+from Events.tables import events_table
 from Users.tables import member_requests, members,users_table
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select, insert,join,text
+from sqlalchemy import select, insert,join,text,func
 from django.views.decorators.csrf import csrf_exempt
 
 import json
@@ -359,28 +360,35 @@ def get_clubs(request):
         club_members = session.execute(
             select(members.c.club_id, members.c.user_id)
         ).mappings().all()
-
-        # Map club_id → list of member names
         members_map = {}
         for m in club_members:
             club_id = m['club_id']
             user_id = m['user_id']
             members_map.setdefault(club_id, []).append(user_map.get(user_id, "Unknown"))
 
-        # 4️⃣ Convert clubs → list of dict and attach created_by_name + members list
+        # 4️⃣ Fetch event counts per club
+        event_counts = session.execute(
+            select(events_table.c.club_id, func.count(events_table.c.event_id).label("event_count"))
+            .group_by(events_table.c.club_id)
+        ).mappings().all()
+        event_count_map = {e['club_id']: e['event_count'] for e in event_counts}
+
+        # 5️⃣ Convert clubs → list of dict and attach created_by_name + members + event_count
         clubs_list = []
         for club in clubs:
             club_dict = dict(club)
+            club_id = club_dict["club_id"]
             created_by_id = club_dict.get("created_by")
             club_dict["created_by_name"] = user_map.get(created_by_id, "Unknown")
-            club_dict["members_names"] = members_map.get(club_dict["club_id"], [])
+            club_dict["members_names"] = members_map.get(club_id, [])
+            club_dict["events_count"] = event_count_map.get(club_id, 0)  # <-- add this
             clubs_list.append(club_dict)
 
         return JsonResponse({"clubs": clubs_list}, status=200)
 
     finally:
         session.close()
-
+        
 # @jwt_required
 # def get_club(request, club_id):
 #     # if request.user_payload.get("role") != "admin":
@@ -547,28 +555,15 @@ def create_join_request(user_id, club_id):
 def get_club_members(request, club_id):
     session = SessionLocal()
     try:
-        # 1️⃣ APPROVED MEMBERS - RAW SQL
+        # Fetch all members for the given club
         members_sql = """
-            SELECT DISTINCT m.user_id, u.name, m.role, m.club_id, 'Approved' as status
-            FROM members m
-            LEFT JOIN users u ON m.user_id = u.user_id 
-            WHERE m.club_id = :club_id
+            SELECT user_id, name, role, club_id
+            FROM members
+            WHERE club_id = :club_id
         """
         member_results = session.execute(text(members_sql), {"club_id": club_id}).mappings().all()
 
-        # 2️⃣ PENDING REQUESTS - RAW SQL  
-        requests_sql = """
-            SELECT DISTINCT r.user_id, u.name, r.club_id, r.status, 'Pending' as status
-            FROM member_requests r
-            LEFT JOIN users u ON r.user_id = u.user_id 
-            WHERE r.club_id = :club_id AND r.status = 'pending'
-        """
-        request_results = session.execute(text(requests_sql), {"club_id": club_id}).mappings().all()
-
-        # 3️⃣ COMBINE RESULTS
-        all_members = []
-        for row in member_results + request_results:
-            all_members.append(dict(row))
+        all_members = [dict(row) for row in member_results]
 
         return JsonResponse({"members": all_members}, status=200)
 
@@ -577,7 +572,6 @@ def get_club_members(request, club_id):
         return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
-
 @csrf_exempt
 @jwt_required
 def update_club(request, club_id):

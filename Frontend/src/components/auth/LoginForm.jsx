@@ -90,6 +90,15 @@ export default function LoginForm() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
               />
             </div>
+            <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-indigo-600 text-sm hover:text-indigo-800 cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+            </div>
 
             {message.text && (
               <div className={`p-2 text-sm rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -99,7 +108,7 @@ export default function LoginForm() {
 
             <button
               type="submit"
-              className="w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300 cursor-pointer"
+              className="cursor-pointer w-full py-2 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition shadow-lg transform hover:-translate-y-1 duration-300 cursor-pointer"
             >
               Login as {userType === 'admin' ? 'Admin' : 'members'}
             </button>
@@ -108,7 +117,7 @@ export default function LoginForm() {
               Don't have an account?{' '}
               <button
                 type="button"
-                className="text-indigo-600 font-medium hover:text-indigo-800"
+                className="text-indigo-600 font-medium hover:text-indigo-800 cursor-pointer"
                 onClick={() => navigate('/register')}
               >
                 Register here

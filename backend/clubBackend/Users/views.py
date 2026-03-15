@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from datetime import datetime
+from functools import wraps
 from sqlalchemy import insert, select, text,update,delete
 from sqlalchemy.exc import SQLAlchemyError
 from core.db.base import SessionLocal
@@ -11,6 +12,15 @@ from .utils import hash_password, verify_password, jwt_required
 from .jwt import generate_jwt
 from clubs.views import create_join_request
 import json
+import os 
+import random
+import time
+import resend
+from django.core.mail import send_mail
+from django.conf import settings
+
+# Temporary in-memory OTP store (use Redis/DB for production)
+otp_store = {}
 
 
 
@@ -681,5 +691,225 @@ def user_clubs(request):
         
         clubs = [dict(row) for row in results]
         return JsonResponse({"clubs": clubs})
+    finally:
+        session.close()
+
+
+
+
+@csrf_exempt
+def forgot_password(request):
+    """Send OTP to user's email"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not email:
+        return JsonResponse({"error": "Email required"}, status=400)
+
+    session = SessionLocal()
+    try:
+        # Check if user exists
+        user = session.execute(
+            select(users).where(users.c.email == email)
+        ).fetchone()
+
+        if not user:
+            return JsonResponse({"error": "Email not found"}, status=404)
+
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        otp_store[email] = {
+            "otp": otp,
+            "expires_at": time.time() + 300  # 5 minutes
+        }
+
+        # resend.api_key = os.environ.get("RESEND_API_KEY")
+        #  # Replace send_mail with:
+        # resend.Emails.send({
+        #    "from": "onboarding@resend.dev",
+        #    "to": email,
+        #    "subject": "Password Reset OTP",
+        #    "text": f"Your OTP is: {otp}\nExpires in 5 minutes."
+        # })
+         # Send email
+        send_mail(
+            subject="Password Reset OTP",
+            message=f"Your OTP for password reset is: {otp}\nThis OTP expires in 5 minutes.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        return JsonResponse({"success": True, "message": "OTP sent to your email"})
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
+
+
+@csrf_exempt
+def verify_otp(request):
+    """Verify OTP entered by user"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp = data.get("otp")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    stored = otp_store.get(email)
+
+    if not stored:
+        return JsonResponse({"error": "OTP not found. Request a new one."}, status=400)
+
+    if time.time() > stored["expires_at"]:
+        del otp_store[email]
+        return JsonResponse({"error": "OTP expired. Request a new one."}, status=400)
+
+    if stored["otp"] != otp:
+        return JsonResponse({"error": "Invalid OTP"}, status=400)
+
+    return JsonResponse({"success": True, "message": "OTP verified"})
+
+
+@csrf_exempt
+def reset_password(request):
+    """Reset password after OTP verified"""
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp = data.get("otp")
+        new_password = data.get("new_password")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    if not email or not otp or not new_password:
+        return JsonResponse({"error": "All fields required"}, status=400)
+
+    # Verify OTP again
+    stored = otp_store.get(email)
+    if not stored or stored["otp"] != otp or time.time() > stored["expires_at"]:
+        return JsonResponse({"error": "Invalid or expired OTP"}, status=400)
+
+    session = SessionLocal()
+    try:
+        hashed = hash_password(new_password)
+
+        session.execute(
+            update(users)
+            .where(users.c.email == email)
+            .values(password=hashed)
+        )
+        session.commit()
+
+        # Clear OTP after use
+        del otp_store[email]
+
+        return JsonResponse({"success": True, "message": "Password reset successful"})
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        return JsonResponse({"error": str(e)}, status=500)
+    finally:
+        session.close()
+     # views/members.py  (add this view to your existing members views)
+
+
+
+
+# ── Update Member Role ─────────────────────────────────────────────────────────
+# PATCH /clubs/<club_id>/members/<user_id>/role/
+# Body: { "role": "event_handler" | "member" | "admin" }
+# Only accessible by club admin
+
+@jwt_required
+def update_member_role(request, club_id, user_id):
+    if request.method != "PATCH":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+
+    session = SessionLocal()
+    try:
+        import json
+        body = json.loads(request.body)
+        new_role = body.get("role", "").strip()
+
+        ALLOWED_ROLES = {"member", "event_handler", "admin"}
+        if new_role not in ALLOWED_ROLES:
+            return JsonResponse(
+                {"error": f"Invalid role. Must be one of: {', '.join(ALLOWED_ROLES)}"},
+                status=400
+            )
+
+        # Verify requester is admin of this club
+        requester_id = request.user_id  # set by your @jwt_required decorator
+        admin_check_sql = """
+            SELECT role FROM members
+            WHERE user_id = :requester_id AND club_id = :club_id
+        """
+        requester = session.execute(
+            text(admin_check_sql),
+            {"requester_id": requester_id, "club_id": club_id}
+        ).mappings().first()
+
+        if not requester or requester["role"] != "admin":
+            return JsonResponse({"error": "Only admins can update member roles"}, status=403)
+
+        # Prevent demoting yourself
+        if str(requester_id) == str(user_id):
+            return JsonResponse({"error": "You cannot change your own role"}, status=400)
+
+        # Check target member exists in this club
+        member_check_sql = """
+            SELECT id, role FROM members
+            WHERE user_id = :user_id AND club_id = :club_id
+        """
+        member = session.execute(
+            text(member_check_sql),
+            {"user_id": user_id, "club_id": club_id}
+        ).mappings().first()
+
+        if not member:
+            return JsonResponse({"error": "Member not found in this club"}, status=404)
+
+        # Prevent changing another admin's role
+        if member["role"] == "admin":
+            return JsonResponse({"error": "Cannot change the role of another admin"}, status=403)
+
+        # Update role
+        update_sql = """
+            UPDATE members
+            SET role = :new_role
+            WHERE user_id = :user_id AND club_id = :club_id
+        """
+        session.execute(
+            text(update_sql),
+            {"new_role": new_role, "user_id": user_id, "club_id": club_id}
+        )
+        session.commit()
+
+        return JsonResponse({
+            "success": True,
+            "user_id": user_id,
+            "club_id": club_id,
+            "new_role": new_role,
+        }, status=200)
+
+    except Exception as e:
+        session.rollback()
+        print(f"🚨 UPDATE MEMBER ROLE ERROR: {str(e)}")
+        return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()

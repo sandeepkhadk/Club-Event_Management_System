@@ -181,5 +181,14 @@ if FRONTEND_URL:
 SECRET_KEY = os.environ.get('SECRET_KEY')
 SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL')
 
+# Email Settings
+if os.environ.get('RENDER'):  # only on Render
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
 
+EMAIL_USE_SSL = False
 
