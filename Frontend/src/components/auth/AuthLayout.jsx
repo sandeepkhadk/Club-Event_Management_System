@@ -3,8 +3,7 @@ import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import UserTypeSelector from './UserTypeSelector';
 import LoginToggle from './LoginToggle';
-// import DemoCredentials from './DemoCredentials';
-// import { useAuth } from '../../context/AuthContext';
+
 
 export default function AuthLayout() {
   // const { isLogin, setIsLogin, userType, setUserType, handleLogin, handleRegister } = useAuth();
