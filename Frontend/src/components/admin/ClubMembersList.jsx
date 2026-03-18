@@ -1,6 +1,5 @@
 // ClubMembersList.jsx
 import React, { useState } from 'react';
-<<<<<<< HEAD
 import { Users, User, Shield, Clock, CheckCircle, Search, Trash2, Crown, ClipboardList } from 'lucide-react';
 import { useAuthContext } from '../../context/provider/AuthContext';
 import apiUrl from '../../api';
@@ -8,13 +7,6 @@ import apiUrl from '../../api';
 const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember, club_role }) => {
   const [search, setSearch] = useState('');
   const [roleLoadingId, setRoleLoadingId] = useState(null);
-=======
-import { Users, Trash2, Crown, ClipboardList } from 'lucide-react';
-import { useAuthContext } from '../../context/provider/AuthContext';
-
-const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember, club_role }) => {
-  const [search, setSearch] = useState('');
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
   const { token } = useAuthContext();
 
   // Filter members by name search
@@ -22,7 +14,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
     m.name?.toLowerCase().includes(search.toLowerCase())
   );
 
-<<<<<<< HEAD
   const approvedCount = members.filter(m => m.status?.toLowerCase() === 'approved').length;
 
   // ── Role toggle: member ↔ event_handler ──────────────────────────────────
@@ -106,36 +97,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
         );
     }
   };
-=======
-  const getRoleChip = (role) => {
-  switch ((role || 'member').toLowerCase()) {
-    case 'admin':
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-600 border border-orange-200">
-          <Crown className="w-3 h-3" /> Admin
-        </span>
-      );
-    case 'event_handler':
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#39D353]/10 text-[#25a83d] border border-[#39D353]/30">
-          <ClipboardList className="w-3 h-3" /> Event Handler
-        </span>
-      );
-    case 'moderator':  
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
-          <ClipboardList className="w-3 h-3" /> Moderator
-        </span>
-      );
-    default:
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">
-          Member
-        </span>
-      );
-  }
-};
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
 
   const getAvatarGradient = (name = '') => {
     const colors = [
@@ -152,19 +113,12 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
   return (
     <div className="space-y-5">
 
-<<<<<<< HEAD
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4
         p-5 bg-slate-900 rounded-2xl shadow-xl">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-[#39D353]/15 border border-[#39D353]/30
             flex items-center justify-center flex-shrink-0">
-=======
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 bg-slate-900 rounded-2xl shadow-xl">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#39D353]/15 border border-[#39D353]/30 flex items-center justify-center flex-shrink-0">
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
             <Users className="w-6 h-6 text-[#39D353]" />
           </div>
           <div>
@@ -178,11 +132,7 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
         </div>
       </div>
 
-<<<<<<< HEAD
       {/* ── Search ── */}
-=======
-      {/* Search */}
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
       <div className="relative">
         <input
           type="text"
@@ -193,7 +143,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
         />
       </div>
 
-<<<<<<< HEAD
       {/* ── List ── */}
       <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
         {filtered.length > 0 ? filtered.map((member) => {
@@ -201,19 +150,10 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
           const isAdmin    = memberRole === 'admin';
           const isHandler  = memberRole === 'event_handler';
           const isLoading  = roleLoadingId === member.user_id;
-=======
-      {/* Member List */}
-      <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1">
-        {filtered.length > 0 ? filtered.map(member => {
-          const memberRole = (member.role || 'member').toLowerCase();
-          const isAdmin = memberRole === 'admin';
-          const isModerator=memberRole==="moderator"
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
 
           return (
             <div
               key={member.user_id}
-<<<<<<< HEAD
               className="group flex items-center justify-between gap-3 p-4
                 bg-white hover:bg-slate-50 border border-slate-100 hover:border-[#39D353]/30
                 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
@@ -227,14 +167,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
                   <span className="text-base font-black text-white">
                     {member.name?.charAt(0)?.toUpperCase() || '?'}
                   </span>
-=======
-              className="group flex items-center justify-between gap-3 p-4 bg-white hover:bg-slate-50 border border-slate-100 hover:border-[#39D353]/30 rounded-xl shadow-sm hover:shadow-md transition-all duration-200"
-            >
-              {/* Avatar + info */}
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className={`w-11 h-11 flex-shrink-0 rounded-xl bg-gradient-to-br ${getAvatarGradient(member.name)} flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200`}>
-                  <span className="text-base font-black text-white">{member.name?.charAt(0)?.toUpperCase() || '?'}</span>
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-sm font-bold text-slate-800 truncate max-w-[160px]">{member.name || 'Unknown User'}</span>
@@ -242,7 +174,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
                 </div>
               </div>
 
-<<<<<<< HEAD
               {/* Admin actions — not shown for other admins */}
               {club_role === 'admin' && !isAdmin && (
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -278,17 +209,6 @@ const ClubMembersList = ({ clubId, members = [], setMembers, handleRemoveMember,
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     Remove
-=======
-              {/* Admin actions — Remove button (not shown for admins) */}
-              {club_role === 'admin' && !isAdmin && (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => handleRemoveMember(member.user_id)}
-                    title="Remove member"
-                    className="flex items-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white text-xs font-bold rounded-xl border border-red-200 hover:border-red-500 shadow-sm hover:shadow-md transition-all duration-200"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> Remove
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
                   </button>
                 </div>
               )}
