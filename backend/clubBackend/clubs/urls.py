@@ -39,24 +39,10 @@ urlpatterns = [
     path("<int:club_id>/delete/", delete_club, name="delete-club"),
     path("<int:club_id>/join/", join_club_request, name="join-club"),  
     path("<int:club_id>/members/", get_club_members),  # Updated for AdminDashboard
-    # path("<int:club_id>/events/", include("Events.urls")),
     path('<int:club_id>/update/', update_club, name='update_club'),
-    
-    # ADD THESE NEW URLS ↓
     path("<int:club_id>/approve-member/<int:member_id>/", approve_member_request, name="approve-member"),
     path("<int:club_id>/reject-member/<int:member_id>/", reject_member_request, name="reject-member"),
-    
-    #Announcements
-<<<<<<< HEAD
-    path('clubs/<int:club_id>/announcements/', announcements_list_create),
-    path('clubs/<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
-    
-    path('clubs/<int:club_id>/members/<int:user_id>/role/', update_member_role),
-   
-=======
     path('<int:club_id>/announcements/', announcements_list_create),
     path('<int:club_id>/announcements/<int:announcement_id>/', announcement_delete),
-
     path('<int:club_id>/members/<int:user_id>/role/', update_member_role),
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
 ]
