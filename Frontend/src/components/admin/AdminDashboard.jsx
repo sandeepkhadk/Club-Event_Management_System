@@ -25,6 +25,7 @@ const NAV_ITEMS = [
   { key: 'browse-events',  label: 'Browse Events',   icon: <Search size={18} />,       roles: ['admin', 'event_handler', 'member',"moderator"] },
   { key: 'enrolled-events',label: 'Enrolled Events', icon: <CalendarCheck size={18} />,roles: ['admin', 'event_handler', 'member',"moderator"] },
   { key: 'announcements',  label: 'Announcements',   icon: <Megaphone size={18} />,    roles: ['admin', 'event_handler', 'member',"moderator"] },
+  
 ];
 
 const SidebarContent = ({ activeTab, setActiveTab, effective_role, handleLogout, closeMobile }) => {
@@ -85,6 +86,7 @@ const AdminDashboard = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent,   setSelectedEvent]   = useState(null);
+  const [editEvent,       setEditEvent]       = useState(null); 
 
   // ── fetchMembers: derives effective_role from members.role in DB ──────────
   const fetchMembers = async () => {
@@ -252,7 +254,18 @@ const AdminDashboard = () => {
     } catch (err) { alert(err.message); }
   };
 
-  const openEditModal = (event) => { setSelectedEvent(event); setIsEditModalOpen(true); };
+  const openEditModal  = (event) => { setSelectedEvent(event); setIsEditModalOpen(true); };
+
+  // ← ADD THIS
+  const handleEditClick = (event) => {
+    if (effective_role === 'event_handler') {
+      setEditEvent(event);
+      setTimeout(() => document.getElementById('handler-edit-form')
+        ?.scrollIntoView({ behavior: 'smooth' }), 150);
+    } else {
+      openEditModal(event); // admin uses the modal
+    }
+  };
   const handleLogout  = () => { logout(); navigate("/"); };
 
   const sidebarProps = { activeTab, setActiveTab, effective_role, handleLogout };
