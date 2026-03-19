@@ -6,7 +6,7 @@ import ApplicationTracker from "./components/ApplicationTracker";
 import EventTracker from "./components/EventTracker";
 import MyClubs from "./components/MyClubs";
 import LiveEvents from "./components/Liveevents";
-import ExploreClubs from "./components/ExploreClubs";
+import ExploreClubs from "./components/Exploreclubs";
 
 const StudentDashboard = () => {
   const {
