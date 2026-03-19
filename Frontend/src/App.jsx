@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css'
 import RegisterForm from './components/auth/RegisterForm'
 import LoginForm from './components/auth/LoginForm'
-import StudentDashboard from './components/Member/member_dash'
+import StudentDashboard from './components/Member/StudentDashboard'
 import AdminDashboard from './components/admin/AdminDashboard'
 import PrivateRoute from './components/auth/privateroutes'
 import Unauth from './components/auth/unauth'
@@ -21,41 +21,36 @@ function App() {
  
   return (
     <>
-    
       <Routes>
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/clubs" element={<Club />} />
-        <Route path="/events" element={<EventPage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} /> 
-        <Route path="/" element={
-          <><Navbar/><Hero/><About/><EventPage/><Club/><Contact/></>
-        }/>
-      </Route>
-    
-
-       
-       
-        <Route path='*' element={<NotFound></NotFound>}></Route>
-          
-        <Route path='/unauthorized' element={<Unauth></Unauth>}></Route>
-  
-        <Route element={<PrivateRoute  allowedRoles={["admin"]} />}>
-          <Route path='/admin' element={<SuperAdminPage></SuperAdminPage>}></Route>
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/clubs" element={<Club />} />
+          <Route path="/events" element={<EventPage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/" element={
+            <><Navbar /><Hero /><About /><EventPage /><Club /><Contact /></>
+          } />
         </Route>
-        <Route element={<PrivateRoute allowedRoles={["member"]} />}>
-         <Route path="/student/:clubId" element={<AdminDashboard />} />
-         </Route>
-       
-      <Route element={<PrivateRoute  allowedRoles={["unmember"]} />}>
-          <Route path='/student' element={<StudentDashboard></StudentDashboard>}></Route>
-     </Route>
-    </Routes>
 
-  </>
+        <Route path='*' element={<NotFound />} />
+        <Route path='/unauthorized' element={<Unauth />} />
+
+        <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+          <Route path='/admin' element={<SuperAdminPage />} />
+        </Route>
+
+        <Route element={<PrivateRoute allowedRoles={["member"]} />}>
+          <Route path="/student/:clubId" element={<AdminDashboard />} />
+        </Route>
+
+        <Route element={<PrivateRoute allowedRoles={["unmember"]} />}>
+          <Route path='/student' element={<StudentDashboard />} />
+        </Route>
+      </Routes>
+    </>
   )
 }
 
