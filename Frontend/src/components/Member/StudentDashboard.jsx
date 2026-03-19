@@ -5,7 +5,7 @@ import DashboardHeader from "./components/DashboardHeader";
 import ApplicationTracker from "./components/ApplicationTracker";
 import EventTracker from "./components/EventTracker";
 import MyClubs from "./components/MyClubs";
-import LiveEvents from "./components/LiveEvents";
+import LiveEvents from "./components/Liveevents";
 import ExploreClubs from "./components/ExploreClubs";
 
 const StudentDashboard = () => {
