@@ -1,8 +1,4 @@
 from django.urls import path
-
-
-
-
 from Events.views import (
     create_event,
     get_all_events,
@@ -17,19 +13,14 @@ from Events.views import (
  
 )
 
-
 urlpatterns = [
     path("create/", create_event, name="create-event"),
-    path("<int:event_id>/delete/", delete_event, name="delete-event"),  # move above <int:club_id> if needed
+    path("<int:event_id>/delete/", delete_event, name="delete-event"), 
     path("<int:club_id>/", get_club_events, name="club-event"),
     path("join/", join_event, name="join-event"),
     path("leave/", leave_event, name="leave-event"),
     path("all/", get_all_events, name="all-events"), 
     path("global/", get_global_events, name="global event"),
     path("visibility/", get_feed_events, name="visible"),
-<<<<<<< HEAD
-    
-=======
     path("<int:event_id>/update/", update_event, name="update-event"),
->>>>>>> 7fb8a81720368b02e5a47fe7a50ff538a95b24c2
 ]
