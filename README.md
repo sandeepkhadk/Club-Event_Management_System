@@ -7,6 +7,8 @@ Frontend Hosted at : https://club-eventmanagement.vercel.app (live)
 
 Backend Hosted at : https://club-event-management-system-v0ll.onrender.com (live)
 
+Video demo: https://drive.google.com/drive/folders/1MXx4VMEd8_cng-xofi6ONBATCo9YYprQ?usp=sharing
+
 <img width="1831" height="885" alt="Screenshot 2026-02-19 220109" src="https://github.com/user-attachments/assets/c7fbaaed-fb0a-4194-8c9f-0a25d2e017fc" />
 
 
