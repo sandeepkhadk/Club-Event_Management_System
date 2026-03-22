@@ -34,14 +34,15 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 - Role-based user access (Admin, Student(Member))  
 - Easy navigation between clubs, events, and dashboards  
 
-## 👤 User Roles
+## 👤 User Roles and Permissions
 
-| Role            | Description                 | Key Permissions                                                 |
-| --------------- | --------------------------- | --------------------------------------------------------------- |
-| **Super Admin** | System-level authority      | Create/remove admins, monitor all clubs                         |
-| **Admin**       | Club-level authority        | Create/manage events, manage members                            |
-| **Member**      | Registered club participant | Join global events, club only events and access their own club  |
-| **Student**     | General user                | Browse clubs, view events, request membership                   |
+| Role              | Description                     | Key Permissions                                                                                  |
+|-------------------|---------------------------------|--------------------------------------------------------------------------------------------------|
+| **Super Admin**   | System-level authority          | Create and remove admins, monitor all clubs                                                     |
+| **Admin**         | Club-level authority            | Create and manage events, manage members, assign event handlers, and post announcements         |
+| **Member**        | Registered club participant     | Join global and club-specific events, and access their respective club                          |
+| **Event Handler** | Event-level authority           | Modify event activities, delete events, or reschedule them                                      |
+| **Student**       | General user                    | Browse clubs, view events, join global events, and request membership                           |
 
 
 
