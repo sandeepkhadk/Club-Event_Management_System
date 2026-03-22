@@ -44,7 +44,7 @@ Built with **React + Vite** for a fast and modern frontend, styled with **Tailwi
 | **Event Handler** | Event-level authority           | Modify event activities, delete events, or reschedule them                                      |
 | **Student**       | General user                    | Browse clubs, view events, join global events, and request membership                           |
 
-
+Note: To creat a club login by entering G-mail: superadmin@gmail.com psw: 111111 (Super-admin login) for detail watch demo video 
 
 ## 📌 Core Functionality
 
