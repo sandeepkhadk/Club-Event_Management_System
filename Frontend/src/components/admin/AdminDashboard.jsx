@@ -92,7 +92,7 @@ const AdminDashboard = () => {
   // ── fetchMembers: derives effective_role from members.role in DB ──────────
   const fetchMembers = async () => {
     try {
-      const res  = await fetch(`${apiUrl}clubs/${clubId}/members/`, {
+      const res  = await fetch(`${apiUrl}users/${clubId}/members/`, {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
