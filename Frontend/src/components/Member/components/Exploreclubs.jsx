@@ -77,11 +77,9 @@ const ExploreClubs = ({ clubs, myApplications, submitting, getClubStatus, onJoin
         return (
           <article
             key={club.club_id}
-            className="group relative bg-white/70 backdrop-blur-xl rounded-4xl border border-slate-200/50 p-10 shadow-2xl hover:shadow-3xl hover:-translate-y-4 hover:border-indigo-300/70 transition-all duration-500 overflow-hidden hover:bg-white"
+            className="group relative bg-white/70 backdrop-blur-xl rounded-4xl border border-slate-200/50 p-10 shadow-2xl hover:shadow-3xl hover:-translate-y-4 hover:border-indigo-300/70 transition-all duration-500 overflow-hidden hover:bg-white flex flex-col"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/3 to-purple-500/3 opacity-0 group-hover:opacity-100 transition-all duration-500" />
-
-            <div className="relative">
+            <div className="relative flex flex-col h-full">
               <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl flex items-center justify-center mb-6 group-hover:bg-indigo-100 transition-all duration-300 mx-auto">
                 <Users className="w-10 h-10 text-slate-500 group-hover:text-indigo-600 transition-colors" />
               </div>
@@ -90,12 +88,11 @@ const ExploreClubs = ({ clubs, myApplications, submitting, getClubStatus, onJoin
                 {club.club_name}
               </h3>
 
-              <p className="text-slate-500 text-lg mb-10 text-center leading-relaxed line-clamp-3 px-4">
-                {club.description ||
-                  "Join us to learn new skills and connect with peers who share your interests."}
+              <p className="text-slate-500 text-lg mb-10 text-center leading-relaxed line-clamp-3 px-4 flex-1">
+                {club.description || "Join us to learn new skills and connect with peers who share your interests."}
               </p>
 
-              <div className="space-y-3">
+              <div className="space-y-3 mt-auto">
                 <ClubStatusBadge
                   status={status}
                   pendingApp={pendingApp}
