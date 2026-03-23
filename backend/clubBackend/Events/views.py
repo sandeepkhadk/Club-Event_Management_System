@@ -314,9 +314,11 @@ def get_global_events(request):
     Public endpoint: Return only events with visibility='global'.
     No authentication required.
     """
+    from datetime import datetime, date
+    from clubs.tables import clubs_table
+
     session = SessionLocal()
     try:
-        # 1️⃣ Select events with visibility='global' and join with handler name
         stmt = (
             select(
                 events_table.c.event_id,
@@ -324,22 +326,27 @@ def get_global_events(request):
                 events_table.c.description,
                 events_table.c.start_datetime,
                 events_table.c.end_datetime,
-               
                 events_table.c.handler_id,
-                users.c.name.label("handler_name"),
                 events_table.c.club_id,
                 events_table.c.visibility,
-                events_table.c.max_capacity
+                events_table.c.max_capacity,
+                users.c.name.label("handler_name"),
+                clubs_table.c.club_name,        # ← added
             )
             .join(users, users.c.user_id == events_table.c.handler_id)
+            .join(clubs_table, clubs_table.c.club_id == events_table.c.club_id)  # ← added
             .where(events_table.c.visibility == "global")
             .order_by(events_table.c.start_datetime)
         )
 
-        events = session.execute(stmt).mappings().all()
-        events_list = [dict(e) for e in events]
+        # ✅ datetime serialization fix
+        events_list = []
+        for e in session.execute(stmt).mappings().all():
+            row = {k: v.isoformat() if isinstance(v, (datetime, date)) else v
+                   for k, v in dict(e).items()}
+            events_list.append(row)
 
-        # 2️⃣ Add joined users for each event
+        # Add joined users
         for e in events_list:
             joins = session.execute(
                 select(events_participants.c.user_id)
@@ -349,8 +356,12 @@ def get_global_events(request):
 
         return JsonResponse({"events": events_list}, status=200)
 
+    except Exception as ex:
+        return JsonResponse({"error": str(ex)}, status=500)  # ← added so errors show as JSON not HTML
+
     finally:
         session.close()
+        
 @csrf_exempt
 @jwt_required
 def get_feed_events(request):
@@ -364,6 +375,8 @@ def get_feed_events(request):
     session = SessionLocal()
 
     try:
+        from datetime import datetime, date
+
         # 1️⃣ Select events with handler name
         stmt = (
             select(
@@ -380,28 +393,38 @@ def get_feed_events(request):
                 events_table.c.max_capacity
             )
             .join(users, users.c.user_id == events_table.c.handler_id)
-            .where(
-                (events_table.c.club_id == club_id) |
-                ((events_table.c.club_id != club_id) & (events_table.c.visibility == "global"))
-            )
             .order_by(events_table.c.start_datetime)
         )
 
-        events = session.execute(stmt).mappings().all()
-        events_list = [dict(e) for e in events]
+        # ✅ Fix: handle users with no club (club_id = None)
+        if club_id:
+            stmt = stmt.where(
+                (events_table.c.club_id == club_id) |
+                (events_table.c.visibility == "global")
+            )
+        else:
+            stmt = stmt.where(events_table.c.visibility == "global")
 
-        # 2️⃣ Add joined users for each event
+        # 2️⃣ Serialize rows (handles datetime fields)
+        events_list = []
+        for e in session.execute(stmt).mappings().all():
+            row = {k: v.isoformat() if isinstance(v, (datetime, date)) else v
+                   for k, v in dict(e).items()}
+            events_list.append(row)
+
+        # 3️⃣ Add joined users for each event
         for e in events_list:
             joins = session.execute(
                 select(events_participants.c.user_id)
                 .where(events_participants.c.event_id == e["event_id"])
             ).fetchall()
             e["joined_users"] = [u[0] for u in joins]
-
-            # Optional: add joined flag for current user
             e["joined"] = user_id in e["joined_users"]
 
         return JsonResponse({"events": events_list}, status=200)
+
+    except Exception as ex:
+        return JsonResponse({"error": str(ex)}, status=500)
     finally:
         session.close()
 

@@ -42,7 +42,8 @@ const ClubCard = ({ club, index, onClick }) => {
 
       <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm
         group-hover:shadow-xl group-hover:-translate-y-1
-        transition-all duration-300 overflow-hidden">
+        transition-all duration-300 overflow-hidden
+        flex flex-col h-[220px]">
 
         {/* Background gradient blob */}
         <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-[4rem] bg-gradient-to-br ${bg} opacity-60`} />
@@ -60,12 +61,13 @@ const ClubCard = ({ club, index, onClick }) => {
         <h3 className="text-base font-black text-slate-900 mb-1.5 leading-snug group-hover:text-slate-700 transition-colors">
           {club.name}
         </h3>
-        <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-5">
-          {club.desc || "No description available."}
+        {/* ✅ Fix 2: show description */}
+        <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 flex-1">
+          {club.desc}
         </p>
 
         {/* Stats + arrow */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-auto pt-4">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5 text-xs font-semibold text-slate-400">
               <Users className="w-3.5 h-3.5" />
@@ -203,7 +205,7 @@ const Club = () => {
         const data = await res.json();
         const mapped = data.clubs.map(c => ({
           id:      c.club_id,
-          name:    c.name || "Unnamed Club",
+          name:    c.club_name || "Unnamed Club",   // ✅ Fix 1: was c.name
           desc:    c.description || "",
           members: c.members_names?.length || 0,
           events:  c.events_count || 0,

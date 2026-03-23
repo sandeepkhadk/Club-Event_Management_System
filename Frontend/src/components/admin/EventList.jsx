@@ -124,6 +124,15 @@ const EventList = ({
                     >
                       {event.computedStatus}
                     </div>
+                    {event.visibility && (
+                      <div className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                        event.visibility === 'global'
+                          ? 'bg-green-500/20 text-white border border-green-300/30 backdrop-blur-md'
+                          : 'bg-white/20 text-white border border-white/30 backdrop-blur-md'
+                      }`}>
+                        {event.visibility === 'global' ? '🌍 Global' : '🔒 Club Only'}
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-2">
                       {/* EDIT BUTTON */}

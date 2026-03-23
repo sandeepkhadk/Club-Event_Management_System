@@ -348,7 +348,7 @@ const AdminDashboard = () => {
                 )}
 
             {activeTab === 'club-members' && (
-              <ClubMembersList clubId={clubId} members={pendingRequests} setMembers={handleSetMembers} handleRemoveMember={handleRemoveMember} club_role={effective_role} />
+              <ClubMembersList clubId={clubId} members={members} setMembers={handleSetMembers} handleRemoveMember={handleRemoveMember} club_role={effective_role} />
             )}
 
             {activeTab === 'manage-events' && effective_role === 'admin' && (
