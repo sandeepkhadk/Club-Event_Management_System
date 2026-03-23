@@ -80,14 +80,14 @@ const MemberManagement = ({ members, token, fetchMembers }) => {
 
               <div className="flex justify-between space-x-2">
                 <button
-                  onClick={() => approveMember(member.request_id || member.user_id)}
+                  onClick={() => approveMember(member.user_id)}
                   className="flex-1 bg-indigo-50 text-indigo-700 border border-indigo-200 py-2 rounded-full font-semibold text-sm hover:bg-indigo-100 transition-all"
                 >
                   Approve
                 </button>
 
                 <button
-                  onClick={() => rejectMember(member.request_id || member.user_id)}
+                  onClick={() => rejectMember(member.user_id)}
                   className="flex-1 bg-red-50 text-red-600 border border-red-200 py-2 rounded-full font-semibold text-sm hover:bg-red-100 transition-all"
                 >
                   Reject
