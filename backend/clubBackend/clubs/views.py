@@ -244,7 +244,7 @@ def get_club_members(request, club_id):
     session = SessionLocal()
     try:
         members_sql = """
-            SELECT m.user_id, u.name, u.email, m.role, m.club_id
+            SELECT m.user_id, u.name, u.email, m.role, m.club_id, m.status
             FROM members m
             JOIN users u ON m.user_id = u.user_id
             WHERE m.club_id = :club_id

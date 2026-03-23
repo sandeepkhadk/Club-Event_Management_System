@@ -181,10 +181,9 @@ def join_club_request(request, club_id):
         {"success": False, "message": "Only POST requests allowed."},
         status=405
     )
+    
 @csrf_exempt
 @jwt_required
-
-
 def approve_request(request, request_id):
     """
     Admin approves a join request by user_id and adds the user to members table.
@@ -326,6 +325,7 @@ def get_club_members(request, club_id):
 
     finally:
         session.close()
+
 @jwt_required
 @csrf_exempt
 def pending_requests(request):
@@ -366,6 +366,7 @@ def pending_requests(request):
         return JsonResponse({"error": str(e)}, status=500)
     finally:
         session.close()
+
         
 @csrf_exempt
 @jwt_required

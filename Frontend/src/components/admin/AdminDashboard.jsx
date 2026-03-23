@@ -339,8 +339,8 @@ const AdminDashboard = () => {
                       // ← REMOVE this line:
                       // openEditModal(event);
                     }}
-                    approvedHandlers={pendingRequests.filter(m =>
-                      m.status?.toLowerCase() === 'approved' && m.role?.toLowerCase() !== 'admin'
+                    approvedHandlers={members.filter(m =>
+                      m.role?.toLowerCase() !== 'admin'
                     )}
                   />
                 )}
