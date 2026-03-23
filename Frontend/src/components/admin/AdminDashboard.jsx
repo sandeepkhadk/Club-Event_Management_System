@@ -68,6 +68,7 @@ const SidebarContent = ({ activeTab, setActiveTab, effective_role, handleLogout,
 const AdminDashboard = () => {
   const decoded       = useUserRole();
   const clubId        = decoded.club_id;
+  console.log("clubId from JWT:", clubId);
   const club_role     = decoded.club_role;   // JWT: 'admin' | 'member' only
   const currentUserId = decoded.user_id;
   const { logout, token } = useAuthContext();
@@ -91,6 +92,7 @@ const AdminDashboard = () => {
 
   // ── fetchMembers: derives effective_role from members.role in DB ──────────
   const fetchMembers = async () => {
+    if (!clubId) return;
     try {
       const res  = await fetch(`${apiUrl}users/${clubId}/members/`, {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

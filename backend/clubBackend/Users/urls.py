@@ -17,22 +17,22 @@ from Users.views import (
 
 
 urlpatterns = [
+    # Static paths FIRST
     path('register/', register_view, name='register'),
     path('login/', login_view, name='login'),
     path('profile/', profile_view, name='profile'),
-    path("join-club/<int:club_id>/", join_club_request, name="join-club"),
+    path('list/', users_list_view, name='users_list'),
+    path('clubs/', user_clubs, name='user_clubs'),
+    path('assign-role/', assign_role),
     path("requests/", pending_requests, name="pending-requests"),
     path("requests/approve/<int:request_id>/", approve_request, name="approve-request"),
     path("reject/<int:request_id>/", reject_request, name="reject-request"),
-    path("<int:club_id>/members/", get_club_members),
-    path('assign-role/',assign_role),
-    path('list/', users_list_view, name='users_list'),
-  
-    path('clubs/', user_clubs, name='user_clubs'),
-    path('<int:user_id>/remove/', remove_member, name='remove-member'),
     path("forgot-password/", forgot_password, name="forgot-password"),
     path("verify-otp/", verify_otp, name="verify-otp"),
     path("reset-password/", reset_password, name="reset-password"),
 
-
+    # Dynamic paths LAST
+    path("join-club/<int:club_id>/", join_club_request, name="join-club"),
+    path("<int:club_id>/members/", get_club_members),
+    path('<int:user_id>/remove/', remove_member, name='remove-member'),
 ]

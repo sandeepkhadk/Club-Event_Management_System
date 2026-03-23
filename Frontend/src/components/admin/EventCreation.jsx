@@ -204,7 +204,13 @@ const EventCreationForm = ({
 
         <input type="datetime-local" name="start_datetime" value={formData.start_datetime} onChange={handleChange} className="w-full p-4 border rounded-2xl" required />
         <input type="datetime-local" name="end_datetime" value={formData.end_datetime} onChange={handleChange} className="w-full p-4 border rounded-2xl" required />
-
+        {/* Visibility — only admin can set, only in create mode */}
+        {isAdmin && !isEditMode && (
+          <select name="visibility" value={formData.visibility} onChange={handleChange} className="w-full p-4 border rounded-2xl">
+            <option value="clubonly">Club Members Only</option>
+            <option value="global">Global (Public)</option>
+          </select>
+        )}
         <select name="status" value={formData.status} onChange={handleChange} className="w-full p-4 border rounded-2xl">
           <option value="Planned">Planned</option>
           <option value="Active">Active</option>
