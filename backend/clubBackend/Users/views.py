@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from datetime import datetime
 from functools import wraps
+from requests import session
 from sqlalchemy import insert, select, text,update,delete
 from sqlalchemy.exc import SQLAlchemyError
 from core.db.base import SessionLocal
@@ -339,17 +340,30 @@ def pending_requests(request):
 
     if global_role != "superadmin" and club_role != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
-
     session = SessionLocal()
     try:
         stmt = select(member_requests).where(member_requests.c.status == "pending")
-        
-        
+
         if global_role != "superadmin":
             stmt = stmt.where(member_requests.c.club_id == club_id)
 
         results = session.execute(stmt).mappings().all()
-        return JsonResponse({"requests": [dict(row) for row in results]}, status=200)
+
+        from datetime import date, datetime
+        def serialize_row(row):
+            result = {}
+            for key, value in dict(row).items():
+                if isinstance(value, (datetime, date)):
+                    result[key] = value.isoformat()
+                else:
+                    result[key] = value
+            return result
+
+        return JsonResponse({"requests": [serialize_row(row) for row in results]}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
     finally:
         session.close()
 @csrf_exempt
