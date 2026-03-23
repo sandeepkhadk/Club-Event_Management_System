@@ -349,7 +349,7 @@ def pending_requests(request):
             stmt = stmt.where(member_requests.c.club_id == club_id)
 
         results = session.execute(stmt).mappings().all()
-        return JsonResponse({"requests": list(results)}, status=200)
+        return JsonResponse({"requests": [dict(row) for row in results]}, status=200)
     finally:
         session.close()
 @csrf_exempt
