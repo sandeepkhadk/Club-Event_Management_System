@@ -123,7 +123,7 @@ const AdminDashboard = () => {
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      setPendingRequests(data.requests || data.members || []);
+      setPendingRequests(data.requests ||  []);
     } catch (err) {
       console.log("Error fetching pending requests", err);
     }
