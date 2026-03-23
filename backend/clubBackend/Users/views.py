@@ -329,17 +329,24 @@ def get_club_members(request, club_id):
 @csrf_exempt
 @jwt_required
 def pending_requests(request):
-    user_payload = request.user_payload
-    global_role = user_payload.get("global_role")
-    club_id = user_payload.get("club_id")
-    club_role = user_payload.get("club_role")
+    if request.method != "GET":
+        return JsonResponse({"error": "GET request required"}, status=405)
 
+    user_payload = request.user_payload
+    global_role  = user_payload.get("global_role")
+    club_id      = user_payload.get("club_id")
+    club_role    = user_payload.get("club_role")
+
+    # Only admin or superadmin can access
     if global_role != "superadmin" and club_role != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
 
+    # club admin must have a club_id
+    if global_role != "superadmin" and not club_id:
+        return JsonResponse({"error": "No club associated with your account"}, status=400)
+
     session = SessionLocal()
     try:
-        # ↓ JOIN with users table to get name and email
         sql = """
             SELECT mr.request_id, mr.user_id, mr.club_id, mr.status, mr.created_at,
                    u.name, u.email
@@ -357,16 +364,22 @@ def pending_requests(request):
 
         from datetime import date, datetime
         def serialize(row):
-            return {k: v.isoformat() if isinstance(v, (datetime, date)) else v
-                    for k, v in dict(row).items()}
+            return {
+                k: v.isoformat() if isinstance(v, (datetime, date)) else v
+                for k, v in dict(row).items()
+            }
 
-        return JsonResponse({"requests": [serialize(r) for r in results]}, status=200)
+        return JsonResponse(
+            {"requests": [serialize(r) for r in results]},
+            status=200
+        )
 
     except Exception as e:
+        print(f"PENDING REQUESTS ERROR: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
+
     finally:
         session.close()
-
         
 @csrf_exempt
 @jwt_required
