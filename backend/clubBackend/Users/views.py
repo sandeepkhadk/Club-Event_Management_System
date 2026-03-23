@@ -333,17 +333,14 @@ def pending_requests(request):
         return JsonResponse({"error": "GET request required"}, status=405)
 
     user_payload = request.user_payload
-    global_role  = user_payload.get("global_role")
     club_id      = user_payload.get("club_id")
     club_role    = user_payload.get("club_role")
 
-    # Only admin or superadmin can access
-    if global_role != "superadmin" and club_role != "admin":
+    if club_role != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
 
-    # club admin must have a club_id
-    if global_role != "superadmin" and not club_id:
-        return JsonResponse({"error": "No club associated with your account"}, status=400)
+    if not club_id:
+        return JsonResponse({"error": "No club_id in token"}, status=400)
 
     session = SessionLocal()
     try:
@@ -353,15 +350,12 @@ def pending_requests(request):
             FROM member_requests mr
             JOIN users u ON u.user_id = mr.user_id
             WHERE mr.status = 'pending'
+            AND mr.club_id = :club_id
         """
-   
-        params = {}
 
-        if global_role != "superadmin":
-            sql += " AND mr.club_id = :club_id"
-            params["club_id"] = club_id
-
-        results = session.execute(text(sql), params).mappings().all()
+        results = session.execute(
+            text(sql), {"club_id": club_id}
+        ).mappings().all()
 
         from datetime import date, datetime
         def serialize(row):
@@ -381,7 +375,6 @@ def pending_requests(request):
 
     finally:
         session.close()
-        
 @csrf_exempt
 @jwt_required
 def assign_role(request):
