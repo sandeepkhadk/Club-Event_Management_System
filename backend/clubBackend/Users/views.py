@@ -329,10 +329,6 @@ def get_club_members(request, club_id):
 @jwt_required
 @csrf_exempt
 def pending_requests(request):
-    """
-    Admin can view pending join requests for their club.
-    Superadmin can see all pending requests.
-    """
     user_payload = request.user_payload
     global_role = user_payload.get("global_role")
     club_id = user_payload.get("club_id")
@@ -340,32 +336,37 @@ def pending_requests(request):
 
     if global_role != "superadmin" and club_role != "admin":
         return JsonResponse({"error": "Admin only"}, status=403)
+
     session = SessionLocal()
     try:
-        stmt = select(member_requests).where(member_requests.c.status == "pending")
+        # ↓ JOIN with users table to get name and email
+        sql = """
+            SELECT mr.request_id, mr.user_id, mr.club_id, mr.status, mr.created_at,
+                   u.name, u.email
+            FROM member_requests mr
+            JOIN users u ON u.user_id = mr.user_id
+            WHERE mr.status = 'pending'
+        """
+        params = {}
 
         if global_role != "superadmin":
-            stmt = stmt.where(member_requests.c.club_id == club_id)
+            sql += " AND mr.club_id = :club_id"
+            params["club_id"] = club_id
 
-        results = session.execute(stmt).mappings().all()
+        results = session.execute(text(sql), params).mappings().all()
 
         from datetime import date, datetime
-        def serialize_row(row):
-            result = {}
-            for key, value in dict(row).items():
-                if isinstance(value, (datetime, date)):
-                    result[key] = value.isoformat()
-                else:
-                    result[key] = value
-            return result
+        def serialize(row):
+            return {k: v.isoformat() if isinstance(v, (datetime, date)) else v
+                    for k, v in dict(row).items()}
 
-        return JsonResponse({"requests": [serialize_row(row) for row in results]}, status=200)
+        return JsonResponse({"requests": [serialize(r) for r in results]}, status=200)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
     finally:
         session.close()
+        
 @csrf_exempt
 @jwt_required
 def assign_role(request):
