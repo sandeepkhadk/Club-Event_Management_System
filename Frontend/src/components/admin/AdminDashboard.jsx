@@ -84,6 +84,7 @@ const AdminDashboard = () => {
   const [members,       setMembers]       = useState([]);
   const [events,        setEvents]        = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEvent,   setSelectedEvent]   = useState(null);
   const [editEvent,       setEditEvent]       = useState(null); 
@@ -113,6 +114,18 @@ const AdminDashboard = () => {
       console.log("Error fetching members", err);
     }
   };
+  
+  const fetchPendingRequests = async () => {
+    try {
+      const res = await fetch(`${apiUrl}users/requests/`, {
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setPendingRequests(data.requests || data.members || []);
+    } catch (err) {
+      console.log("Error fetching pending requests", err);
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -136,6 +149,7 @@ const AdminDashboard = () => {
     fetchMembers();
     fetchEvents();
     fetchAnnouncements();
+    fetchPendingRequests();
   }, []);
 
   // ── When admin promotes someone to event_handler via ClubMembersList,
@@ -310,7 +324,7 @@ const AdminDashboard = () => {
           <div className="max-w-7xl mx-auto space-y-8">
 
             {activeTab === 'members' && effective_role === 'admin' && (
-              <MemberManagement members={members} setMembers={setMembers} token={token} fetchMembers={fetchMembers} />
+              <MemberManagement members={pendingRequests} token={token} fetchMembers={fetchPendingRequests} />
             )}
 
             {activeTab === 'events' && effective_role === 'admin' && (
@@ -325,14 +339,14 @@ const AdminDashboard = () => {
                       // ← REMOVE this line:
                       // openEditModal(event);
                     }}
-                    approvedHandlers={members.filter(m =>
+                    approvedHandlers={pendingRequests.filter(m =>
                       m.status?.toLowerCase() === 'approved' && m.role?.toLowerCase() !== 'admin'
                     )}
                   />
                 )}
 
             {activeTab === 'club-members' && (
-              <ClubMembersList clubId={clubId} members={members} setMembers={handleSetMembers} handleRemoveMember={handleRemoveMember} club_role={effective_role} />
+              <ClubMembersList clubId={clubId} members={pendingRequests} setMembers={handleSetMembers} handleRemoveMember={handleRemoveMember} club_role={effective_role} />
             )}
 
             {activeTab === 'manage-events' && effective_role === 'admin' && (
