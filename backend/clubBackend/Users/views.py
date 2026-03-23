@@ -348,12 +348,13 @@ def pending_requests(request):
     session = SessionLocal()
     try:
         sql = """
-            SELECT mr.request_id, mr.user_id, mr.club_id, mr.status, mr.created_at,
+            SELECT mr.id as request_id, mr.user_id, mr.club_id, mr.status, mr.requested_at,
                    u.name, u.email
             FROM member_requests mr
             JOIN users u ON u.user_id = mr.user_id
             WHERE mr.status = 'pending'
         """
+   
         params = {}
 
         if global_role != "superadmin":
