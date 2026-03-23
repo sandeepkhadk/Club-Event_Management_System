@@ -181,13 +181,11 @@ def join_club_request(request, club_id):
         {"success": False, "message": "Only POST requests allowed."},
         status=405
     )
-    
 @csrf_exempt
 @jwt_required
 def approve_request(request, request_id):
     """
     Admin approves a join request by user_id and adds the user to members table.
-    request_id is the user's ID who made the request.
     """
 
     if request.user_payload.get("club_role") != "admin":
@@ -206,10 +204,9 @@ def approve_request(request, request_id):
     try:
         club_id = request.user_payload.get("club_id")
 
-        # Check pending request
+        # Check pending request — no club_id filter to avoid mismatch
         stmt = select(member_requests).where(
             member_requests.c.user_id == request_id,
-            member_requests.c.club_id == club_id,
             member_requests.c.status == "pending"
         )
         req = session.execute(stmt).mappings().first()
@@ -234,11 +231,10 @@ def approve_request(request, request_id):
                 )
             )
 
-        # ✅ Delete request after approval
+        # Delete request after approval
         session.execute(
             delete(member_requests).where(
-                member_requests.c.user_id == request_id,
-                member_requests.c.club_id == club_id
+                member_requests.c.user_id == request_id
             )
         )
 
@@ -249,8 +245,14 @@ def approve_request(request, request_id):
             "message": f"User {request_id} approved and request removed"
         }, status=200)
 
+    except Exception as e:
+        session.rollback()
+        return JsonResponse({"error": str(e)}, status=500)
+
     finally:
         session.close()
+
+
 @csrf_exempt
 @jwt_required
 def reject_request(request, request_id):
@@ -275,11 +277,12 @@ def reject_request(request, request_id):
         if not req:
             return JsonResponse({"error": "Request not found"}, status=404)
 
-        delete_stmt = delete(member_requests).where(
-            member_requests.c.user_id == request_id
+        session.execute(
+            delete(member_requests).where(
+                member_requests.c.user_id == request_id
+            )
         )
 
-        session.execute(delete_stmt)
         session.commit()
 
         return JsonResponse(
