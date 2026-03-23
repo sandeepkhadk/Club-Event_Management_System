@@ -326,8 +326,8 @@ def get_club_members(request, club_id):
     finally:
         session.close()
 
-@jwt_required
 @csrf_exempt
+@jwt_required
 def pending_requests(request):
     user_payload = request.user_payload
     global_role = user_payload.get("global_role")
